@@ -1,4 +1,3 @@
 # MoodCat.me
 
-![alt text][logo]
-[logo]: https://travis-ci.org/MoodCat/MoodCat.me.svg "Build"
+[![Build Status](https://travis-ci.org/MoodCat/MoodCat.me.svg?branch=master)](https://travis-ci.org/MoodCat/MoodCat.me)
