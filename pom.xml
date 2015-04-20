@@ -23,7 +23,7 @@
 				<version>2.14</version>
 				<configuration>
 					<failOnViolation>false</failOnViolation>
-					<configLocation>checkstyle.xml</configLocation>
+					<configLocation>configuration/checkstyle.xml</configLocation>
 				</configuration>
 			</plugin>
 			<plugin>
