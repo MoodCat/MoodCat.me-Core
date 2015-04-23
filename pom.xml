@@ -105,6 +105,13 @@
 			<version>1.10.19</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.4</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -133,7 +140,7 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
 				<version>3.0.1</version>
-		 		<configuration>
+				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>
 			</plugin>

@@ -23,7 +23,7 @@ public class RootApi {
     @GET
     public BasicResponse getHelloWorld() {
         BasicResponse response = new BasicResponse();
-        response.setaBoolean(true);
+        response.setABoolean(true);
         response.setNumber(6);
         response.setTest("Hello World!");
         return response;

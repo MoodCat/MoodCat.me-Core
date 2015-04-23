@@ -1,8 +1,11 @@
 package me.moodcat.models;
 
+import lombok.Data;
+
 /**
  * @author Jan-Willem Gmelig Meyling
  */
+@Data
 public class BasicResponse {
 
     private String test;
@@ -13,39 +16,6 @@ public class BasicResponse {
 
     /*
      * We might want to use @Data lombok annotations
-     *  to automatically generate and maintain getters/setters
+     * to automatically generate and maintain getters/setters
      */
-
-    public String getTest() {
-        return test;
-    }
-
-    public void setTest(String test) {
-        this.test = test;
-    }
-
-    public Integer getNumber() {
-        return number;
-    }
-
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
-    public boolean isaBoolean() {
-        return aBoolean;
-    }
-
-    public void setaBoolean(boolean aBoolean) {
-        this.aBoolean = aBoolean;
-    }
-
-    @Override
-    public String toString() {
-        return "BasicResponse{" +
-                "test='" + test + '\'' +
-                ", number=" + number +
-                ", aBoolean=" + aBoolean +
-                '}';
-    }
 }
