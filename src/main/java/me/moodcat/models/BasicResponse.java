@@ -13,9 +13,4 @@ public class BasicResponse {
     private Integer number;
 
     private boolean aBoolean;
-
-    /*
-     * We might want to use @Data lombok annotations
-     * to automatically generate and maintain getters/setters
-     */
 }
