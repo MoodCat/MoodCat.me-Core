@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
 	<name>MoodCat Core</name>
-	<url>http://maven.apache.org</url>
+	<url>http://moodcat.me</url>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -20,6 +20,12 @@
 		<resteasy.version>3.0.10.Final</resteasy.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<logback.version>1.0.13</logback.version>
+		<junit.version>3.8.1</junit.version>
+		<mockito.version>1.10.19</mockito.version>
+		<lombok.version>1.16.4</lombok.version>
+		<checkstyle.version>2.14</checkstyle.version>
+		<pmd.version>3.2</pmd.version>
+		<findbugs.version>3.0.1</findbugs.version>
 	</properties>
 
 	<dependencies>
@@ -96,20 +102,20 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>1.10.19</version>
+			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.16.4</version>
+			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
@@ -118,7 +124,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.14</version>
+				<version>${checkstyle.version}</version>
 				<configuration>
 					<failOnViolation>false</failOnViolation>
 					<configLocation>configuration/checkstyle.xml</configLocation>
@@ -127,7 +133,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.2</version>
+				<version>${pmd.version}</version>
 				<configuration>
 					<format>xml</format>
 				</configuration>
@@ -139,7 +145,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${findbugs.version}</version>
 				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>
