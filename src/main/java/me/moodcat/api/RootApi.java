@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class RootApi {
 
-    private final static Logger log = LoggerFactory.getLogger(RootApi.class);
+    private static final Logger log = LoggerFactory.getLogger(RootApi.class);
 
     @GET
     public BasicResponse getHelloWorld() {

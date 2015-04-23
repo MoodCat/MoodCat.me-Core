@@ -49,13 +49,12 @@ public class App {
         app.joinThread();
     }
 
-
     private final Server server;
 
     public App() {
         File staticsFolder = new File("src/main/resources/static");
 
-        for(String file : staticsFolder.list()) {
+        for (String file : staticsFolder.list()) {
             log.info("Found resouce {}", file);
         }
 
@@ -69,7 +68,6 @@ public class App {
         HashSessionManager hashSessionManager = new HashSessionManager();
         hashSessionManager.setMaxInactiveInterval(1800);
 
-
         ContextHandlerCollection handlers = new ContextHandlerCollection();
         handlers.addContext("/", "/").setHandler(resources);
         handlers.addContext("/", "/").setHandler(moodcatHandler);
@@ -81,7 +79,9 @@ public class App {
 
     /**
      * Starts the {@link App} server.
-     * @throws Exception In case the server could not be started.
+     * 
+     * @throws Exception
+     *             In case the server could not be started.
      */
     private void startServer() throws Exception {
         server.start();
@@ -109,22 +109,19 @@ public class App {
     /**
      * The MoodcatHandler functions as an entry point for the Moodcat API.
      * Its quite a standard ServletContextHandler, but it adds initializes three things:
-     *
      * <ul>
-     *     <li>Initializing a GuiceResteasyBootstrapServletContextListener,
-     *          which is used to handle requests through Resteasy in combination
-     *          with Google Guice dependency injection</li>
-     *
- *          <li>Adding a Guice requiest Filter for Guice servlet tools</li>
-     *
- *          <li>Adding the HttpServletDispatcher which dispatches the incoming
-     *          requests through the set up filters and listeners</li>
+     * <li>Initializing a GuiceResteasyBootstrapServletContextListener, which is used to handle
+     * requests through Resteasy in combination with Google Guice dependency injection</li>
+     * <li>Adding a Guice requiest Filter for Guice servlet tools</li>
+     * <li>Adding the HttpServletDispatcher which dispatches the incoming requests through the set
+     * up filters and listeners</li>
      * </ul>
      */
     public class MoodcatHandler extends ServletContextHandler {
 
         public MoodcatHandler(final File rootFolder, final Module... overrides) {
             addEventListener(new GuiceResteasyBootstrapServletContextListener() {
+
                 @Override
                 protected List<Module> getModules(ServletContext context) {
                     MoodcatServletModule module = new MoodcatServletModule(rootFolder);
@@ -133,7 +130,8 @@ public class App {
 
                 @Override
                 protected void withInjector(Injector injector) {
-                    FilterHolder guiceFilterHolder = new FilterHolder(injector.getInstance(GuiceFilter.class));
+                    FilterHolder guiceFilterHolder = new FilterHolder(
+                            injector.getInstance(GuiceFilter.class));
                     addFilter(guiceFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
                 }
             });
