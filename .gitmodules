@@ -1,0 +1,3 @@
+[submodule "libraries/Recommendation-library"]
+	path = libraries/Recommendation-library
+	url = https://github.com/JeremybellEU/Recommendation-library

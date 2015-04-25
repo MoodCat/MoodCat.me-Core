@@ -8,7 +8,11 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
+
+import datastructures.dataholders.Data;
+import datastructures.input.DataMap;
 import me.moodcat.api.RootApi;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -26,6 +30,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
+
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
@@ -165,6 +170,30 @@ public class App {
             // Bind the reqources, so they can serve requests
             bind(RootApi.class);
         }
+    }
+    
+    // Verify Recommendation library is loaded.
+    // TODO: DELETE ME
+    public class A implements Data<A> {
+
+		@Override
+		public int compareTo(A arg0) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public A copy() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int getIndex() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+    	
     }
 
 }
