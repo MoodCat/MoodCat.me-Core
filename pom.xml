@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.moodcat</groupId>
 	<artifactId>moodcat-core</artifactId>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
 	<name>MoodCat Core</name>
 	<url>http://moodcat.me</url>
@@ -28,9 +28,19 @@
 		<findbugs.version>3.0.1</findbugs.version>
 	</properties>
 
-	<modules>
-		<module>libraries/recommendation-library</module>
-	</modules>
+	<repositories>
+		<repository>
+			<id>devhub</id>
+            		<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
+			<releases>
+				<enabled>true</enabled>
+ 				<updatePolicy>always</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+       		</repository>
+	</repositories>
 
 	<dependencies>
 		<!-- WEB -->
