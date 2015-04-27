@@ -28,6 +28,20 @@
 		<findbugs.version>3.0.1</findbugs.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>devhub</id>
+            		<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
+			<releases>
+				<enabled>true</enabled>
+ 				<updatePolicy>always</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+       		</repository>
+	</repositories>
+
 	<dependencies>
 		<!-- WEB -->
 		<dependency>
@@ -117,6 +131,12 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.jeremybelleu.recommendation-library</groupId>
+			<artifactId>recommendation-library</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	<build>
