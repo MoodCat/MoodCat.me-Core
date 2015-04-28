@@ -1,15 +1,13 @@
 package me.moodcat.soundcloud;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import java.net.URL;
 
 /**
  * Created by jaap on 4/28/15.
@@ -27,40 +25,44 @@ public class SoundCloudTrackTest {
     }
 
     @Test
-    public void testHasStreamUrl() throws Exception {
+    public void testHasStreamUrl() {
         assertFalse(track.hasStreamUrl());
     }
 
     @Test
-    public void testGetStreamUrl() throws Exception {
+    public void testGetStreamUrl() {
         assertNull(track.getStreamUrl());
     }
 
     @Test
-    public void testGenerateStreamUrl() throws Exception {
+    public void testGenerateStreamUrl() throws IOException, SoundCloudException {
         assertFalse(track.hasStreamUrl());
         track.generateStreamUrl();
         assertTrue(track.hasStreamUrl());
-        assertNotNull(new URL(track.getStreamUrl()));
+        try {
+            assertNotNull(new URL(track.getStreamUrl()));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void testGetArtworkUrl() throws Exception {
+    public void testGetArtworkUrl() throws MalformedURLException {
         assertNotNull(new URL(track.getArtworkUrl()));
     }
 
     @Test
-    public void testIsDownloadable() throws Exception {
+    public void testIsDownloadable() {
         assertTrue(track.isDownloadable());
     }
 
     @Test
-    public void testGetId() throws Exception {
+    public void testGetId() {
         assertEquals(track.getId(), 159518);
     }
 
     @Test
-    public void testGetTitle() throws Exception {
+    public void testGetTitle() {
         assertEquals(track.getTitle(),
                 "Mom's Spaghetti - Eminem', permalink='moms-spaghetti-eminem");
     }

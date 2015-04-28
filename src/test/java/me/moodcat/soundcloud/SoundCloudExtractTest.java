@@ -3,6 +3,8 @@ package me.moodcat.soundcloud;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +33,7 @@ public class SoundCloudExtractTest {
     }
 
     @Test
-    public void testRetrieveSong() throws Exception {
+    public void testRetrieveSong() throws IOException, SoundCloudException {
         SoundCloudTrack song = extract.extract(COOL_SONG);
 
         assertNotNull(song.getTitle());
@@ -40,7 +42,7 @@ public class SoundCloudExtractTest {
     }
 
     @Test
-    public void testParseStreamUrl() throws Exception {
+    public void testParseStreamUrl() throws IOException, SoundCloudException {
         SoundCloudTrack song = extract.extract(COOL_SONG);
         String mediaUrl = extract.parseStreamUrl(song);
 
@@ -48,7 +50,7 @@ public class SoundCloudExtractTest {
     }
 
     @Test
-    public void testResolveUrl() throws Exception {
+    public void testResolveUrl() throws IOException {
         String url = extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
         SoundCloudTrack track = extract.parseInfoJson(url);
 
@@ -56,7 +58,7 @@ public class SoundCloudExtractTest {
     }
 
     @Test
-    public void testParseInfoJson() throws Exception {
+    public void testParseInfoJson() throws IOException {
         SoundCloudTrack track = extract.parseInfoJson(SONG2_INFO_URL);
 
         assertEquals(track.getTitle(), SONG2_TITLE);
