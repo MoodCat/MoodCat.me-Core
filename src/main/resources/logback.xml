@@ -9,6 +9,8 @@
 	
 	<logger name="me.moodcat" level="DEBUG"></logger>
     <logger name="org.eclipse.jetty" level="INFO"></logger>
+	<logger name="log4j.logger.org.hibernate" level="INFO"></logger>
+	<logger name="log4j.logger.org.hibernate.type" level="ALL"></logger>
 
 	<root level="WARN">
 		<appender-ref ref="STDOUT" />
