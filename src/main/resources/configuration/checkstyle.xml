@@ -5,7 +5,7 @@
     This configuration file was written by the eclipse-cs plugin configuration editor
 -->
 <!--
-    Checkstyle-Configuration: moodcat
+    Checkstyle-Configuration: MoodCat
     Description: none
 -->
 <module name="Checker">
@@ -117,9 +117,11 @@
     <module name="OverloadMethodsDeclarationOrder"/>
     <module name="VariableDeclarationUsageDistance"/>
     <module name="CustomImportOrder">
+      <property name="severity" value="ignore"/>
       <property name="customImportOrderRules" value="STATIC###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE"/>
       <property name="specialImportsRegExp" value="com.google"/>
       <property name="sortImportsInGroupAlphabetically" value="true"/>
+      <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
     </module>
     <module name="MethodParamPad"/>
     <module name="OperatorWrap">
@@ -164,5 +166,6 @@
   </module>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
+    <property name="fileExtensions" value=".java"/>
   </module>
 </module>
