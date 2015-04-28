@@ -20,26 +20,27 @@
 		<resteasy.version>3.0.10.Final</resteasy.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<logback.version>1.0.13</logback.version>
-		<junit.version>3.8.1</junit.version>
+		<junit.version>4.12</junit.version>
 		<mockito.version>1.10.19</mockito.version>
 		<lombok.version>1.16.4</lombok.version>
 		<checkstyle.version>2.14</checkstyle.version>
 		<pmd.version>3.2</pmd.version>
 		<findbugs.version>3.0.1</findbugs.version>
+		<org.json.version>20141113</org.json.version>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>devhub</id>
-            		<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
+			<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
 			<releases>
 				<enabled>true</enabled>
- 				<updatePolicy>always</updatePolicy>
+				<updatePolicy>always</updatePolicy>
 			</releases>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-       		</repository>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -138,7 +139,15 @@
 			<artifactId>recommendation-library</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+
+		<!-- SoundCloud API -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${org.json.version}</version>
+		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
