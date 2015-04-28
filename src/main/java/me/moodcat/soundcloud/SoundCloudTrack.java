@@ -48,6 +48,11 @@ public class SoundCloudTrack {
     private boolean downloadable;
 
     /**
+     * Extractor to extract non-downloadable tracks.
+     */
+    private SoundCloudExtract extractor;
+
+    /**
      * Create a SoundCloudTrack object.
      *
      * @param id
@@ -103,7 +108,7 @@ public class SoundCloudTrack {
             this.streamUrl = "https://api.soundcloud.com/tracks/" + this.id
                     + "/download?client_id=" + SoundCloudExtract.CLIENT_ID;
         } else {
-            this.streamUrl = new SoundCloudExtract().parseStreamUrl(this);
+            this.streamUrl = this.extractor.parseStreamUrl(this);
         }
     }
 }
