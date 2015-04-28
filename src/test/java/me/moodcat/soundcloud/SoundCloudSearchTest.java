@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 /**
  * Created by jaap on 4/28/15.
@@ -61,6 +63,17 @@ public class SoundCloudSearchTest extends SoundCloudAPIConnectorTest {
 
         final ArrayList<SoundCloudTrack> results = this.search.extractApiRequestJson(searchPage);
         assertEquals(NUMBER_OF_SONGS, results.size());
+    }
+
+    @Test
+    public void testExtractApiRequestJsonIgnoresNonTracks() throws IOException {
+        Mockito.when(this.factory.getContent(Matchers.anyString())).thenReturn(
+                "{\"collection\":[{\"kind\":\"nonTrack\"}, {\"kind\":\"user\"}]}");
+
+        final String searchPage = this.factory.getContent(SEARCH_URL);
+
+        final ArrayList<SoundCloudTrack> results = this.search.extractApiRequestJson(searchPage);
+        assertEquals(0, results.size());
     }
 
     @Test

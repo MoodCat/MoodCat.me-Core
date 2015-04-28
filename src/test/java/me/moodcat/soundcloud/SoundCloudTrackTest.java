@@ -70,7 +70,7 @@ public class SoundCloudTrackTest {
         this.track.setDownloadable(false);
 
         final SoundCloudExtract extractor = Mockito.mock(SoundCloudExtract.class);
-        this.track.setExtractor(extractor);
+        SoundCloudTrack.setExtractor(extractor);
 
         this.track.generateStreamUrl();
 
@@ -96,5 +96,13 @@ public class SoundCloudTrackTest {
     public void testGetTitle() {
         assertEquals(this.track.getTitle(),
                 "Mom's Spaghetti - Eminem', permalink='moms-spaghetti-eminem");
+    }
+
+    @Test
+    public void testEquals() {
+        assertEquals(this.track, new SoundCloudTrack(159518,
+                "Mom's Spaghetti - Eminem', permalink='moms-spaghetti-eminem",
+                "moms-spaghetti-eminem", "Campbell Logan 1",
+                "https://i1.sndcdn.com/artworks-000038396790-h5ybh8-large.jpg", 159518, true));
     }
 }

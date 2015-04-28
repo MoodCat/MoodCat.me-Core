@@ -2,6 +2,7 @@ package me.moodcat.soundcloud;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -52,24 +53,66 @@ public class SoundCloudExtractTest extends SoundCloudAPIConnectorTest {
     }
 
     @Test
-    public void testParseStreamUrl() throws IOException, SoundCloudException {
-        final SoundCloudTrack song = this.extract.extract(COOL_SONG);
+    public void testExtractInvalidUrl() {
+        try {
+            this.extract.extract("bogus");
+            fail();
+        } catch (final IOException e) {
+            fail();
+        } catch (final SoundCloudException ignored) {
+            // Expected exception.
+        }
+    }
 
-        // Overwrite song representation to show stream representation.
-        Mockito.when(this.factory.getContent(Matchers.anyString())).thenReturn(
-                STREAM_JSON_REPRESENTATION);
+    @Test
+    public void testParseStreamUrl() {
 
-        final String mediaUrl = this.extract.parseStreamUrl(song);
+        try {
+            final SoundCloudTrack song = this.extract.extract(COOL_SONG);
 
-        assertNotNull(mediaUrl);
+            // Overwrite song representation to show stream representation.
+            Mockito.when(this.factory.getContent(Matchers.anyString())).thenReturn(
+                    STREAM_JSON_REPRESENTATION);
+
+            final String mediaUrl = this.extract.parseStreamUrl(song);
+
+            assertNotNull(mediaUrl);
+        } catch (SoundCloudException | IOException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testParseStreamUrlNoStreamFound() {
+        try {
+            final SoundCloudTrack song = this.extract.extract(COOL_SONG);
+
+            // Overwrite song representation to show stream representation.
+            Mockito.when(this.factory.getContent(Matchers.anyString())).thenReturn(
+                    "{}");
+
+            try {
+                this.extract.parseStreamUrl(song);
+                fail();
+            } catch (final SoundCloudException e) {
+                // Expected exception.
+            }
+        } catch (SoundCloudException | IOException e) {
+            fail();
+        }
+
     }
 
     @Test
     public void testResolveUrl() throws IOException {
-        final String url = this.extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
-        final SoundCloudTrack track = this.extract.parseInfoJson(url);
+        try {
+            final String url = this.extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
+            final SoundCloudTrack track = this.extract.parseInfoJson(url);
 
-        assertEquals(track.getTitle(), SONG2_TITLE);
+            assertEquals(track.getTitle(), SONG2_TITLE);
+        } catch (final SoundCloudException e) {
+            fail();
+        }
     }
 
     @Test

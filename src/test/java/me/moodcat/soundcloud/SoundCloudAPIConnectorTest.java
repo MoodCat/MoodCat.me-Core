@@ -20,6 +20,7 @@ public abstract class SoundCloudAPIConnectorTest {
 
     protected static final String SONG2_TITLE = "Binary (Original Mix)";
 
+    // TODO: Read from FileSystem.
     protected static final String SONG_JSON_REPRESENTATION =
             new StringBuilder()
                     .append("{")

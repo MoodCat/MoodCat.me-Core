@@ -25,8 +25,11 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
      * @return the parsed {@link SoundCloudTrack}
      * @throws IOException
      *             when the download has failed
+     * @throws SoundCloudException
+     *             When a malformed title has been supplied.
      */
-    public SoundCloudTrack extract(final String artist, final String permalink) throws IOException {
+    public SoundCloudTrack extract(final String artist, final String permalink) throws IOException,
+            SoundCloudException {
         final String infoUrl = this.resolveUrl(artist, permalink);
 
         return this.parseInfoJson(infoUrl);
@@ -96,15 +99,18 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
      * @param title
      *            the title
      * @return the resolved URL
+     * @throws SoundCloudException
+     *             If a malformed title is supplied.
      */
-    protected String resolveUrl(final String artist, final String title) {
+    protected String resolveUrl(final String artist, final String title)
+            throws SoundCloudException {
         String url = null;
 
         try {
             url = "https://soundcloud.com/" + URLEncoder.encode(artist, "UTF-8") + "/"
                     + URLEncoder.encode(title, "UTF-8");
         } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new SoundCloudException("Malformed title.");
         }
 
         return "https://api.soundcloud.com/resolve.json?url=" + url + "&client_id=" + CLIENT_ID;

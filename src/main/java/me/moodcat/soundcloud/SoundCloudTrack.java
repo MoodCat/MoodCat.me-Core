@@ -3,6 +3,7 @@ package me.moodcat.soundcloud;
 import java.io.IOException;
 
 import lombok.Data;
+import lombok.Setter;
 
 @Data
 public class SoundCloudTrack {
@@ -50,7 +51,8 @@ public class SoundCloudTrack {
     /**
      * Extractor to extract non-downloadable tracks.
      */
-    private SoundCloudExtract extractor;
+    @Setter
+    private static SoundCloudExtract extractor = new SoundCloudExtract();
 
     /**
      * Create a SoundCloudTrack object.
@@ -108,7 +110,7 @@ public class SoundCloudTrack {
             this.streamUrl = "https://api.soundcloud.com/tracks/" + this.id
                     + "/download?client_id=" + SoundCloudExtract.CLIENT_ID;
         } else {
-            this.streamUrl = this.extractor.parseStreamUrl(this);
+            this.streamUrl = extractor.parseStreamUrl(this);
         }
     }
 }
