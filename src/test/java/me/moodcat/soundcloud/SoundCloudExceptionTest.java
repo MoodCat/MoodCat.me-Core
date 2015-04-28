@@ -11,7 +11,7 @@ public class SoundCloudExceptionTest {
 
     @Test
     public void testGetMessage() {
-        SoundCloudException exception = new SoundCloudException("Error");
+        final SoundCloudException exception = new SoundCloudException("Error");
         assertEquals(exception.getMessage(), "Error");
     }
 }

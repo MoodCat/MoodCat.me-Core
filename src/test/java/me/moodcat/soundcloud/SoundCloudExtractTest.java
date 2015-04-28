@@ -34,7 +34,7 @@ public class SoundCloudExtractTest {
 
     @Test
     public void testRetrieveSong() throws IOException, SoundCloudException {
-        SoundCloudTrack song = extract.extract(COOL_SONG);
+        final SoundCloudTrack song = this.extract.extract(COOL_SONG);
 
         assertNotNull(song.getTitle());
         assertNotNull(song.getArtworkUrl());
@@ -43,23 +43,23 @@ public class SoundCloudExtractTest {
 
     @Test
     public void testParseStreamUrl() throws IOException, SoundCloudException {
-        SoundCloudTrack song = extract.extract(COOL_SONG);
-        String mediaUrl = extract.parseStreamUrl(song);
+        final SoundCloudTrack song = this.extract.extract(COOL_SONG);
+        final String mediaUrl = this.extract.parseStreamUrl(song);
 
         assertNotNull(mediaUrl);
     }
 
     @Test
     public void testResolveUrl() throws IOException {
-        String url = extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
-        SoundCloudTrack track = extract.parseInfoJson(url);
+        final String url = this.extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
+        final SoundCloudTrack track = this.extract.parseInfoJson(url);
 
         assertEquals(track.getTitle(), SONG2_TITLE);
     }
 
     @Test
     public void testParseInfoJson() throws IOException {
-        SoundCloudTrack track = extract.parseInfoJson(SONG2_INFO_URL);
+        final SoundCloudTrack track = this.extract.parseInfoJson(SONG2_INFO_URL);
 
         assertEquals(track.getTitle(), SONG2_TITLE);
     }

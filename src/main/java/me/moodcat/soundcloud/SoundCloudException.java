@@ -13,7 +13,7 @@ public class SoundCloudException extends Exception {
      * @param msg
      *            Description of the error
      */
-    SoundCloudException(String msg) {
+    SoundCloudException(final String msg) {
         super(msg);
     }
 }

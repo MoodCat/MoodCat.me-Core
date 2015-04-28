@@ -65,8 +65,9 @@ public class SoundCloudTrack {
      * @param downloadable
      *            boolean indicating whether the track is downloadable
      */
-    public SoundCloudTrack(int id, String title, String permalink, String username,
-            String artworkUrl, int duration, boolean downloadable) {
+    public SoundCloudTrack(final int id, final String title, final String permalink,
+            final String username, final String artworkUrl, final int duration,
+            final boolean downloadable) {
         super();
         this.id = id;
         this.title = title;
@@ -79,11 +80,11 @@ public class SoundCloudTrack {
 
     /**
      * Whether this track has a stream url.
-     * 
+     *
      * @return If this track has a stream url.
      */
     public boolean hasStreamUrl() {
-        return streamUrl != null;
+        return this.streamUrl != null;
     }
 
     /**
@@ -95,14 +96,14 @@ public class SoundCloudTrack {
      *             when a stream URL could not be generated
      */
     public void generateStreamUrl() throws IOException, SoundCloudException {
-        if (streamUrl != null) {
+        if (this.streamUrl != null) {
             return;
         }
-        if (downloadable) {
-            streamUrl = "https://api.soundcloud.com/tracks/" + id + "/download?client_id="
-                    + SoundCloudExtract.CLIENT_ID;
+        if (this.downloadable) {
+            this.streamUrl = "https://api.soundcloud.com/tracks/" + this.id
+                    + "/download?client_id=" + SoundCloudExtract.CLIENT_ID;
         } else {
-            streamUrl = new SoundCloudExtract().parseStreamUrl(this);
+            this.streamUrl = new SoundCloudExtract().parseStreamUrl(this);
         }
     }
 }

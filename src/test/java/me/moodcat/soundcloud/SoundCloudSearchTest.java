@@ -28,26 +28,26 @@ public class SoundCloudSearchTest {
 
     @Test
     public void testSearch() throws IOException {
-        ArrayList<SoundCloudTrack> searchResults = search.search("Katfyr");
+        final ArrayList<SoundCloudTrack> searchResults = this.search.search("Katfyr");
 
         assertTrue(searchResults.size() > 10);
     }
 
     @Test
     public void testExtractApiRequestJson() throws IOException {
-        String searchPage = IOUtils.toString(new URL(SEARCH_URL).openStream());
+        final String searchPage = IOUtils.toString(new URL(SEARCH_URL).openStream());
 
-        ArrayList<SoundCloudTrack> results = search.extractApiRequestJson(searchPage);
+        final ArrayList<SoundCloudTrack> results = this.search.extractApiRequestJson(searchPage);
         assertTrue(results.size() > 10);
     }
 
     @Test
     public void testParseElement() throws IOException {
-        String searchPage = IOUtils.toString(new URL(SEARCH_URL).openStream());
-        JSONObject object = new JSONObject(searchPage);
-        JSONObject trackObject = object.getJSONArray("collection").getJSONObject(0);
+        final String searchPage = IOUtils.toString(new URL(SEARCH_URL).openStream());
+        final JSONObject object = new JSONObject(searchPage);
+        final JSONObject trackObject = object.getJSONArray("collection").getJSONObject(0);
 
-        SoundCloudTrack track = search.parseElement(trackObject);
+        final SoundCloudTrack track = this.search.parseElement(trackObject);
 
         assertEquals(trackObject.getString("title"), track.getTitle());
     }
