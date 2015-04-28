@@ -5,14 +5,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
+import com.google.inject.persist.jpa.JpaPersistModule;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
 
 import datastructures.dataholders.Data;
-import datastructures.input.DataMap;
 import me.moodcat.api.RootApi;
 
+import me.moodcat.api.SongAPI;
+import me.moodcat.database.MockData;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -28,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
@@ -167,8 +171,15 @@ public class App {
             requireBinding(ObjectMapper.class);
             // Provide a way to access the resources folder from other classes
             bind(File.class).annotatedWith(Names.named("root.folder")).toInstance(rootFolder);
+            // Bind the database module
+            install(new JpaPersistModule("moodcat"));
+            requireBinding(EntityManager.class);
+            requireBinding(EntityManagerFactory.class);
+            // Insert mock data
+            bind(MockData.class).asEagerSingleton();
             // Bind the reqources, so they can serve requests
             bind(RootApi.class);
+            bind(SongAPI.class);
         }
     }
 
