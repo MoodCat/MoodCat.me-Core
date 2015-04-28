@@ -6,9 +6,9 @@
 			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{42} - %msg%n</pattern>
 		</encoder>
 	</appender>
-	
+
 	<logger name="me.moodcat" level="DEBUG"></logger>
-    <logger name="org.eclipse.jetty" level="INFO"></logger>
+	<logger name="org.eclipse.jetty" level="INFO"></logger>
 
 	<root level="WARN">
 		<appender-ref ref="STDOUT" />

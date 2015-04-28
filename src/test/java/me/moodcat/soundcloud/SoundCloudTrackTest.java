@@ -1,11 +1,15 @@
 package me.moodcat.soundcloud;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by jaap on 4/28/15.
@@ -15,14 +19,11 @@ public class SoundCloudTrackTest {
     private SoundCloudTrack track;
 
     @Before
-    public void setUp() throws Exception {
-        track = new SoundCloudTrack(159518,
+    public void setUp() {
+        this.track = new SoundCloudTrack(159518,
                 "Mom's Spaghetti - Eminem', permalink='moms-spaghetti-eminem",
-                "moms-spaghetti-eminem",
-                "Campbell Logan 1",
-                "https://i1.sndcdn.com/artworks-000038396790-h5ybh8-large.jpg",
-                159518,
-                true);
+                "moms-spaghetti-eminem", "Campbell Logan 1",
+                "https://i1.sndcdn.com/artworks-000038396790-h5ybh8-large.jpg", 159518, true);
     }
 
     @Test
@@ -60,6 +61,7 @@ public class SoundCloudTrackTest {
 
     @Test
     public void testGetTitle() throws Exception {
-        assertEquals(track.getTitle(), "Mom's Spaghetti - Eminem', permalink='moms-spaghetti-eminem");
+        assertEquals(track.getTitle(),
+                "Mom's Spaghetti - Eminem', permalink='moms-spaghetti-eminem");
     }
 }

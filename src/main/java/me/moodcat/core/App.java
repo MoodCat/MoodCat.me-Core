@@ -171,29 +171,29 @@ public class App {
             bind(RootApi.class);
         }
     }
-    
+
     // Verify Recommendation library is loaded.
     // TODO: DELETE ME
     public class A implements Data<A> {
 
-		@Override
-		public int compareTo(A arg0) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+        @Override
+        public int compareTo(A arg0) {
+            // TODO Auto-generated method stub
+            return 0;
+        }
 
-		@Override
-		public A copy() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public A copy() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		@Override
-		public int getIndex() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    	
+        @Override
+        public int getIndex() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
     }
 
 }

@@ -3,9 +3,15 @@ package me.moodcat.soundcloud;
 public class SoundCloudException extends Exception {
 
     /**
+     * Generated serial ID.
+     */
+    private static final long serialVersionUID = -879808709985997690L;
+
+    /**
      * Exception thrown by SoundCloud extraction.
      *
-     * @param msg Description of the error
+     * @param msg
+     *            Description of the error
      */
     SoundCloudException(String msg) {
         super(msg);
