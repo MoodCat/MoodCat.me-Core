@@ -1,14 +1,14 @@
 package me.moodcat.soundcloud;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
+import lombok.SneakyThrows;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 
 public class SoundCloudExtract {
 
@@ -16,6 +16,8 @@ public class SoundCloudExtract {
 
     protected static final Pattern songPattern = Pattern
             .compile("https?://(www\\.)?soundcloud.com/(?<artist>.*?)/(?<permalink>.*?)$");
+
+    protected final static String SOUNDCLOUD_HOST = "http://api.soundcloud.com";
 
     /**
      * Retrieve a SoundCloudTrack given the artist and permalink.
@@ -25,13 +27,64 @@ public class SoundCloudExtract {
      * @param permalink
      *            the track's permalink
      * @return the parsed {@link SoundCloudTrack}
-     * @throws IOException
+     * @throws SoundCloudException
      *             when the download has failed
      */
-    public SoundCloudTrack extract(final String artist, final String permalink) throws IOException {
-        final String infoUrl = this.resolveUrl(artist, permalink);
+    public SoundCloudTrack extract(final String artist, final String permalink) throws SoundCloudException {
+        String url = getUrlFromArtistAndPermalink(artist, permalink);
+        return resolve(url, SoundCloudTrack.class);
+    }
 
-        return this.parseInfoJson(infoUrl);
+    /**
+     * The resolve resource allows you to lookup and access API resources
+     * when you only know the SoundCloud.com URL.
+     *
+     * @param url
+     *          the url to retrieve
+     * @throws SoundCloudException
+     *             if the resource could not be accessed
+     */
+    protected <T> T resolve(String url, Class<T> targetEntity) throws SoundCloudException {
+        Client client = ResteasyClientBuilder.newBuilder().build();
+
+        try {
+            return client.target(redirectLocation(url))
+                    .request()
+                    .get(targetEntity);
+        }
+        catch (Exception e) {
+            throw new SoundCloudException(e.getMessage(), e);
+        }
+        finally {
+            client.close();
+        }
+    }
+
+    protected String redirectLocation(String url) throws SoundCloudException {
+        Client client = ResteasyClientBuilder.newBuilder().build();
+
+        try {
+            Response redirect =  client.target(SOUNDCLOUD_HOST)
+                    .path("resolve.json")
+                    .queryParam("client_id", CLIENT_ID)
+                    .queryParam("url", url)
+                    .request().get();
+
+            return redirect.getHeaderString("Location");
+        }
+        catch (Exception e) {
+            throw new SoundCloudException(e.getMessage(), e);
+        }
+        finally {
+            client.close();
+        }
+    }
+
+    @SneakyThrows
+    protected static String getUrlFromArtistAndPermalink(final String artist, final String permalink) {
+        return String.format("https://soundcloud.com/%s/%s",
+                URLEncoder.encode(artist, "UTF-8"),
+                URLEncoder.encode(permalink, "UTF-8"));
     }
 
     /**
@@ -43,8 +96,7 @@ public class SoundCloudExtract {
      * @throws SoundCloudException
      *             if the URL is malformed
      */
-    public SoundCloudTrack extract(final String soundCloudUrl) throws IOException,
-            SoundCloudException {
+    public SoundCloudTrack extract(final String soundCloudUrl) throws SoundCloudException {
         final Matcher matcher = songPattern.matcher(soundCloudUrl);
 
         if (matcher.find()) {
@@ -55,86 +107,6 @@ public class SoundCloudExtract {
         }
 
         throw new SoundCloudException("Wrong URL supplied");
-    }
-
-    /**
-     * Parse the stream URL of a not-downloadable SoundCloud track. This is done
-     * by downloading and parsing a JSON response from the SoundCloud API.
-     *
-     * @param song
-     *            the song to parse the stream URL of
-     * @return the URL of the stream
-     * @throws SoundCloudException
-     *             if the stream could not be parsed
-     * @throws IOException
-     *             if the mediaURL is malformed or if the JSON page could not be
-     *             downloaded.
-     */
-    protected String parseStreamUrl(final SoundCloudTrack song) throws SoundCloudException,
-            IOException {
-        final String streamJsonUrl = "http://api.soundcloud.com/i1/tracks/" + song.getId()
-                + "/streams?client_id=" + CLIENT_ID + "&secret_token=None";
-
-        final String jsonPage = IOUtils.toString(new URL(streamJsonUrl));
-
-        final JSONObject root = new JSONObject(jsonPage);
-
-        if (root.has("http_mp3_128_url")) {
-            return root.getString("http_mp3_128_url");
-        } else if (root.has("hls_mp3_128_url")) {
-            return root.getString("hls_mp3_128_url");
-        } else if (root.has("preview_mp3_128_url")) {
-            return root.getString("preview_mp3_128_url");
-        }
-
-        throw new SoundCloudException("No stream URL found");
-    }
-
-    /**
-     * Resolve the URL of the SoundCloud track given the artist and title.
-     *
-     * @param artist
-     *            the artist
-     * @param title
-     *            the title
-     * @return the resolved URL
-     */
-    protected String resolveUrl(final String artist, final String title) {
-        String url = null;
-
-        try {
-            url = "https://soundcloud.com/" + URLEncoder.encode(artist, "UTF-8") + "/"
-                    + URLEncoder.encode(title, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return "https://api.soundcloud.com/resolve.json?url=" + url + "&client_id=" + CLIENT_ID;
-    }
-
-    /**
-     * Parse the information Json of the SoundCloud API.
-     *
-     * @param infoUrl
-     *            the URL of the API request
-     * @return the parsed {@link SoundCloudTrack} System.out.println(searchUrl);
-     * @throws IOException
-     *             if the URL is malformed or could not be downloaded.
-     */
-    protected SoundCloudTrack parseInfoJson(final String infoUrl) throws IOException {
-        final String jsonPage = IOUtils.toString(new URL(infoUrl));
-        final JSONObject root = new JSONObject(jsonPage);
-
-        final int id = root.getInt("id");
-        final String title = root.getString("title");
-        final String permalink = root.getString("permalink");
-        final String username = root.getJSONObject("user").getString("username");
-        final String artworkUrl = root.getString("artwork_url");
-        final int duration = root.getInt("duration");
-        final boolean downloadable = root.getBoolean("downloadable");
-
-        return new SoundCloudTrack(id, title, permalink, username, artworkUrl, duration,
-                downloadable);
     }
 
 }

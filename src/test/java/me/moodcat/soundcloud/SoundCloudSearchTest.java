@@ -1,14 +1,9 @@
 package me.moodcat.soundcloud;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,8 +11,6 @@ import org.junit.Test;
  * Created by jaap on 4/28/15.
  */
 public class SoundCloudSearchTest {
-
-    static final String SEARCH_URL = "http://api.soundcloud.com/search?q=Katfyr&client_id=b45b1aa10f1ac2941910a7f0d10f8e28";
 
     private SoundCloudSearch search;
 
@@ -27,28 +20,9 @@ public class SoundCloudSearchTest {
     }
 
     @Test
-    public void testSearch() throws IOException {
-        final ArrayList<SoundCloudTrack> searchResults = this.search.search("Katfyr");
-
+    public void testSearch() throws SoundCloudException {
+        final List<SoundCloudTrack> searchResults = this.search.search("Katfyr");
         assertTrue(searchResults.size() > 10);
     }
 
-    @Test
-    public void testExtractApiRequestJson() throws IOException {
-        final String searchPage = IOUtils.toString(new URL(SEARCH_URL).openStream());
-
-        final ArrayList<SoundCloudTrack> results = this.search.extractApiRequestJson(searchPage);
-        assertTrue(results.size() > 10);
-    }
-
-    @Test
-    public void testParseElement() throws IOException {
-        final String searchPage = IOUtils.toString(new URL(SEARCH_URL).openStream());
-        final JSONObject object = new JSONObject(searchPage);
-        final JSONObject trackObject = object.getJSONArray("collection").getJSONObject(0);
-
-        final SoundCloudTrack track = this.search.parseElement(trackObject);
-
-        assertEquals(trackObject.getString("title"), track.getTitle());
-    }
 }

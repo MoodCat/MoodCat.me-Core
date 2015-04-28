@@ -1,15 +1,20 @@
 package me.moodcat.soundcloud;
 
-import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.SneakyThrows;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
+import javax.ws.rs.client.Client;
 
 public class SoundCloudSearch {
+
+    protected final static String SOUNDCLOUD_HOST = "http://api.soundcloud.com";
+    protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
 
     /**
      * Search SoundCloud for tracks.
@@ -17,59 +22,41 @@ public class SoundCloudSearch {
      * @param query
      *            the query to search for
      * @return the search results
-     * @throws IOException
+     * @throws SoundCloudException
      *             if the API response could not be downloaded
      */
-    public ArrayList<SoundCloudTrack> search(final String query) throws IOException {
-        final String searchUrl = "http://api.soundcloud.com/search?q="
-                + URLEncoder.encode(query, "UTF-8") + "&client_id=" + SoundCloudExtract.CLIENT_ID;
+    public List<SoundCloudTrack> search(final String query) throws SoundCloudException {
+        Client client = ResteasyClientBuilder.newBuilder().build();
 
-        final String page = IOUtils.toString(new URL(searchUrl));
-
-        return this.extractApiRequestJson(page);
-    }
-
-    /**
-     * Extract the JSON formatted response of a search API call on SoundCloud.
-     *
-     * @param jsonPage
-     *            the JSON response
-     * @return a list of parsed tracks
-     */
-    protected ArrayList<SoundCloudTrack> extractApiRequestJson(final String jsonPage) {
-        final ArrayList<SoundCloudTrack> songArray = new ArrayList<>();
-        final JSONArray songs = new JSONObject(jsonPage).getJSONArray("collection");
-        JSONObject song;
-
-        for (int i = 0; i < songs.length(); i++) {
-            song = songs.getJSONObject(i);
-
-            if (song.getString("kind").equals("track")) {
-                songArray.add(this.parseElement(song));
-            }
+        try {
+            return client.target(SOUNDCLOUD_HOST)
+                    .path("search")
+                    .queryParam("client_id", CLIENT_ID)
+                    .queryParam("q", encode(query))
+                    .request()
+                    .get(SearchResponse.class)
+                    .getTracks();
         }
-        return songArray;
+        catch (Exception e) {
+            throw new SoundCloudException(e.getMessage(), e);
+        }
+        finally {
+            client.close();
+        }
     }
 
-    /**
-     * Parse a single track's JSON.
-     *
-     * @param element
-     *            the JSONObject to parse
-     * @return the parsed track
-     */
-    protected SoundCloudTrack parseElement(final JSONObject element) {
-        final int id = element.getInt("id");
-        final String title = element.getString("title");
-        final String permalink = element.getString("permalink");
-        final String username = element.getJSONObject("user").getString("username");
-        final String artworkUrl = element.isNull("artwork_url") ? null : element
-                .getString("artwork_url");
-        final int duration = element.getInt("duration");
-        final boolean downloadable = element.getBoolean("downloadable");
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class SearchResponse {
 
-        return new SoundCloudTrack(id, title, permalink, username, artworkUrl, duration,
-                downloadable);
+        @JsonProperty("collection")
+        private List<SoundCloudTrack> tracks;
+
+    }
+
+    @SneakyThrows
+    protected static String encode(final String url) {
+        return URLEncoder.encode(url, "UTF-8");
     }
 
 }

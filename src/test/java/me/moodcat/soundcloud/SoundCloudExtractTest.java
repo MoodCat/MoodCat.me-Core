@@ -4,7 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,51 +27,32 @@ public class SoundCloudExtractTest {
     private static final String COOL_SONG = "https://soundcloud.com/pegboardnerds/"
             + "who-the-fuck-is-paul-mccartney-kanye-west-x-jennifer-lawrence-x-pegboard-nerds";
 
-    private static final String SONG2_ARTIST = "katfyr";
-
-    private static final String SONG2_TITLE_ID = "binary-original-mix";
-
-    private static final String SONG2_TITLE = "Binary (Original Mix)";
-
-    private static final String SONG2_INFO_URL = "https://api.soundcloud.com/resolve.json"
-            + "?url=https://soundcloud.com/katfyr/binary-original-mix&client_id=b45b1aa10f1ac2941910a7f0d10f8e28";
-
     private SoundCloudExtract extract;
 
     @Before
     public void setUp() {
-        this.extract = new SoundCloudExtract();
+        extract = new SoundCloudExtract();
     }
 
     @Test
-    public void testRetrieveSong() throws IOException, SoundCloudException {
-        final SoundCloudTrack song = this.extract.extract(COOL_SONG);
-
+    @SneakyThrows
+    public void testRetrieveSong() {
+        final SoundCloudTrack song = extract.extract(COOL_SONG);
         assertNotNull(song.getTitle());
         assertNotNull(song.getArtworkUrl());
         assertNotNull(song.getId());
     }
 
-    @Test
-    public void testParseStreamUrl() throws IOException, SoundCloudException {
-        final SoundCloudTrack song = this.extract.extract(COOL_SONG);
-        final String mediaUrl = this.extract.parseStreamUrl(song);
-
-        assertNotNull(mediaUrl);
+    @SneakyThrows
+    @Test(timeout = 10000)
+    public void integrationTest() {
+        ListeningScheduledExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newScheduledThreadPool(4));
+        List<ListenableFuture<?>> futures = Lists.newArrayList();
+        for(int i = 0; i < 25; i++) {
+            futures.add(executorService.submit(this::testRetrieveSong));
+        }
+        Futures.allAsList(futures).get();
+        executorService.shutdownNow();
     }
 
-    @Test
-    public void testResolveUrl() throws IOException {
-        final String url = this.extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
-        final SoundCloudTrack track = this.extract.parseInfoJson(url);
-
-        assertEquals(track.getTitle(), SONG2_TITLE);
-    }
-
-    @Test
-    public void testParseInfoJson() throws IOException {
-        final SoundCloudTrack track = this.extract.parseInfoJson(SONG2_INFO_URL);
-
-        assertEquals(track.getTitle(), SONG2_TITLE);
-    }
 }

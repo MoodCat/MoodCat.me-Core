@@ -16,4 +16,17 @@ public class SoundCloudException extends Exception {
     SoundCloudException(final String msg) {
         super(msg);
     }
+
+    /**
+     * Exception thrown by SoundCloud extraction.
+     *
+     * @param msg
+     *            Description of the error
+     * @param throwable
+     *            Throwable that caused the exception
+     */
+    SoundCloudException(final String msg, final Throwable throwable) {
+        super(msg, throwable);
+    }
+
 }
