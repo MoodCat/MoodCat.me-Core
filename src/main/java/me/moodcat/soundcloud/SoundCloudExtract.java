@@ -2,15 +2,13 @@ package me.moodcat.soundcloud;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
-public class SoundCloudExtract {
+public class SoundCloudExtract extends SoundCloudAPIConnector {
 
     protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
 
@@ -75,7 +73,7 @@ public class SoundCloudExtract {
         final String streamJsonUrl = "http://api.soundcloud.com/i1/tracks/" + song.getId()
                 + "/streams?client_id=" + CLIENT_ID + "&secret_token=None";
 
-        final String jsonPage = IOUtils.toString(new URL(streamJsonUrl));
+        final String jsonPage = this.getUrlFactory().getContent(streamJsonUrl);
 
         final JSONObject root = new JSONObject(jsonPage);
 
@@ -122,19 +120,11 @@ public class SoundCloudExtract {
      *             if the URL is malformed or could not be downloaded.
      */
     protected SoundCloudTrack parseInfoJson(final String infoUrl) throws IOException {
-        final String jsonPage = IOUtils.toString(new URL(infoUrl));
+        final String jsonPage = this.getUrlFactory().getContent(infoUrl);
+
         final JSONObject root = new JSONObject(jsonPage);
 
-        final int id = root.getInt("id");
-        final String title = root.getString("title");
-        final String permalink = root.getString("permalink");
-        final String username = root.getJSONObject("user").getString("username");
-        final String artworkUrl = root.getString("artwork_url");
-        final int duration = root.getInt("duration");
-        final boolean downloadable = root.getBoolean("downloadable");
-
-        return new SoundCloudTrack(id, title, permalink, username, artworkUrl, duration,
-                downloadable);
+        return this.parseTrack(root);
     }
 
 }
