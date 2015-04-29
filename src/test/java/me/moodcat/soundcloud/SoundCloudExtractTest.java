@@ -1,43 +1,43 @@
 package me.moodcat.soundcloud;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
-import java.util.List;
-import java.util.concurrent.Executors;
-
 import lombok.SneakyThrows;
+import me.moodcat.soundcloud.SoundCloudExtract.HttpClientInvoker;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Created by jaap on 4/28/15.
  */
-public class SoundCloudExtractTest extends SoundCloudAPIConnectorTest {
+@RunWith(MockitoJUnitRunner.class)
+public class SoundCloudExtractTest {
 
-    private static final String COOL_SONG = "https://soundcloud.com/pegboardnerds/"
+    /**
+     * We like this song.
+     */
+    private static final String COOL_SONG = "https://www.soundcloud.com/pegboardnerds/"
             + "who-the-fuck-is-paul-mccartney-kanye-west-x-jennifer-lawrence-x-pegboard-nerds";
 
-    private static final String SONG2_INFO_URL = "https://api.soundcloud.com/resolve.json"
-            + "?url=https://soundcloud.com/katfyr/binary-original-mix&client_id=b45b1aa10f1ac2941910a7f0d10f8e28";
-
-    private static final String STREAM_JSON_REPRESENTATION =
-            new StringBuilder()
-                    .append("{")
-                    .append("\"http_mp3_128_url\":\"https://cf-media.sndcdn.com/4HPwpNqjo7Jh.128.mp3\"")
-                    .append("}").toString();
+    /**
+     * Returns JSON-representations.
+     */
+    @Mock
+    protected HttpClientInvoker factory;
 
     /**
      * Object to be tested.
      */
     private SoundCloudExtract extract;
+
+    @Mock
+    private SoundCloudTrack track;
 
     /**
      * Setup {@link #extract}.
@@ -45,19 +45,33 @@ public class SoundCloudExtractTest extends SoundCloudAPIConnectorTest {
     @Before
     public void setup() {
         this.extract = new SoundCloudExtract();
+        this.extract.setUrlFactory(this.factory);
 
-        this.setUp(this.extract, SONG_JSON_REPRESENTATION);
+        try {
+            Mockito.when(
+                    this.factory.resolve(Matchers.anyString(),
+                            Matchers.<Class<SoundCloudTrack>> any()))
+                    .thenReturn(this.track);
+        } catch (final SoundCloudException e) {
+            fail();
+        }
     }
 
+    /**
+     * Extract a song and verify it is the track we want to retrieve.
+     */
     @Test
     @SneakyThrows
     public void testRetrieveSong() {
         final SoundCloudTrack song = this.extract.extract(COOL_SONG);
-        assertNotNull(song.getTitle());
-        assertNotNull(song.getArtworkUrl());
-        assertNotNull(song.getId());
+
+        assertEquals(this.track, song);
     }
 
+    /**
+     * Verify that if the url is not a correct soundcloud api call, a {@link SoundCloudException} is
+     * thrown.
+     */
     @Test
     public void testExtractInvalidUrl() {
         try {
@@ -66,21 +80,6 @@ public class SoundCloudExtractTest extends SoundCloudAPIConnectorTest {
         } catch (final SoundCloudException ignored) {
             // Expected exception.
         }
-    }
-
-    @SneakyThrows
-    @Test(timeout = 10000)
-    public void integrationTest() {
-        final ListeningScheduledExecutorService executorService = MoreExecutors
-                .listeningDecorator(Executors.newScheduledThreadPool(4));
-        final List<ListenableFuture<?>> futures = Lists.newArrayList();
-
-        for (int i = 0; i < 25; i++) {
-            futures.add(executorService.submit(this::testRetrieveSong));
-        }
-
-        Futures.allAsList(futures).get();
-        executorService.shutdownNow();
     }
 
 }

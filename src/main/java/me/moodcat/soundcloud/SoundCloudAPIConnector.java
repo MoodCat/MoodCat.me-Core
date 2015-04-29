@@ -1,22 +1,28 @@
 package me.moodcat.soundcloud;
 
-import lombok.Getter;
-import lombok.Setter;
-import me.moodcat.utils.network.UrlStreamFactory;
+import javax.ws.rs.client.Client;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
  * Connects to the SoundCloud API using its {@link #urlFactory}.
  *
- * @author Tim Laptop
+ * @author JeremyBellEU
  */
 public abstract class SoundCloudAPIConnector {
 
-    @Setter
-    @Getter
-    private UrlStreamFactory urlFactory;
+    protected static final String SOUNDCLOUD_HOST_FORMAT_STRING = "https://%s.soundcloud.com";
 
-    public SoundCloudAPIConnector() {
-        this.urlFactory = new UrlStreamFactory();
+    protected static final String SOUNDCLOUD_API = String.format(SOUNDCLOUD_HOST_FORMAT_STRING,
+            "api");
+
+    protected static final String SOUNDCLOUD_HOST = String.format(SOUNDCLOUD_HOST_FORMAT_STRING,
+            "www");
+
+    protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
+
+    protected Client createClient() {
+        return ResteasyClientBuilder.newBuilder().build();
     }
 
 }

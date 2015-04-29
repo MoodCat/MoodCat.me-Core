@@ -7,18 +7,33 @@ import java.util.regex.Pattern;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-
+/**
+ * An extractor that can connect to SoundCloud using a {@link HttpClientInvoker}.
+ *
+ * @author Jaapp-
+ */
 public class SoundCloudExtract extends SoundCloudAPIConnector {
 
-    protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
-
     protected static final Pattern songPattern = Pattern
-            .compile("https?://(www\\.)?soundcloud.com/(?<artist>.*?)/(?<permalink>.*?)$");
+            .compile(SOUNDCLOUD_HOST + "/(?<artist>.*?)/(?<permalink>.*?)$");
 
-    protected static final String SOUNDCLOUD_HOST = "http://api.soundcloud.com";
+    /**
+     * {@link HttpClientInvoker} used to connect to the internet.
+     */
+    @Setter
+    @Getter
+    private HttpClientInvoker urlFactory;
+
+    /**
+     * Create an extractor.
+     */
+    public SoundCloudExtract() {
+        this.urlFactory = new HttpClientInvoker();
+    }
 
     /**
      * Retrieve a SoundCloudTrack given a SoundCloud URL.
@@ -57,57 +72,65 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
     public SoundCloudTrack extract(final String artist, final String permalink)
             throws SoundCloudException {
         final String url = getUrlFromArtistAndPermalink(artist, permalink);
-        return this.resolve(url, SoundCloudTrack.class);
-    }
-
-    /**
-     * The resolve resource allows you to lookup and access API resources
-     * when you only know the SoundCloud.com URL.
-     *
-     * @param url
-     *            the url to retrieve
-     * @throws SoundCloudException
-     *             if the resource could not be accessed
-     */
-    protected <T> T resolve(final String url, final Class<T> targetEntity)
-            throws SoundCloudException {
-        final Client client = ResteasyClientBuilder.newBuilder().build();
-
-        try {
-            return client.target(this.redirectLocation(url))
-                    .request()
-                    .get(targetEntity);
-        } catch (final Exception e) {
-            throw new SoundCloudException(e.getMessage(), e);
-        } finally {
-            client.close();
-        }
-    }
-
-    protected String redirectLocation(final String url) throws SoundCloudException {
-        final Client client = ResteasyClientBuilder.newBuilder().build();
-
-        try {
-            final Response redirect = client.target(SOUNDCLOUD_HOST)
-                    .path("resolve.json")
-                    .queryParam("client_id", CLIENT_ID)
-                    .queryParam("url", url)
-                    .request().get();
-
-            return redirect.getHeaderString("Location");
-        } catch (final Exception e) {
-            throw new SoundCloudException(e.getMessage(), e);
-        } finally {
-            client.close();
-        }
+        return this.getUrlFactory().resolve(url, SoundCloudTrack.class);
     }
 
     @SneakyThrows
     protected static String getUrlFromArtistAndPermalink(final String artist,
             final String permalink) {
-        return String.format("https://soundcloud.com/%s/%s",
+        return String.format(SOUNDCLOUD_HOST + "/%s/%s",
                 URLEncoder.encode(artist, "UTF-8"),
                 URLEncoder.encode(permalink, "UTF-8"));
+    }
+
+    /**
+     * Mockable HttpClientInvoker that takes care of network connection.
+     *
+     * @author JeremyBellEU
+     */
+    protected class HttpClientInvoker {
+
+        /**
+         * The resolve resource allows you to lookup and access API resources
+         * when you only know the SoundCloud.com URL.
+         *
+         * @param url
+         *            the url to retrieve
+         * @throws SoundCloudException
+         *             if the resource could not be accessed
+         */
+        protected <T> T resolve(final String url, final Class<T> targetEntity)
+                throws SoundCloudException {
+            final Client client = SoundCloudExtract.this.createClient();
+
+            try {
+                return client.target(this.redirectLocation(url))
+                        .request()
+                        .get(targetEntity);
+            } catch (final Exception e) {
+                throw new SoundCloudException(e.getMessage(), e);
+            } finally {
+                client.close();
+            }
+        }
+
+        protected String redirectLocation(final String url) throws SoundCloudException {
+            final Client client = SoundCloudExtract.this.createClient();
+
+            try {
+                final Response redirect = client.target(SOUNDCLOUD_HOST)
+                        .path("resolve.json")
+                        .queryParam("client_id", CLIENT_ID)
+                        .queryParam("url", url)
+                        .request().get();
+
+                return redirect.getHeaderString("Location");
+            } catch (final Exception e) {
+                throw new SoundCloudException(e.getMessage(), e);
+            } finally {
+                client.close();
+            }
+        }
     }
 
 }
