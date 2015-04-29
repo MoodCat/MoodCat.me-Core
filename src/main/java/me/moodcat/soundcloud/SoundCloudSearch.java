@@ -15,8 +15,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SoundCloudSearch extends SoundCloudAPIConnector {
 
-    protected static final String SOUNDCLOUD_HOST = "http://api.soundcloud.com";
-
     protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
 
     /**
@@ -32,7 +30,7 @@ public class SoundCloudSearch extends SoundCloudAPIConnector {
         final Client client = ResteasyClientBuilder.newBuilder().build();
 
         try {
-            return client.target(SOUNDCLOUD_HOST)
+            return client.target(SOUNDCLOUD_API)
                     .path("search")
                     .queryParam("client_id", CLIENT_ID)
                     .queryParam("q", encode(query))
