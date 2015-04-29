@@ -14,7 +14,7 @@ import lombok.SneakyThrows;
 /**
  * An extractor that can connect to SoundCloud using a {@link HttpClientInvoker}.
  *
- * @author Tim Laptop
+ * @author Jaapp
  */
 public class SoundCloudExtract extends SoundCloudAPIConnector {
 
