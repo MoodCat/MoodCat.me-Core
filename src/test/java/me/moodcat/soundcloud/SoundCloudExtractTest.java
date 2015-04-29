@@ -1,15 +1,21 @@
 package me.moodcat.soundcloud;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+
+import lombok.SneakyThrows;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
+
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * Created by jaap on 4/28/15.
@@ -44,9 +50,9 @@ public class SoundCloudExtractTest extends SoundCloudAPIConnectorTest {
     }
 
     @Test
-    public void testRetrieveSong() throws IOException, SoundCloudException {
+    @SneakyThrows
+    public void testRetrieveSong() {
         final SoundCloudTrack song = this.extract.extract(COOL_SONG);
-
         assertNotNull(song.getTitle());
         assertNotNull(song.getArtworkUrl());
         assertNotNull(song.getId());
@@ -57,68 +63,24 @@ public class SoundCloudExtractTest extends SoundCloudAPIConnectorTest {
         try {
             this.extract.extract("bogus");
             fail();
-        } catch (final IOException e) {
-            fail();
         } catch (final SoundCloudException ignored) {
             // Expected exception.
         }
     }
 
-    @Test
-    public void testParseStreamUrl() {
+    @SneakyThrows
+    @Test(timeout = 10000)
+    public void integrationTest() {
+        final ListeningScheduledExecutorService executorService = MoreExecutors
+                .listeningDecorator(Executors.newScheduledThreadPool(4));
+        final List<ListenableFuture<?>> futures = Lists.newArrayList();
 
-        try {
-            final SoundCloudTrack song = this.extract.extract(COOL_SONG);
-
-            // Overwrite song representation to show stream representation.
-            Mockito.when(this.factory.getContent(Matchers.anyString())).thenReturn(
-                    STREAM_JSON_REPRESENTATION);
-
-            final String mediaUrl = this.extract.parseStreamUrl(song);
-
-            assertNotNull(mediaUrl);
-        } catch (SoundCloudException | IOException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testParseStreamUrlNoStreamFound() {
-        try {
-            final SoundCloudTrack song = this.extract.extract(COOL_SONG);
-
-            // Overwrite song representation to show stream representation.
-            Mockito.when(this.factory.getContent(Matchers.anyString())).thenReturn(
-                    "{}");
-
-            try {
-                this.extract.parseStreamUrl(song);
-                fail();
-            } catch (final SoundCloudException e) {
-                // Expected exception.
-            }
-        } catch (SoundCloudException | IOException e) {
-            fail();
+        for (int i = 0; i < 25; i++) {
+            futures.add(executorService.submit(this::testRetrieveSong));
         }
 
+        Futures.allAsList(futures).get();
+        executorService.shutdownNow();
     }
 
-    @Test
-    public void testResolveUrl() throws IOException {
-        try {
-            final String url = this.extract.resolveUrl(SONG2_ARTIST, SONG2_TITLE_ID);
-            final SoundCloudTrack track = this.extract.parseInfoJson(url);
-
-            assertEquals(track.getTitle(), SONG2_TITLE);
-        } catch (final SoundCloudException e) {
-            fail();
-        }
-    }
-
-    @Test
-    public void testParseInfoJson() throws IOException {
-        final SoundCloudTrack track = this.extract.parseInfoJson(SONG2_INFO_URL);
-
-        assertEquals(track.getTitle(), SONG2_TITLE);
-    }
 }
