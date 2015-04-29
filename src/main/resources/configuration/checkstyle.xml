@@ -112,6 +112,7 @@
     </module>
     <module name="AbbreviationAsWordInName">
       <property name="allowedAbbreviationLength" value="1"/>
+      <property name="allowedAbbreviations" value="DAO,API"/>
       <property name="ignoreFinal" value="false"/>
     </module>
     <module name="OverloadMethodsDeclarationOrder"/>
