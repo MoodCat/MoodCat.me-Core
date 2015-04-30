@@ -1,6 +1,8 @@
-package me.moodcat.core;
+package me.moodcat.eemcsdata;
 
 import static org.junit.Assert.assertEquals;
+import me.moodcat.eemcsdata.JsonData;
+import me.moodcat.eemcsdata.parser.ParseData;
 
 import org.junit.Before;
 import org.junit.Test;

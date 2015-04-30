@@ -1,4 +1,4 @@
-package me.moodcat.core;
+package me.moodcat.eemcsdata;
 
 import lombok.Data;
 
