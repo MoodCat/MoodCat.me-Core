@@ -1,57 +1,49 @@
 package me.moodcat.core;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import lombok.Data;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-/**
- * @author Jan-Willem Gmelig Meyling
- */
 public class ParseDataTest {
 
-    ObjectMapper objectMapper;
+    ParseData data;
 
     @Before
     public void before() {
-        objectMapper = new ObjectMapper();
+        data = new ParseData();
 
     }
 
     @Test
     public void testReadFile() {
 
-        try( InputStream in = ParseDataTest.class.getResourceAsStream("/acousticbrainz/sample-data.json")) {
-            BrainzResult result = objectMapper.readValue(in, BrainzResult.class);
-            assertEquals("C#", result.getTonal().getKeyKey());
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        JsonData result = data.parseFile(
+                "src/test/resources/acousticbrainz/testData/mapTest/100019264.txt",
+                "src/test/resources/acousticbrainz/testData/100019264.json");
 
+        assertEquals("F", result.getTonal().getKeyKey());
+        assertEquals("minor", result.getTonal().getKeyScale());
+        assertEquals(0.523020684719, result.getTonal().getKeyStrength(), 1e-4);
+        assertEquals(434.193115234, result.getTonal().getTuningFrequency(), 1e-4);
+        assertEquals(0.478912621737, result.getLowlevel().getDissonance().getMean(), 1e-4);
+        assertEquals(0.708070397377, result.getLowlevel().getAverageLoudness(), 1e-4);
+        assertEquals(120.082946777, result.getRhythm().getBpm(), 1e-4);
     }
 
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class BrainzResult {
+    @Test
+    public void testReadMap() {
 
-        @JsonProperty("tonal")
-        private Tonal tonal;
+        data.parseMap("src/test/resources/acousticbrainz/testData/mapTest/",
+                "src/test/resources/acousticbrainz/result/");
+        JsonData result = data.getResult();
 
-        @Data
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        static class Tonal {
-
-            @JsonProperty("key_key")
-            private String keyKey;
-
-        }
+        assertEquals("F", result.getTonal().getKeyKey());
+        assertEquals("minor", result.getTonal().getKeyScale());
+        assertEquals(0.523020684719, result.getTonal().getKeyStrength(), 1e-4);
+        assertEquals(434.193115234, result.getTonal().getTuningFrequency(), 1e-4);
+        assertEquals(0.478912621737, result.getLowlevel().getDissonance().getMean(), 1e-4);
+        assertEquals(0.708070397377, result.getLowlevel().getAverageLoudness(), 1e-4);
+        assertEquals(120.082946777, result.getRhythm().getBpm(), 1e-4);
     }
-
 }
