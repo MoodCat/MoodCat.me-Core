@@ -10,14 +10,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JsonData {
+public class AcousticBrainzData {
 
     @JsonProperty("tonal")
     private Tonal tonal;
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class Tonal {
+    public static class Tonal {
 
         @JsonProperty("key_key")
         private String keyKey;
@@ -37,14 +37,14 @@ public class JsonData {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class LowLevel {
+    public static class LowLevel {
 
         @JsonProperty("dissonance")
         private Dissonance dissonance;
 
         @Data
         @JsonIgnoreProperties(ignoreUnknown = true)
-        static class Dissonance {
+        public static class Dissonance {
 
             @JsonProperty("mean")
             private float mean;
@@ -59,7 +59,7 @@ public class JsonData {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class Rhythm {
+    public static class Rhythm {
 
         @JsonProperty("bpm")
         private float bpm;
