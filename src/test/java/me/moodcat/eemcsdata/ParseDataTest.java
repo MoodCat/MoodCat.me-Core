@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import me.moodcat.database.embeddables.AcousticBrainzData;
 import me.moodcat.eemcsdata.parser.ParseData;
 
 import org.junit.Before;

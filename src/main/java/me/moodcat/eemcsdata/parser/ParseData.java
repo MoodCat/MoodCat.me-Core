@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import me.moodcat.eemcsdata.AcousticBrainzData;
+import me.moodcat.database.embeddables.AcousticBrainzData;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
