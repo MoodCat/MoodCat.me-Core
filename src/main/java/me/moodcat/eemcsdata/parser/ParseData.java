@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import me.moodcat.eemcsdata.JsonData;
+import me.moodcat.database.embeddables.AcousticBrainzData;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,7 +26,7 @@ public class ParseData {
     /**
      * The data class where we store the data.
      */
-    private JsonData result;
+    private AcousticBrainzData result;
 
     /**
      * This class makes a new objectMapper wich mapps the JSOn objects.
@@ -40,29 +40,50 @@ public class ParseData {
      *
      * @return The JsonData class result.
      */
-    public JsonData getResult() {
+    public AcousticBrainzData getResult() {
         return this.result;
     }
 
     /**
-     * A method to parse the data and ouput the data to work with it.
+     * A method to parse the data from the local filesystem
+     * and ouput the data to work with it.
+     *
+     * @param input
+     *            - the path to the input file on the local file system.
+     * @param output
+     *            - the path where to output the file.
+     * @return A json data class to store the data. Returns null if an I/O exception occurred.
+     * @throws IOException
+     *             If the file can not be found,throw IOException.
+     */
+    public AcousticBrainzData parseFileAsLocal(final String input, final String output)
+            throws IOException {
+        try (InputStream in = new FileInputStream(input)) {
+            this.result = this.objectMapper.readValue(in, AcousticBrainzData.class);
+            this.objectMapper.writeValue(new File(output), this.result);
+            return this.result;
+        }
+    }
+
+    /**
+     * A method to parse the data from a resource
+     * and ouput the data to work with it.
      *
      * @param input
      *            - the path to the input file
      * @param output
      *            - the path where to output the file.
-     * @return A json data class to store the data. Returns null if an I/O exception occured.
+     * @return A json data class to store the data. Returns null if an I/O exception occurred.
+     * @throws IOException
+     *             If the file can not be found,throw IOException.
      */
-    public JsonData parseFile(final String input, final String output) {
-        try (InputStream in = new FileInputStream(input)) {
-            this.result = this.objectMapper.readValue(in, JsonData.class);
+    public AcousticBrainzData parseFileAsResource(final String input, final String output)
+            throws IOException {
+        final InputStream in = AcousticBrainzData.class.getResourceAsStream(input);
+        this.result = this.objectMapper.readValue(in, AcousticBrainzData.class);
 
-            this.objectMapper.writeValue(new File(output), this.result);
-            return this.result;
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        this.objectMapper.writeValue(new File(output), this.result);
+        return this.result;
 
     }
 
@@ -73,29 +94,40 @@ public class ParseData {
      *            - The folder where the features are located,should end with /.
      * @param outputPath
      *            - The folder where the new files need to be stored.
+     * @throws IOException
+     *             If the folder can not be found,throw IOException.
      */
-    public void parseMap(final String inputFolder, final String outputPath) {
-        try {
-            final java.util.Iterator<Path> iterator = Files.walk(Paths.get(inputFolder)).iterator();
+    public void parseFolder(final String inputFolder, final String outputPath,
+            final boolean resource) throws IOException {
+        final java.util.Iterator<Path> iterator = Files.walk(Paths.get(inputFolder)).iterator();
 
-            while (iterator.hasNext()) {
-                final Path filePath = iterator.next();
+        while (iterator.hasNext()) {
+            final Path filePath = iterator.next();
 
-                if (Files.isRegularFile(filePath)) {
-                    final String fileName = filePath.getFileName().toString();
-                    final int position = fileName.lastIndexOf(".");
+            if (Files.isRegularFile(filePath)) {
 
-                    if (position > 0) {
-                        fileName.substring(0, position);
-                    }
-
-                    this.parseFile(inputFolder + filePath.getFileName().toString(),
-                            outputPath + fileName + ".json");
-                }
+                this.parseFileAsLocal(inputFolder + filePath.getFileName().toString(),
+                        outputPath + this.makeFileName(filePath) + ".json");
             }
-        } catch (final IOException e) {
-            e.printStackTrace();
         }
     }
 
+    /**
+     * Takes a FilePatha and extracts the filename.
+     *
+     * @param filePath
+     *            The path of the file.
+     * @return
+     *         the filename
+     */
+    public String makeFileName(final Path filePath) {
+        final String fileName = filePath.getFileName().toString();
+        final int position = fileName.lastIndexOf(".");
+
+        if (position > 0) {
+            return fileName.substring(0, position);
+        }
+
+        return fileName;
+    }
 }

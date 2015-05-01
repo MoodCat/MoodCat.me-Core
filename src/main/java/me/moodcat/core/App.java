@@ -38,8 +38,6 @@ import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
 
-import datastructures.dataholders.Data;
-
 public class App {
 
     private static final int SERVER_PORT = 8080;
@@ -186,30 +184,6 @@ public class App {
             this.bind(RootApi.class);
             this.bind(SongAPI.class);
         }
-    }
-
-    // Verify Recommendation library is loaded.
-    // TODO: DELETE ME
-    public class A implements Data<A> {
-
-        @Override
-        public int compareTo(final A arg0) {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-        @Override
-        public A copy() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public int getIndex() {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
     }
 
 }

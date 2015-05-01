@@ -14,6 +14,8 @@ import javax.persistence.Table;
 import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * TODO: Add explanation.
@@ -23,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @Entity
 @Table(name = "artist")
+@ToString(of={"id", "name"})
+@EqualsAndHashCode(of={"id"})
 public class Artist {
 
     @Id

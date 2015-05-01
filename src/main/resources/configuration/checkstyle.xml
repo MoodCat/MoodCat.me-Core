@@ -114,7 +114,7 @@
     </module>
     <module name="AbbreviationAsWordInName">
       <property name="allowedAbbreviationLength" value="1"/>
-      <property name="allowedAbbreviations" value="DAO,API"/>
+      <property name="allowedAbbreviations" value="DAO,API,VA"/>
       <property name="ignoreFinal" value="false"/>
     </module>
     <module name="OverloadMethodsDeclarationOrder"/>
@@ -200,6 +200,7 @@
     <module name="CyclomaticComplexity"/>
     <module name="CovariantEquals"/>
     <module name="SuppressWarnings"/>
+    <module name="AbbreviationAsWordInName"/>
   </module>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
