@@ -8,9 +8,11 @@ import com.google.inject.persist.Transactional;
 import com.mysema.query.jpa.impl.JPAQuery;
 
 /**
- * TODO: Add explanation.
+ * Manages data to be retrieved or inserted into the database.
  *
  * @author Jan-Willem Gmelig Meyling
+ * @param <T>
+ *            The type to be saved.
  */
 @Slf4j
 public abstract class AbstractDAO<T> {

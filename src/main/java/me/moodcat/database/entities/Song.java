@@ -25,7 +25,9 @@ import me.moodcat.database.embeddables.VAVector;
 @Data
 @Entity
 @Table(name = "song")
-@EqualsAndHashCode(of={"id"})
+@EqualsAndHashCode(of = {
+        "id"
+})
 public class Song {
 
     @Id

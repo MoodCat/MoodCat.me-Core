@@ -18,7 +18,7 @@
 		<hibernate.version>4.3.8.Final</hibernate.version>
 		<jackson.version>2.4.4</jackson.version>
 		<jetty.version>9.2.10.v20150310</jetty.version>
-		<resteasy.version>3.0.10.Final</resteasy.version>
+		<resteasy.version>3.0.11.Final</resteasy.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<logback.version>1.0.13</logback.version>
 		<junit.version>4.12</junit.version>
@@ -33,15 +33,15 @@
 	<repositories>
 		<repository>
 			<id>devhub</id>
-            		<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
+			<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
 			<releases>
 				<enabled>true</enabled>
- 				<updatePolicy>always</updatePolicy>
+				<updatePolicy>always</updatePolicy>
 			</releases>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-       		</repository>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -178,9 +178,13 @@
 			<artifactId>querydsl-apt</artifactId>
 			<version>${querydsl.version}</version>
 		</dependency>
-
-
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
 	</dependencies>
+
 	<build>
 		<finalName>moodcat-core</finalName>
 		<resources>

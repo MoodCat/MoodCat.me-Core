@@ -9,7 +9,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
-import me.moodcat.api.RootApi;
 import me.moodcat.api.SongAPI;
 import me.moodcat.database.MockData;
 
@@ -40,21 +39,24 @@ import com.google.inject.util.Modules;
 
 public class App {
 
+    /**
+     * Default TCP port.
+     */
     private static final int SERVER_PORT = 8080;
 
+    /**
+     * Logger to print to the server console.
+     */
     private static Logger log = LoggerFactory.getLogger(App.class);
 
-    public static void main(final String[] args) throws Exception {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-
-        final App app = new App();
-        app.startServer();
-        app.joinThread();
-    }
-
+    /**
+     * The server that handles the requests.
+     */
     private final Server server;
 
+    /**
+     * Instantiates the server and adds handlers for the requests.
+     */
     public App() {
         final File staticsFolder = new File("src/main/resources/static");
 
@@ -65,6 +67,23 @@ public class App {
         this.server = new Server(SERVER_PORT);
         this.server.setSessionIdManager(new HashSessionIdManager());
         this.server.setHandler(this.attachHandlers(staticsFolder));
+    }
+
+    /**
+     * Starts the server and waits for the server to shut down.
+     *
+     * @param args
+     *            None.
+     * @throws Exception
+     *             Thrown when a thread-exception occured.
+     */
+    public static void main(final String[] args) throws Exception {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
+        final App app = new App();
+        app.startServer();
+        app.joinThread();
     }
 
     private ContextHandlerCollection attachHandlers(final File staticsFolder) {
@@ -129,6 +148,14 @@ public class App {
      */
     public class MoodcatHandler extends ServletContextHandler {
 
+        /**
+         * Constructor that takes the rootFolder and zero or more Modules to the listener.
+         *
+         * @param rootFolder
+         *            The rootFolder system path.
+         * @param overrides
+         *            Zero or more modules that are attached to the listener.
+         */
         public MoodcatHandler(final File rootFolder, final Module... overrides) {
             this.addEventListener(new GuiceResteasyBootstrapServletContextListener() {
 
@@ -181,7 +208,6 @@ public class App {
             // Insert mock data
             this.bind(MockData.class).asEagerSingleton();
             // Bind the reqources, so they can serve requests
-            this.bind(RootApi.class);
             this.bind(SongAPI.class);
         }
     }
