@@ -1,20 +1,18 @@
 package me.moodcat.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
-import com.google.inject.persist.jpa.JpaPersistModule;
-import com.google.inject.servlet.GuiceFilter;
-import com.google.inject.servlet.ServletModule;
-import com.google.inject.util.Modules;
+import java.io.File;
+import java.util.EnumSet;
+import java.util.List;
 
-import datastructures.dataholders.Data;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
+
 import me.moodcat.api.RootApi;
-
 import me.moodcat.api.SongAPI;
 import me.moodcat.database.MockData;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -30,30 +28,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.name.Names;
+import com.google.inject.persist.jpa.JpaPersistModule;
+import com.google.inject.servlet.GuiceFilter;
+import com.google.inject.servlet.ServletModule;
+import com.google.inject.util.Modules;
 
-import java.io.File;
-import java.util.EnumSet;
-import java.util.List;
+import datastructures.dataholders.Data;
 
-/**
- * Test.
- * <p>
- * Hello world!
- * </p>
- */
 public class App {
+
+    private static final int SERVER_PORT = 8080;
 
     private static Logger log = LoggerFactory.getLogger(App.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        App app = new App();
+        final App app = new App();
         app.startServer();
         app.joinThread();
     }
@@ -61,39 +58,45 @@ public class App {
     private final Server server;
 
     public App() {
-        File staticsFolder = new File("src/main/resources/static");
+        final File staticsFolder = new File("src/main/resources/static");
 
-        for (String file : staticsFolder.list()) {
+        for (final String file : staticsFolder.list()) {
             log.info("Found resouce {}", file);
         }
 
-        MoodcatHandler moodcatHandler = new MoodcatHandler(staticsFolder);
+        this.server = new Server(SERVER_PORT);
+        this.server.setSessionIdManager(new HashSessionIdManager());
+        this.server.setHandler(this.attachHandlers(staticsFolder));
+    }
 
-        ResourceHandler resources = new ResourceHandler();
+    private ContextHandlerCollection attachHandlers(final File staticsFolder) {
+        final MoodcatHandler moodcatHandler = new MoodcatHandler(staticsFolder);
+
+        final ResourceHandler resources = new ResourceHandler();
         resources.setBaseResource(Resource.newResource(staticsFolder));
         resources.setDirectoriesListed(false);
         resources.setCacheControl("max-age=3600");
 
-        HashSessionManager hashSessionManager = new HashSessionManager();
+        final HashSessionManager hashSessionManager = new HashSessionManager();
         hashSessionManager.setMaxInactiveInterval(1800);
 
-        ContextHandlerCollection handlers = new ContextHandlerCollection();
+        final ContextHandlerCollection handlers = new ContextHandlerCollection();
+        // CHECKSTYLE:OFF
         handlers.addContext("/", "/").setHandler(resources);
         handlers.addContext("/", "/").setHandler(moodcatHandler);
+        // CHECKSTYLE:ON
 
-        server = new Server(8080);
-        server.setSessionIdManager(new HashSessionIdManager());
-        server.setHandler(handlers);
+        return handlers;
     }
 
     /**
      * Starts the {@link App} server.
-     * 
+     *
      * @throws Exception
      *             In case the server could not be started.
      */
     private void startServer() throws Exception {
-        server.start();
+        this.server.start();
         Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
     }
 
@@ -101,7 +104,7 @@ public class App {
      * Joins the {@link App} server.
      */
     private void joinThread() throws InterruptedException {
-        server.join();
+        this.server.join();
     }
 
     /**
@@ -109,8 +112,8 @@ public class App {
      */
     public void stopServer() {
         try {
-            server.stop();
-        } catch (Exception e) {
+            this.server.stop();
+        } catch (final Exception e) {
             log.warn(e.getMessage(), e);
         }
     }
@@ -129,23 +132,24 @@ public class App {
     public class MoodcatHandler extends ServletContextHandler {
 
         public MoodcatHandler(final File rootFolder, final Module... overrides) {
-            addEventListener(new GuiceResteasyBootstrapServletContextListener() {
+            this.addEventListener(new GuiceResteasyBootstrapServletContextListener() {
 
                 @Override
-                protected List<Module> getModules(ServletContext context) {
-                    MoodcatServletModule module = new MoodcatServletModule(rootFolder);
+                protected List<Module> getModules(final ServletContext context) {
+                    final MoodcatServletModule module = new MoodcatServletModule(rootFolder);
                     return ImmutableList.<Module> of(Modules.override(module).with(overrides));
                 }
 
                 @Override
-                protected void withInjector(Injector injector) {
-                    FilterHolder guiceFilterHolder = new FilterHolder(
+                protected void withInjector(final Injector injector) {
+                    final FilterHolder guiceFilterHolder = new FilterHolder(
                             injector.getInstance(GuiceFilter.class));
-                    addFilter(guiceFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
+                    MoodcatHandler.this.addFilter(guiceFilterHolder, "/*",
+                            EnumSet.allOf(DispatcherType.class));
                 }
             });
 
-            addServlet(HttpServletDispatcher.class, "/");
+            this.addServlet(HttpServletDispatcher.class, "/");
         }
 
     }
@@ -159,52 +163,53 @@ public class App {
 
         private final File rootFolder;
 
-        public MoodcatServletModule(File rootFolder) {
+        public MoodcatServletModule(final File rootFolder) {
             this.rootFolder = rootFolder;
         }
 
         @Override
         protected void configureServlets() {
             // Install the JaxrsModule to use Guice with Jax RS
-            install(new JaxrsModule());
+            this.install(new JaxrsModule());
             // Ensure an ObjectMapper (json (de)serializer) is available at this point
-            requireBinding(ObjectMapper.class);
+            this.requireBinding(ObjectMapper.class);
             // Provide a way to access the resources folder from other classes
-            bind(File.class).annotatedWith(Names.named("root.folder")).toInstance(rootFolder);
+            this.bind(File.class).annotatedWith(Names.named("root.folder"))
+                    .toInstance(this.rootFolder);
             // Bind the database module
-            install(new JpaPersistModule("moodcat"));
-            requireBinding(EntityManager.class);
-            requireBinding(EntityManagerFactory.class);
+            this.install(new JpaPersistModule("moodcat"));
+            this.requireBinding(EntityManager.class);
+            this.requireBinding(EntityManagerFactory.class);
             // Insert mock data
-            bind(MockData.class).asEagerSingleton();
+            this.bind(MockData.class).asEagerSingleton();
             // Bind the reqources, so they can serve requests
-            bind(RootApi.class);
-            bind(SongAPI.class);
+            this.bind(RootApi.class);
+            this.bind(SongAPI.class);
         }
     }
-    
+
     // Verify Recommendation library is loaded.
     // TODO: DELETE ME
     public class A implements Data<A> {
 
-		@Override
-		public int compareTo(A arg0) {
-			// TODO Auto-generated method stub
-			return 0;
-		}
+        @Override
+        public int compareTo(final A arg0) {
+            // TODO Auto-generated method stub
+            return 0;
+        }
 
-		@Override
-		public A copy() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public A copy() {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
-		@Override
-		public int getIndex() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-    	
+        @Override
+        public int getIndex() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
     }
 
 }

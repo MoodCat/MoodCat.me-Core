@@ -13,6 +13,8 @@
   <property name="charset" value="UTF-8"/>
   <property name="fileExtensions" value="java, properties, xml"/>
   <module name="TreeWalker">
+    <module name="FileContentsHolder"/>
+    <module name="SuppressWarningsHolder"/>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -141,7 +143,6 @@
     <module name="SummaryJavadocCheck"/>
     <module name="JavadocParagraph"/>
     <module name="AtclauseOrder">
-      <property name="target" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
       <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
     </module>
     <module name="JavadocMethod">
@@ -164,9 +165,51 @@
     <module name="JavadocStyle"/>
     <module name="EmptyLineSeparator"/>
     <module name="EmptyLineSeparator"/>
+    <module name="ConstantName"/>
+    <module name="LocalFinalVariableName"/>
+    <module name="JavadocType"/>
+    <module name="JavadocVariable"/>
+    <module name="AnonInnerLength"/>
+    <module name="MethodLength"/>
+    <module name="MethodLength">
+      <property name="max" value="20"/>
+    </module>
+    <module name="MethodCount">
+      <property name="maxPublic" value="15"/>
+    </module>
+    <module name="OuterTypeNumber"/>
+    <module name="RedundantModifier"/>
+    <module name="DefaultComesLast"/>
+    <module name="DeclarationOrder"/>
+    <module name="HiddenField"/>
+    <module name="InnerAssignment"/>
+    <module name="MagicNumber"/>
+    <module name="MultipleStringLiterals"/>
+    <module name="NestedForDepth">
+      <property name="max" value="2"/>
+    </module>
+    <module name="PackageDeclaration"/>
+    <module name="ParameterAssignment"/>
+    <module name="ReturnCount"/>
+    <module name="SimplifyBooleanExpression"/>
+    <module name="SimplifyBooleanReturn"/>
+    <module name="StringLiteralEquality"/>
+    <module name="InnerTypeLast"/>
+    <module name="MutableException"/>
+    <module name="BooleanExpressionComplexity"/>
+    <module name="CyclomaticComplexity"/>
+    <module name="CovariantEquals"/>
+    <module name="SuppressWarnings"/>
   </module>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
     <property name="fileExtensions" value=".java"/>
   </module>
+  <module name="JavadocPackage"/>
+  <module name="FileLength"/>
+  <module name="SuppressionFilter">
+    <property name="file" value="${basedir}/src/main/resources/configuration/checkstyle-suppressions.xml"/>
+  </module>
+  <module name="SuppressWarningsFilter"/>
+  <module name="SuppressionCommentFilter"/>
 </module>

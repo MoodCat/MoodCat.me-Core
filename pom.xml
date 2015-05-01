@@ -193,6 +193,7 @@
 				<configuration>
 					<failOnViolation>false</failOnViolation>
 					<configLocation>configuration/checkstyle.xml</configLocation>
+					<suppressionsLocation>configuration/checkstyle-suppressions.xml</suppressionsLocation>
 				</configuration>
 			</plugin>
 			<plugin>
