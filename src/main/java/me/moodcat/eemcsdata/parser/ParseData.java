@@ -45,7 +45,30 @@ public class ParseData {
     }
 
     /**
-     * A method to parse the data and ouput the data to work with it.
+     * A method to parse the data from the local filesystem
+     * and ouput the data to work with it.
+     *
+     * @param input
+     *            - the path to the input file on the local file system.
+     * @param output
+     *            - the path where to output the file.
+     * @return A json data class to store the data. Returns null if an I/O exception occurred.
+     * @throws IOException
+     *             If the file can not be found,throw IOException.
+     */
+    public AcousticBrainzData parseFileAsLocal(final String input, final String output)
+            throws IOException {
+        InputStream in = new FileInputStream(input);
+        this.result = this.objectMapper.readValue(in, AcousticBrainzData.class);
+
+        this.objectMapper.writeValue(new File(output), this.result);
+        return this.result;
+
+    }
+
+    /**
+     * A method to parse the data from a resource
+     * and ouput the data to work with it.
      *
      * @param input
      *            - the path to the input file
@@ -55,9 +78,9 @@ public class ParseData {
      * @throws IOException
      *             If the file can not be found,throw IOException.
      */
-    public AcousticBrainzData parseFile(final String input, final String output)
+    public AcousticBrainzData parseFileAsResource(final String input, final String output)
             throws IOException {
-        InputStream in = new FileInputStream(input);
+        InputStream in = AcousticBrainzData.class.getResourceAsStream(input);
         this.result = this.objectMapper.readValue(in, AcousticBrainzData.class);
 
         this.objectMapper.writeValue(new File(output), this.result);
@@ -75,23 +98,37 @@ public class ParseData {
      * @throws IOException
      *             If the folder can not be found,throw IOException.
      */
-    public void parseFolder(final String inputFolder, final String outputPath) throws IOException {
+    public void parseFolder(final String inputFolder, final String outputPath,
+            final boolean resource) throws IOException {
         final java.util.Iterator<Path> iterator = Files.walk(Paths.get(inputFolder)).iterator();
 
         while (iterator.hasNext()) {
             final Path filePath = iterator.next();
 
             if (Files.isRegularFile(filePath)) {
-                final String fileName = filePath.getFileName().toString();
-                final int position = fileName.lastIndexOf(".");
 
-                if (position > 0) {
-                    fileName.substring(0, position);
-                }
-
-                this.parseFile(inputFolder + filePath.getFileName().toString(),
-                        outputPath + fileName + ".json");
+                this.parseFileAsLocal(inputFolder + filePath.getFileName().toString(),
+                        outputPath + this.makeFileName(filePath) + ".json");
             }
         }
+    }
+
+    /**
+     * Takes a FilePatha and extracts the filename.
+     * 
+     * @param filePath
+     *            The path of the file.
+     * @return
+     *         the filename
+     */
+    public String makeFileName(Path filePath) {
+        final String fileName = filePath.getFileName().toString();
+        final int position = fileName.lastIndexOf(".");
+
+        if (position > 0) {
+            return fileName.substring(0, position);
+        }
+
+        return fileName;
     }
 }
