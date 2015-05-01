@@ -58,12 +58,11 @@ public class ParseData {
      */
     public AcousticBrainzData parseFileAsLocal(final String input, final String output)
             throws IOException {
-        InputStream in = new FileInputStream(input);
-        this.result = this.objectMapper.readValue(in, AcousticBrainzData.class);
-
-        this.objectMapper.writeValue(new File(output), this.result);
-        return this.result;
-
+        try(InputStream in = new FileInputStream(input)) {
+            this.result = this.objectMapper.readValue(in, AcousticBrainzData.class);
+            this.objectMapper.writeValue(new File(output), this.result);
+            return this.result;
+        }
     }
 
     /**
