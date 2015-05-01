@@ -118,7 +118,7 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
             final Client client = SoundCloudExtract.this.createClient();
 
             try {
-                final Response redirect = client.target(SOUNDCLOUD_HOST)
+                final Response redirect = client.target(SOUNDCLOUD_API)
                         .path("resolve.json")
                         .queryParam("client_id", CLIENT_ID)
                         .queryParam("url", url)

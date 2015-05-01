@@ -11,13 +11,13 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
  */
 public abstract class SoundCloudAPIConnector {
 
-    protected static final String SOUNDCLOUD_HOST_FORMAT_STRING = "https://%s.soundcloud.com";
+    protected static final String SOUNDCLOUD_HOST_FORMAT_STRING = "https://%ssoundcloud.com";
 
     protected static final String SOUNDCLOUD_API = String.format(SOUNDCLOUD_HOST_FORMAT_STRING,
-            "api");
+            "api.");
 
     protected static final String SOUNDCLOUD_HOST = String.format(SOUNDCLOUD_HOST_FORMAT_STRING,
-            "www");
+            "");
 
     protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
 

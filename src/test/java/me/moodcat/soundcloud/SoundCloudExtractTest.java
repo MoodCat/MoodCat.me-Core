@@ -22,7 +22,7 @@ public class SoundCloudExtractTest {
     /**
      * We like this song.
      */
-    private static final String COOL_SONG = "https://www.soundcloud.com/pegboardnerds/"
+    private static final String COOL_SONG = "https://soundcloud.com/pegboardnerds/"
             + "who-the-fuck-is-paul-mccartney-kanye-west-x-jennifer-lawrence-x-pegboard-nerds";
 
     /**
