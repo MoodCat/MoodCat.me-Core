@@ -9,6 +9,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
+import me.moodcat.api.ChatAPI;
 import me.moodcat.api.SongAPI;
 import me.moodcat.database.MockData;
 
@@ -207,8 +208,13 @@ public class App {
             this.requireBinding(EntityManagerFactory.class);
             // Insert mock data
             this.bind(MockData.class).asEagerSingleton();
-            // Bind the reqources, so they can serve requests
+
+            this.bindAPIclasses();
+        }
+
+        private void bindAPIclasses() {
             this.bind(SongAPI.class);
+            this.bind(ChatAPI.class);
         }
     }
 
