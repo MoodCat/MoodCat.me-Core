@@ -9,6 +9,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import lombok.Data;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
@@ -36,10 +37,34 @@ public class ChatAPI {
         return this.chatDAO.listByRoomId(this.roomDAO.findById(roomId));
     }
 
+    /**
+     * Post a message to the room chat.
+     * 
+     * @param message
+     *            The message to sent
+     * @return Whether the message was succesfully posted or not.
+     */
     @POST
     @Path("/post")
-    public String postMessage(final String message) {
-        return "Success";
+    public ChatMessagePostResponse postMessage(final String message) {
+        final ChatMessagePostResponse response = new ChatMessagePostResponse();
+        response.setStatusCode("Success");
+
+        return response;
+    }
+
+    /**
+     * Response to indicate whether the chat message was succesfully posted or not.
+     *
+     * @author JeremybellEU
+     */
+    @Data
+    class ChatMessagePostResponse {
+
+        /**
+         * Can be either success or failure.
+         */
+        private String statusCode;
     }
 
 }
