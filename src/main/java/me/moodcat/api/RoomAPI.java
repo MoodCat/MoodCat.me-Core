@@ -15,13 +15,17 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 
 /**
- * Created by jaap on 5/6/15.
+ * The API for the room.
+ * 
+ * @author Jaap Heijligers
  */
-
 @Path("/api/rooms/")
 @Produces(MediaType.APPLICATION_JSON)
 public class RoomAPI {
 
+    /**
+     * The DAO of the room.
+     */
     private final RoomDAO roomDAO;
 
     @Inject

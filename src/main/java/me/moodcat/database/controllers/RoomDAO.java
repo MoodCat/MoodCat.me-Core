@@ -11,6 +11,11 @@ import me.moodcat.database.entities.Room;
 
 import com.google.inject.Inject;
 
+/**
+ * The DAO for rooms.
+ *
+ * @author Jaap Heijligers
+ */
 public class RoomDAO extends AbstractDAO<Room> {
 
     @Inject
@@ -18,6 +23,13 @@ public class RoomDAO extends AbstractDAO<Room> {
         super(entityManager);
     }
 
+    /**
+     * Find a room by id.
+     * 
+     * @param id
+     *            the id of the room
+     * @return the {@link Room}
+     */
     @Transactional
     public Room findById(final int id) {
         return this.query().from(room)
