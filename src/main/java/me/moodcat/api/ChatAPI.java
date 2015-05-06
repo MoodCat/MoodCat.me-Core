@@ -83,6 +83,7 @@ public class ChatAPI {
         message.setMessage(input.getMessage());
         message.setRoomId(this.roomDAO.findById(input.getRoomId()));
         message.setTimestamp(System.currentTimeMillis());
+        message.setAuthor(input.getAuthor());
 
         this.messages.add(message);
 
@@ -106,6 +107,11 @@ public class ChatAPI {
          * The room the message must be sent to.
          */
         private int roomId;
+
+        /**
+         * The author that sent the message.
+         */
+        private String author;
     }
 
     /**

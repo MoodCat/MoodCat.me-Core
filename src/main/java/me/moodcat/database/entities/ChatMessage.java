@@ -42,6 +42,12 @@ public class ChatMessage {
     private String message;
 
     /**
+     * The sender of the message.
+     */
+    @Column(name = "author", nullable = false)
+    private String author;
+
+    /**
      * The room the message was for.
      */
     @ManyToOne
