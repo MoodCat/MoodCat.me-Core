@@ -6,9 +6,12 @@ import javax.persistence.EntityManager;
 
 import me.moodcat.database.entities.Room;
 
+import com.google.inject.Inject;
+
 public class RoomDAO extends AbstractDAO<Room> {
 
-    protected RoomDAO(final EntityManager entityManager) {
+    @Inject
+    public RoomDAO(final EntityManager entityManager) {
         super(entityManager);
     }
 

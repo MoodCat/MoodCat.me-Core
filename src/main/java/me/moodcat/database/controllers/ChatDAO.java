@@ -9,11 +9,14 @@ import javax.persistence.EntityManager;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 
+import com.google.inject.Inject;
+
 public class ChatDAO extends AbstractDAO<ChatMessage> {
 
     private static final long NUMBER_OF_CHAT_MESSAGE = 10;
 
-    protected ChatDAO(final EntityManager entityManager) {
+    @Inject
+    public ChatDAO(final EntityManager entityManager) {
         super(entityManager);
     }
 
