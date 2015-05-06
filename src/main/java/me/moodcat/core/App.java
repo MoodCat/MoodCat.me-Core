@@ -10,6 +10,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
 import me.moodcat.api.ChatAPI;
+import me.moodcat.api.RoomAPI;
 import me.moodcat.api.SongAPI;
 import me.moodcat.database.MockData;
 
@@ -215,6 +216,7 @@ public class App {
         private void bindAPIclasses() {
             this.bind(SongAPI.class);
             this.bind(ChatAPI.class);
+            this.bind(RoomAPI.class);
         }
     }
 

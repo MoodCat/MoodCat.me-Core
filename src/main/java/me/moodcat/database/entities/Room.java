@@ -1,11 +1,6 @@
 package me.moodcat.database.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,4 +20,10 @@ public class Room {
     @Column(name = "id", nullable = false)
     private int id;
 
+    @ManyToOne
+    @JoinColumn(name = "currentSong")
+    private Song currentSong;
+
+    @Column(name = "position")
+    private Integer position;
 }
