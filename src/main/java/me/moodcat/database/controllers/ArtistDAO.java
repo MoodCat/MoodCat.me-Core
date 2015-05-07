@@ -38,8 +38,8 @@ public class ArtistDAO extends AbstractDAO<Artist> {
 
     @Transactional
     public Artist findById(final int id) {
-        return this.query().from(artist)
+        return ensureExists(this.query().from(artist)
                 .where(artist.id.eq(id))
-                .singleResult(artist);
+                .singleResult(artist));
     }
 }

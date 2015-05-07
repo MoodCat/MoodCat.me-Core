@@ -1,6 +1,7 @@
 package me.moodcat.database.controllers;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,16 +18,31 @@ import com.mysema.query.jpa.impl.JPAQuery;
 @Slf4j
 public abstract class AbstractDAO<T> {
 
+    /**
+     * Manager that can talk to the actual database.
+     */
     private EntityManager entityManager;
 
     protected AbstractDAO(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    public JPAQuery query() {
+    /**
+     * Query the database.
+     *
+     * @return a {@link JPAQuery} for the current {@link EntityManager}
+     */
+    protected JPAQuery query() {
         return new JPAQuery(this.entityManager);
     }
 
+    /**
+     * Persist an entity.
+     *
+     * @param object
+     *            entity to persist
+     * @return the persisted entity
+     */
     @Transactional
     public T persist(final T object) {
         this.entityManager.persist(object);
@@ -34,16 +50,46 @@ public abstract class AbstractDAO<T> {
         return object;
     }
 
+    /**
+     * Update an entity.
+     *
+     * @param object
+     *            entity to update
+     * @return the updated entity
+     */
     @Transactional
     public T merge(final T object) {
         this.entityManager.merge(object);
         return object;
     }
 
+    /**
+     * Remove an entity.
+     *
+     * @param object
+     *            entity to remove
+     * @return the removed entity
+     */
     @Transactional
     public T remove(final T object) {
         this.entityManager.remove(object);
         return object;
+    }
+
+    /**
+     * Check that an entity is not null.
+     *
+     * @param entity
+     *            entity that should not be null
+     * @return the entity
+     * @throws EntityNotFoundException
+     *             if the entity could not be found
+     */
+    protected T ensureExists(final T entity) {
+        if (entity == null) {
+            throw new EntityNotFoundException();
+        }
+        return entity;
     }
 
 }

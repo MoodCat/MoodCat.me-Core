@@ -32,11 +32,12 @@ public class RoomDAO extends AbstractDAO<Room> {
      */
     @Transactional
     public Room findById(final int id) {
-        return this.query().from(room)
+        return ensureExists(this.query().from(room)
                 .where(room.id.eq(id))
-                .singleResult(room);
+                .singleResult(room));
     }
 
+    @Transactional
     public List<Room> listRooms() {
         return this.query().from(room).list(room);
     }
