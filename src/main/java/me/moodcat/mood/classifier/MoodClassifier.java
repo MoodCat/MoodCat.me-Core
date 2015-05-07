@@ -5,11 +5,10 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
 import predictors.Predictor;
 
-public class MoodClassifier implements Predictor<Song, VAVector> {
+public class MoodClassifier implements Predictor<AcousticBrainzData, VAVector> {
 
     @Override
-    public VAVector predict(final Song song) {
-        final AcousticBrainzData data = song.getFeatures();
+    public VAVector predict(final AcousticBrainzData data) {
 
         final double valence = data.getLowlevel().getDissonance().getMean()
                 + data.getTonal().getKeyStrength();
@@ -22,7 +21,7 @@ public class MoodClassifier implements Predictor<Song, VAVector> {
     }
 
     @Override
-    public void train(final Song song, final VAVector vector) {
+    public void train(final AcousticBrainzData song, final VAVector vector) {
         // This classifier does not train.
     }
 
