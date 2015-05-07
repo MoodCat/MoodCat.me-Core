@@ -6,14 +6,22 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import com.google.inject.persist.Transactional;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
+/**
+ * Manager that can fetch messages from the database.
+ * 
+ * @author JeremybellEU
+ */
 public class ChatDAO extends AbstractDAO<ChatMessage> {
 
+    /**
+     * The number of chat messages we want to return for each request.
+     */
     private static final long NUMBER_OF_CHAT_MESSAGE = 10;
 
     @Inject
@@ -21,6 +29,13 @@ public class ChatDAO extends AbstractDAO<ChatMessage> {
         super(entityManager);
     }
 
+    /**
+     * Get the last {@link #NUMBER_OF_CHAT_MESSAGE} of the specified room.
+     *
+     * @param room
+     *            The room to fetch the messages for
+     * @return A list of messages from this room
+     */
     @Transactional
     public List<ChatMessage> listByRoom(final Room room) {
         return this.query().from(chatMessage)
@@ -29,6 +44,13 @@ public class ChatDAO extends AbstractDAO<ChatMessage> {
                 .list(chatMessage);
     }
 
+    /**
+     * Get the last {@link #NUMBER_OF_CHAT_MESSAGE} of the room with the specified roomId.
+     *
+     * @param roomId
+     *            The id of the room to fetch the messages for
+     * @return A list of messages from this room
+     */
     @Transactional
     public List<ChatMessage> listByRoomId(final int roomId) {
         return this.query().from(chatMessage)

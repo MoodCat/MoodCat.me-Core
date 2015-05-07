@@ -18,6 +18,9 @@ import com.mysema.query.jpa.impl.JPAQuery;
 @Slf4j
 public abstract class AbstractDAO<T> {
 
+    /**
+     * Manager that can talk to the actual database.
+     */
     private EntityManager entityManager;
 
     protected AbstractDAO(final EntityManager entityManager) {
@@ -25,7 +28,8 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * Query the database
+     * Query the database.
+     *
      * @return a {@link JPAQuery} for the current {@link EntityManager}
      */
     protected JPAQuery query() {
@@ -33,8 +37,10 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * Persist an entity
-     * @param object entity to persist
+     * Persist an entity.
+     *
+     * @param object
+     *            entity to persist
      * @return the persisted entity
      */
     @Transactional
@@ -45,8 +51,10 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * Update an entity
-     * @param object entity to update
+     * Update an entity.
+     *
+     * @param object
+     *            entity to update
      * @return the updated entity
      */
     @Transactional
@@ -56,8 +64,10 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * Remove an entity
-     * @param object entity to remove
+     * Remove an entity.
+     *
+     * @param object
+     *            entity to remove
      * @return the removed entity
      */
     @Transactional
@@ -67,13 +77,16 @@ public abstract class AbstractDAO<T> {
     }
 
     /**
-     * Check that an entity is not null
-     * @param entity entity that should not be null
+     * Check that an entity is not null.
+     *
+     * @param entity
+     *            entity that should not be null
      * @return the entity
-     * @throws EntityNotFoundException if the entity could not be found
+     * @throws EntityNotFoundException
+     *             if the entity could not be found
      */
-    protected T ensureExists(T entity) {
-        if(entity == null) {
+    protected T ensureExists(final T entity) {
+        if (entity == null) {
             throw new EntityNotFoundException();
         }
         return entity;

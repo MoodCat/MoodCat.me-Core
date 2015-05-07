@@ -28,10 +28,19 @@ import com.google.inject.Singleton;
 @Produces(MediaType.APPLICATION_JSON)
 public class ChatAPI {
 
+    /**
+     * The chat-manager to talk to the database.
+     */
     private final ChatDAO chatDAO;
 
+    /**
+     * The room-manager to talk to the database.
+     */
     private final RoomDAO roomDAO;
 
+    /**
+     * The cached list of messages.
+     */
     private List<ChatMessage> messages;
 
     /**

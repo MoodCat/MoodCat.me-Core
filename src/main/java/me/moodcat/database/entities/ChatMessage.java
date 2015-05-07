@@ -22,7 +22,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "chatmessage")
 @ToString(of = {
-        "roomId", "message"
+        "room", "message"
 })
 @EqualsAndHashCode(of = "id")
 public class ChatMessage {

@@ -39,7 +39,16 @@ import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
 
+/**
+ * Main entry-point for the backend server. Initializes all {@link me.moodcat.api APIs}, starts the
+ * {@link #server} and connects to the database.
+ */
 public class App {
+
+    /**
+     * The time that sessions are kept in the cache.
+     */
+    private static final int SESSION_KEEP_ALIVE = 1800;
 
     /**
      * Default TCP port.
@@ -97,7 +106,7 @@ public class App {
         resources.setCacheControl("max-age=3600");
 
         final HashSessionManager hashSessionManager = new HashSessionManager();
-        hashSessionManager.setMaxInactiveInterval(1800);
+        hashSessionManager.setMaxInactiveInterval(SESSION_KEEP_ALIVE);
 
         final ContextHandlerCollection handlers = new ContextHandlerCollection();
         // CHECKSTYLE:OFF
@@ -188,6 +197,9 @@ public class App {
      */
     public class MoodcatServletModule extends ServletModule {
 
+        /**
+         * The rootFolder that contains all resources.
+         */
         private final File rootFolder;
 
         public MoodcatServletModule(final File rootFolder) {
