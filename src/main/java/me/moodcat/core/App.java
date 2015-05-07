@@ -10,6 +10,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
 import me.moodcat.api.SongAPI;
+import me.moodcat.database.DbModule;
 import me.moodcat.database.MockData;
 
 import org.eclipse.jetty.server.Server;
@@ -202,9 +203,9 @@ public class App {
             this.bind(File.class).annotatedWith(Names.named("root.folder"))
                     .toInstance(this.rootFolder);
             // Bind the database module
-            this.install(new JpaPersistModule("moodcat"));
-            this.requireBinding(EntityManager.class);
-            this.requireBinding(EntityManagerFactory.class);
+            install(new DbModule());
+            requireBinding(EntityManager.class);
+            requireBinding(EntityManagerFactory.class);
             // Insert mock data
             this.bind(MockData.class).asEagerSingleton();
             // Bind the reqources, so they can serve requests

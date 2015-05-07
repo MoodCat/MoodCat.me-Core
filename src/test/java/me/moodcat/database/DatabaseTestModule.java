@@ -11,11 +11,9 @@ import com.google.inject.persist.jpa.JpaPersistModule;
  */
 public class DatabaseTestModule extends AbstractModule {
 
-    private static final String MOODCAT_PERSISTENCE_UNIT = "moodcat";
-
     @Override
     protected void configure() {
-        install(new JpaPersistModule(MOODCAT_PERSISTENCE_UNIT));
+        install(new DbModule());
         bind(JPAInitializer.class).asEagerSingleton();
     }
 
