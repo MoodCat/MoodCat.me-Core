@@ -94,7 +94,7 @@ public class ProcessAPI {
 
             songs.parallelStream()
                     .forEach((song) -> {
-                        final VAVector vector = ProcessAPI.this.classifier.predict(song);
+                        final VAVector vector = ProcessAPI.this.classifier.predict(song.getFeatures());
 
                         song.setValenceArousal(vector);
                     });
