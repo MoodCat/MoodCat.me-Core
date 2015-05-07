@@ -52,12 +52,12 @@ public class ChatMessage {
      */
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
-    private Room roomId;
+    private Room room;
 
     /**
      * The timestamp the message was posted.
      */
     @Column(name = "timestamp", nullable = true)
-    private long timestamp;
+    private Long timestamp;
 
 }

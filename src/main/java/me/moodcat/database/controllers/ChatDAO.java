@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.google.inject.persist.Transactional;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 
@@ -20,9 +21,18 @@ public class ChatDAO extends AbstractDAO<ChatMessage> {
         super(entityManager);
     }
 
-    public List<ChatMessage> listByRoomId(final Room roomId) {
+    @Transactional
+    public List<ChatMessage> listByRoom(final Room room) {
         return this.query().from(chatMessage)
-                .where(chatMessage.roomId.eq(roomId))
+                .where(chatMessage.room.eq(room))
+                .limit(NUMBER_OF_CHAT_MESSAGE)
+                .list(chatMessage);
+    }
+
+    @Transactional
+    public List<ChatMessage> listByRoomId(final int roomId) {
+        return this.query().from(chatMessage)
+                .where(chatMessage.room.id.eq(roomId))
                 .limit(NUMBER_OF_CHAT_MESSAGE)
                 .list(chatMessage);
     }

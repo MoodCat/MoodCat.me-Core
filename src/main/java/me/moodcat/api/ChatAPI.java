@@ -32,7 +32,7 @@ public class ChatAPI {
 
     private final RoomDAO roomDAO;
 
-    private ArrayList<ChatMessage> messages;
+    private List<ChatMessage> messages;
 
     /**
      * API to send and check for messages in a room.
@@ -75,13 +75,13 @@ public class ChatAPI {
     @POST
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ChatMessagePostResponse postMessage(final ChatMessagePostInput input) {
+    public ChatMessagePostResponse postMessage(final ChatMessageRequest input) {
         final ChatMessagePostResponse response = new ChatMessagePostResponse();
         response.setStatusCode("Success");
 
         final ChatMessage message = new ChatMessage();
         message.setMessage(input.getMessage());
-        message.setRoomId(this.roomDAO.findById(input.getRoomId()));
+        message.setRoom(this.roomDAO.findById(input.getRoomId()));
         message.setTimestamp(System.currentTimeMillis());
         message.setAuthor(input.getAuthor());
 
@@ -91,12 +91,12 @@ public class ChatAPI {
     }
 
     /**
-     * The input for {@link ChatAPI#postMessage(ChatMessagePostInput)}.
+     * The input for {@link ChatAPI#postMessage(ChatMessageRequest)}.
      *
      * @author JeremybellEU
      */
     @Data
-    static class ChatMessagePostInput {
+    static class ChatMessageRequest {
 
         /**
          * The message to post.
