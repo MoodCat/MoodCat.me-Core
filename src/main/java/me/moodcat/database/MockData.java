@@ -48,11 +48,16 @@ public class MockData {
         final Song song = new Song();
         song.setName("Thanks for the Memories");
         song.setArtist(fallOutBoy);
+        song.setDuration(208762);
+        song.setArtworkUrl("https://i1.sndcdn.com/artworks-000052078494-1b00cs-large.jpg");
+        song.setSoundCloudId(99517116);
         this.songDAO.persist(song);
 
         final Room room = new Room();
         room.setCurrentSong(song);
         room.setPosition(4);
+        room.setCurrentTime(42);
+        room.setRoomName("Silver Ass Wankers");
         this.roomDAO.persist(room);
     }
 

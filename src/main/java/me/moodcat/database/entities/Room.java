@@ -48,4 +48,14 @@ public class Room {
      */
     @Column(name = "position")
     private Integer position;
+
+    /**
+     * The name of the room.
+     */
+    @Column(name = "roomName")
+    private String roomName;
+
+
+    @Column(name = "currentTime")
+    private int currentTime;
 }
