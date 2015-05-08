@@ -1,6 +1,5 @@
 package me.moodcat.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -11,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.google.inject.persist.Transactional;
 import lombok.Data;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -18,12 +18,11 @@ import me.moodcat.database.entities.ChatMessage;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import me.moodcat.database.entities.Room;
 
 /**
  * API to send and check for messages in a room.
  */
-@Singleton
 @Path("/api/rooms/{roomId}/chat")
 @Produces(MediaType.APPLICATION_JSON)
 public class ChatAPI {
@@ -39,11 +38,6 @@ public class ChatAPI {
     private final RoomDAO roomDAO;
 
     /**
-     * The cached list of messages.
-     */
-    private List<ChatMessage> messages;
-
-    /**
      * API to send and check for messages in a room.
      *
      * @param chatDAO
@@ -56,8 +50,6 @@ public class ChatAPI {
     public ChatAPI(final ChatDAO chatDAO, final RoomDAO roomDAO) {
         this.chatDAO = chatDAO;
         this.roomDAO = roomDAO;
-
-        this.messages = new ArrayList<ChatMessage>();
     }
 
     /**
@@ -68,10 +60,9 @@ public class ChatAPI {
      * @return The messages for this room.
      */
     @GET
+    @Transactional
     public List<ChatMessage> getChatList(@PathParam(value = "roomId") final int roomId) {
-        return this.messages;
-
-        // return this.chatDAO.listByRoomId(this.roomDAO.findById(roomId));
+        return this.roomDAO.findById(roomId).getChatMessages();
     }
 
     /**
@@ -79,25 +70,22 @@ public class ChatAPI {
      *
      * @param input
      *            The message to sent with roomId
-     * @return Whether the message was succesfully posted or not.
+     * @return Whether the message was successfully posted or not.
      */
     @POST
-    @Path("/post")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public ChatMessagePostResponse postMessage(final ChatMessageRequest input) {
-        final ChatMessagePostResponse response = new ChatMessagePostResponse();
-        response.setStatusCode("Success");
-
+    public ChatMessage postMessage(@PathParam(value = "roomId") final int roomId, final ChatMessageRequest input) {
+        final Room room = this.roomDAO.findById(roomId);
         final ChatMessage message = new ChatMessage();
+
         message.setMessage(input.getMessage());
-        message.setRoom(this.roomDAO.findById(input.getRoomId()));
+        message.setRoom(room);
         message.setTimestamp(System.currentTimeMillis());
         message.setAuthor(input.getAuthor());
 
-        this.messages.add(message);
         this.chatDAO.persist(message);
-
-        return response;
+        return message;
     }
 
     /**
@@ -122,20 +110,6 @@ public class ChatAPI {
          * The author that sent the message.
          */
         private String author;
-    }
-
-    /**
-     * Response to indicate whether the chat message was succesfully posted or not.
-     *
-     * @author JeremybellEU
-     */
-    @Data
-    static class ChatMessagePostResponse {
-
-        /**
-         * Can be either success or failure.
-         */
-        private String statusCode;
     }
 
 }

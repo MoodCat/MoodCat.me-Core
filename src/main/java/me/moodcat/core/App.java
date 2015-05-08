@@ -3,12 +3,14 @@ package me.moodcat.core;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
+import com.google.inject.persist.PersistFilter;
 import me.moodcat.api.ChatAPI;
 import me.moodcat.api.RoomAPI;
 import me.moodcat.api.SongAPI;
@@ -44,6 +46,8 @@ import com.google.inject.util.Modules;
  * {@link #server} and connects to the database.
  */
 public class App {
+
+    private final AtomicReference<Injector> injectorAtomicReference = new AtomicReference<>();
 
     /**
      * The time that sessions are kept in the cache.
@@ -94,6 +98,9 @@ public class App {
 
         final App app = new App();
         app.startServer();
+        app.injectorAtomicReference.get()
+            .getInstance(MockData.class)
+            .insertMockData();
         app.joinThread();
     }
 
@@ -182,6 +189,7 @@ public class App {
                             injector.getInstance(GuiceFilter.class));
                     MoodcatHandler.this.addFilter(guiceFilterHolder, "/*",
                             EnumSet.allOf(DispatcherType.class));
+                    injectorAtomicReference.set(injector);
                 }
             });
 
@@ -216,13 +224,17 @@ public class App {
             this.bind(File.class).annotatedWith(Names.named("root.folder"))
                     .toInstance(this.rootFolder);
             // Bind the database module
-            install(new DbModule());
-            requireBinding(EntityManager.class);
-            requireBinding(EntityManagerFactory.class);
+            this.bindDatabaseModule();
             // Insert mock data
             this.bind(MockData.class).asEagerSingleton();
-
             this.bindAPI();
+        }
+
+        private void bindDatabaseModule() {
+            install(new DbModule());
+            filter("/*").through(PersistFilter.class);
+            requireBinding(EntityManager.class);
+            requireBinding(EntityManagerFactory.class);
         }
 
         private void bindAPI() {

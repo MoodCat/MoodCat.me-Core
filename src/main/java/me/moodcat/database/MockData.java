@@ -14,36 +14,37 @@ import com.google.inject.persist.PersistService;
 import com.google.inject.persist.Transactional;
 
 /**
- * TODO: Add explanation.
+ * MockData inserts initial data in to a clean database
  *
  * @author Jan-Willem Gmelig Meyling
  */
 @Singleton
 public class MockData {
 
-    private final ArtistDAO artistDAO;
+    private final Provider<ArtistDAO> artistDAOProvider;
 
-    private final SongDAO songDAO;
+    private final Provider<SongDAO> songDAOProvider;
 
-    private final RoomDAO roomDAO;
+    private final Provider<RoomDAO> roomDAOProvider;
 
     @Inject
-    public MockData(final Provider<ArtistDAO> artistDAOProvider,
-                    final Provider<SongDAO> songDAOProvider,
-                    final Provider<RoomDAO> roomDAOProvider,
-                    final PersistService service) {
-        service.start();
-        this.artistDAO = artistDAOProvider.get();
-        this.roomDAO = roomDAOProvider.get();
-        this.songDAO = songDAOProvider.get();
-        this.insertMockData();
+    public MockData(Provider<ArtistDAO> artistDAOProvider,
+                    Provider<SongDAO> songDAOProvider,
+                    Provider<RoomDAO> roomDAOProvider) {
+        this.artistDAOProvider = artistDAOProvider;
+        this.songDAOProvider = songDAOProvider;
+        this.roomDAOProvider = roomDAOProvider;
     }
 
     @Transactional
-    private void insertMockData() {
+    public void insertMockData() {
+        final ArtistDAO artistDAO = artistDAOProvider.get();
+        final SongDAO songDAO = songDAOProvider.get();
+        final RoomDAO roomDAO = roomDAOProvider.get();
+
         final Artist fallOutBoy = new Artist();
         fallOutBoy.setName("Fall Out Boy");
-        this.artistDAO.persist(fallOutBoy);
+        artistDAO.persist(fallOutBoy);
 
         final Song song = new Song();
         song.setName("Thanks for the Memories");
@@ -51,14 +52,14 @@ public class MockData {
         song.setDuration(208762);
         song.setArtworkUrl("https://i1.sndcdn.com/artworks-000052078494-1b00cs-large.jpg");
         song.setSoundCloudId(99517116);
-        this.songDAO.persist(song);
+        songDAO.persist(song);
 
         final Room room = new Room();
         room.setCurrentSong(song);
         room.setPosition(4);
         room.setCurrentTime(42);
         room.setRoomName("Silver Ass Wankers");
-        this.roomDAO.persist(room);
+        roomDAO.persist(room);
     }
 
 }
