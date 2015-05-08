@@ -28,6 +28,7 @@
 		<pmd.version>3.2</pmd.version>
 		<findbugs.version>3.0.1</findbugs.version>
 		<querydsl.version>3.6.0</querydsl.version>
+		<recommendation-library.version>2.0.0</recommendation-library.version>
 	</properties>
 
 	<repositories>
@@ -144,7 +145,7 @@
 		<dependency>
 			<groupId>com.github.jeremybelleu.recommendation-library</groupId>
 			<artifactId>recommendation-library</artifactId>
-			<version>1.0.0</version>
+			<version>${recommendation-library.version}</version>
 		</dependency>
 
 		<!-- persistence -->
@@ -201,6 +202,15 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>

@@ -18,6 +18,8 @@ import com.google.inject.persist.Transactional;
  */
 public class SongDAO extends AbstractDAO<Song> {
 
+    private static final long NUMBER_OF_SONGS_TO_PROCESS = 10;
+
     @Inject
     public SongDAO(final EntityManager entityManager) {
         super(entityManager);
@@ -41,5 +43,20 @@ public class SongDAO extends AbstractDAO<Song> {
         return this.query().from(song)
                 .where(song.id.eq(id))
                 .singleResult(song);
+    }
+
+    /**
+     * Fetches the next {@link #NUMBER_OF_SONGS_TO_PROCESS} in order to process to determine the
+     * {@link Song#getValenceArousal() valenceArousal}.
+     *
+     * @return A list consisting of songs that should be processed with a maximum size of
+     *         {@link #NUMBER_OF_SONGS_TO_PROCESS}
+     */
+    @Transactional
+    public List<Song> findNextUnprocessedSongs() {
+        return this.query().from(song)
+                .where(song.valenceArousal.isNull())
+                .limit(NUMBER_OF_SONGS_TO_PROCESS)
+                .list(song);
     }
 }
