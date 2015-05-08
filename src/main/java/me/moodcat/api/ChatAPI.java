@@ -95,6 +95,7 @@ public class ChatAPI {
         message.setAuthor(input.getAuthor());
 
         this.messages.add(message);
+        this.chatDAO.persist(message);
 
         return response;
     }

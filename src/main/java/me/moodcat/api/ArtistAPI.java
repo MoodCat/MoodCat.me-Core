@@ -16,6 +16,8 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
 /**
+ * The {@code ArtistAPI} is an API entry point to do CRUD operations to {@link Artist} entities.
+ *
  * @author Jan-Willem Gmelig Meyling
  */
 @Path("/api/artists")

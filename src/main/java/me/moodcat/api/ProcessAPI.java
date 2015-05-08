@@ -1,6 +1,7 @@
 package me.moodcat.api;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,7 +21,7 @@ import com.google.inject.persist.Transactional;
 
 /**
  * API that can process a list of songs using {@link #processSongs()}.
- * 
+ *
  * @author JeremybellEU
  */
 @Singleton
@@ -28,12 +29,30 @@ import com.google.inject.persist.Transactional;
 @Produces(MediaType.TEXT_PLAIN)
 public class ProcessAPI {
 
+    /**
+     * Manager to obtain songs from the database.
+     */
     private SongDAO songDAO;
 
+    /**
+     * The classifier that will predict vectors.
+     */
     private MoodClassifier classifier;
 
+    /**
+     * Whether we are already {@link Processing} or {@link Idle}. This way we throttle request to
+     * deter server performance issues.
+     */
     private Processingstate processingState;
 
+    /**
+     * Default constructor.
+     *
+     * @param songDAO
+     *            The databasemanager
+     * @param classifier
+     *            The classifier to process songs with
+     */
     @Inject
     @VisibleForTesting
     public ProcessAPI(final SongDAO songDAO, final MoodClassifier classifier) {
@@ -93,16 +112,18 @@ public class ProcessAPI {
             final List<Song> songs = ProcessAPI.this.songDAO.findNextUnprocessedSongs();
 
             songs.parallelStream()
-                    .forEach((song) -> {
-                        final VAVector vector = ProcessAPI.this.classifier.predict(song.getFeatures());
-
-                        song.setValenceArousal(vector);
-                    });
+                    .forEach(this::predictAndSetVector);
 
             songs.stream()
                     .forEach(ProcessAPI.this.songDAO::merge);
 
             ProcessAPI.this.processingState = new Idle();
+        }
+
+        private void predictAndSetVector(Song song) {
+                final VAVector vector = ProcessAPI.this.classifier.predict(song.getFeatures());
+
+                song.setValenceArousal(vector);
         }
     }
 }

@@ -2,9 +2,13 @@ package me.moodcat.mood.classifier;
 
 import me.moodcat.database.embeddables.AcousticBrainzData;
 import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.Song;
 import predictors.Predictor;
 
+/**
+ * A classifier that can take some song-features and generate a {@link VAVector}.
+ * 
+ * @author JeremybellEU
+ */
 public class MoodClassifier implements Predictor<AcousticBrainzData, VAVector> {
 
     @Override
