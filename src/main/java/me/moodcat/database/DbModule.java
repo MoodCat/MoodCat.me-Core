@@ -10,7 +10,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
 /**
- * TODO: Add explanation.
+ * Guice AbstractModule that installs the JpaPersistModule for the current Persistence unit.
+ * The properties are loaded from the resource which allows a different configuration under test.
  *
  * @author Jan-Willem Gmelig Meyling
  */

@@ -9,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.Song;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -16,7 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
 /**
- * TODO: Add JavaDoc.
+ * The {@code ArtistAPI} is an API entry point to do CRUD operations to {@link Song} entities.
  *
  * @author Jan-Willem Gmelig Meyling
  */

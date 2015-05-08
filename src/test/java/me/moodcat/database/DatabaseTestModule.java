@@ -6,15 +6,17 @@ import com.google.inject.Singleton;
 import com.google.inject.persist.PersistService;
 
 /**
- * TODO: Add explanation.
+ * The DatabaseTestModule extends the {@link DbModule}, but also starts the {@link PersistService} to allow
+ * database interaction from the unit tests. (The PersistService is normally started automatically
+ * by the servlet).
  *
  * @author Jan-Willem Gmelig Meyling
  */
-public class DatabaseTestModule extends AbstractModule {
+public class DatabaseTestModule extends DbModule {
 
     @Override
     protected void configure() {
-        install(new DbModule());
+        super.configure();
         bind(JPAInitializer.class).asEagerSingleton();
     }
 

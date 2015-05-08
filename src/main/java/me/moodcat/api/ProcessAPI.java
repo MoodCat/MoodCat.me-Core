@@ -112,7 +112,7 @@ public class ProcessAPI {
             final List<Song> songs = ProcessAPI.this.songDAO.findNextUnprocessedSongs();
 
             songs.parallelStream()
-                    .forEach(predictAndSetVector());
+                    .forEach(this::predictAndSetVector);
 
             songs.stream()
                     .forEach(ProcessAPI.this.songDAO::merge);
@@ -120,12 +120,10 @@ public class ProcessAPI {
             ProcessAPI.this.processingState = new Idle();
         }
 
-        private Consumer<? super Song> predictAndSetVector() {
-            return (song) -> {
+        private void predictAndSetVector(Song song) {
                 final VAVector vector = ProcessAPI.this.classifier.predict(song.getFeatures());
 
                 song.setValenceArousal(vector);
-            };
         }
     }
 }
