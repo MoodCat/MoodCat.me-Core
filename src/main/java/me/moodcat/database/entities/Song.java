@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import me.moodcat.database.embeddables.AcousticBrainzData;
@@ -35,19 +36,31 @@ public class Song {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "soundcloudID")
+    private Integer soundCloudId;
+
     @ManyToOne
-    @JoinColumn(name = "artist_id", nullable = true)
+    @JoinColumn(name = "artist", nullable = true)
     private Artist artist;
 
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "duration")
+    private int duration;
+
+    @Column(name = "artworkUrl")
+    private String artworkUrl;
+
+    @JsonIgnore
     @Embedded
     private AcousticBrainzData features;
 
+    @JsonIgnore
     @Embedded
     private VAVector valenceArousal;
 
+    @JsonIgnore
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "valence", column = @Column(name = "expected_valence")),

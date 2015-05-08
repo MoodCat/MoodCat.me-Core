@@ -108,10 +108,6 @@
       <message key="ws.preceded" value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
       <message key="ws.illegalFollow" value="GenericWhitespace ''{0}'' should followed by whitespace."/>
     </module>
-    <module name="Indentation">
-      <property name="caseIndent" value="2"/>
-      <property name="arrayInitIndent" value="2"/>
-    </module>
     <module name="AbbreviationAsWordInName">
       <property name="allowedAbbreviationLength" value="1"/>
       <property name="allowedAbbreviations" value="DAO,API,VA"/>
@@ -181,7 +177,10 @@
     <module name="RedundantModifier"/>
     <module name="DefaultComesLast"/>
     <module name="DeclarationOrder"/>
-    <module name="HiddenField"/>
+    <module name="HiddenField">
+      <property name="ignoreConstructorParameter" value="true"/>
+      <property name="ignoreSetter" value="true"/>
+    </module>
     <module name="InnerAssignment"/>
     <module name="MagicNumber"/>
     <module name="MultipleStringLiterals"/>
@@ -200,7 +199,6 @@
     <module name="CyclomaticComplexity"/>
     <module name="CovariantEquals"/>
     <module name="SuppressWarnings"/>
-    <module name="AbbreviationAsWordInName"/>
   </module>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
