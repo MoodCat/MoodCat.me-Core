@@ -1,19 +1,23 @@
 package me.moodcat.api;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.entities.Song;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+
+import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.entities.Song;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
 /**
+ * TODO: Add JavaDoc.
+ *
  * @author Jan-Willem Gmelig Meyling
  */
 @Path("/api/songs")
@@ -24,7 +28,7 @@ public class SongAPI {
 
     @Inject
     @VisibleForTesting
-    public SongAPI(SongDAO songDAO) {
+    public SongAPI(final SongDAO songDAO) {
         this.songDAO = songDAO;
     }
 
@@ -37,7 +41,7 @@ public class SongAPI {
     @GET
     @Path("{id}")
     @Transactional
-    public Song getSongById(@PathParam("id") int id) {
+    public Song getSongById(@PathParam("id") final int id) {
         return songDAO.findById(id);
     }
 

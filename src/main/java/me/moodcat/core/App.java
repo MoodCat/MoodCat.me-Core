@@ -35,7 +35,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.google.inject.persist.jpa.JpaPersistModule;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
@@ -223,10 +222,10 @@ public class App {
             // Insert mock data
             this.bind(MockData.class).asEagerSingleton();
 
-            this.bindAPIclasses();
+            this.bindAPI();
         }
 
-        private void bindAPIclasses() {
+        private void bindAPI() {
             this.bind(SongAPI.class);
             this.bind(ChatAPI.class);
             this.bind(RoomAPI.class);

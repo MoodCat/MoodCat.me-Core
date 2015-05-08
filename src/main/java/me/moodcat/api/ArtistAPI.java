@@ -16,6 +16,8 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
 /**
+ * TODO: Add explanation.
+ *
  * @author Jan-Willem Gmelig Meyling
  */
 @Path("/api/artists")

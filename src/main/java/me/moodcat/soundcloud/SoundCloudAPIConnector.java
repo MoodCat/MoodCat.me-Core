@@ -40,7 +40,7 @@ public abstract class SoundCloudAPIConnector {
 
     /**
      * Obtain a HTTP-client to start a request.
-     * 
+     *
      * @return The HTTP-client.
      */
     protected Client createClient() {

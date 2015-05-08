@@ -55,7 +55,9 @@ public class Room {
     @Column(name = "roomName")
     private String roomName;
 
-
+    /**
+     * The time of the {@link #currentSong} in order to 'jump' right into listening.
+     */
     @Column(name = "currentTime")
     private int currentTime;
 }
