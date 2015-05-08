@@ -10,6 +10,7 @@ import me.moodcat.database.embeddables.VAVector;
  */
 public enum Mood {
 
+    // CHECKSTYLE:OFF
     ANGRY(0.0, 0.0),
     CALM(0.0, 0.0),
     EXCITING(0.0, 0.0),
@@ -20,6 +21,8 @@ public enum Mood {
     RELAXED(0.0, 0.0),
     SAD(0.0, 0.0),
     SLEEPY(0.0, 0.0);
+
+    // CHECKSTYLE:ON
 
     /**
      * The vector that represents this mood.

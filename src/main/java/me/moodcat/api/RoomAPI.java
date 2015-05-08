@@ -8,20 +8,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.google.inject.persist.Transactional;
-import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.Room;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-import me.moodcat.database.entities.Song;
+import com.google.inject.persist.Transactional;
 
 /**
  * The API for the room.
- * 
+ *
  * @author Jaap Heijligers
  */
 @Path("/api/rooms/")
@@ -35,7 +31,7 @@ public class RoomAPI {
 
     @Inject
     @VisibleForTesting
-    public RoomAPI(RoomDAO roomDAO) {
+    public RoomAPI(final RoomDAO roomDAO) {
         this.roomDAO = roomDAO;
     }
 
@@ -48,7 +44,7 @@ public class RoomAPI {
     @GET
     @Path("{id}")
     @Transactional
-    public Room getRoom(@PathParam("id") int roomId) {
+    public Room getRoom(@PathParam("id") final int roomId) {
         return roomDAO.findById(roomId);
     }
 

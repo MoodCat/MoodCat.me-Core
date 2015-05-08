@@ -31,10 +31,21 @@ public class DbModule extends AbstractModule {
             Preconditions.checkNotNull(stream, "Persistence properties not found");
             final Properties properties = new Properties();
             properties.load(stream);
+
+            setDatabasePassword(properties);
+
             jpaModule.properties(properties);
         }
 
         install(jpaModule);
     }
 
+    private void setDatabasePassword(final Properties properties) {
+        final String databasePassword = System.getenv("database-password");
+
+        // This will be null if it is run in the test environment.
+        if (databasePassword != null) {
+            properties.setProperty("javax.persistence.jdbc.password", databasePassword);
+        }
+    }
 }

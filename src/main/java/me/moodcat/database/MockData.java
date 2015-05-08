@@ -10,9 +10,10 @@ import me.moodcat.database.entities.Song;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.google.inject.persist.PersistService;
 import com.google.inject.persist.Transactional;
 
+// CHECKSTYLE:OFF
+// Can be turned of as this is mocked data
 /**
  * MockData inserts initial data in to a clean database
  *
@@ -28,9 +29,9 @@ public class MockData {
     private final Provider<RoomDAO> roomDAOProvider;
 
     @Inject
-    public MockData(Provider<ArtistDAO> artistDAOProvider,
-                    Provider<SongDAO> songDAOProvider,
-                    Provider<RoomDAO> roomDAOProvider) {
+    public MockData(final Provider<ArtistDAO> artistDAOProvider,
+            final Provider<SongDAO> songDAOProvider,
+            final Provider<RoomDAO> roomDAOProvider) {
         this.artistDAOProvider = artistDAOProvider;
         this.songDAOProvider = songDAOProvider;
         this.roomDAOProvider = roomDAOProvider;

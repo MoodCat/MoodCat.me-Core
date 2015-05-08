@@ -1,7 +1,6 @@
 package me.moodcat.api;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -120,10 +119,10 @@ public class ProcessAPI {
             ProcessAPI.this.processingState = new Idle();
         }
 
-        private void predictAndSetVector(Song song) {
-                final VAVector vector = ProcessAPI.this.classifier.predict(song.getFeatures());
+        private void predictAndSetVector(final Song song) {
+            final VAVector vector = ProcessAPI.this.classifier.predict(song.getFeatures());
 
-                song.setValenceArousal(vector);
+            song.setValenceArousal(vector);
         }
     }
 }

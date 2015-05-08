@@ -1,12 +1,12 @@
 package me.moodcat.database;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.persist.PersistService;
 
 /**
- * The DatabaseTestModule extends the {@link DbModule}, but also starts the {@link PersistService} to allow
+ * The DatabaseTestModule extends the {@link DbModule}, but also starts the {@link PersistService}
+ * to allow
  * database interaction from the unit tests. (The PersistService is normally started automatically
  * by the servlet).
  *
