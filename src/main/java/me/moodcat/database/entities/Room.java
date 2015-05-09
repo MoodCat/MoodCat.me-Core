@@ -7,11 +7,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
+
+import java.util.List;
 
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
@@ -60,4 +66,11 @@ public class Room {
      */
     @Column(name = "currentTime")
     private int currentTime;
+
+    /**
+     * The chat messages in the room
+     */
+    @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
+    private List<ChatMessage> chatMessages;
+
 }
