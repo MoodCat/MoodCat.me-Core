@@ -9,10 +9,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A chat message for a room.
@@ -23,7 +24,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "chatmessage")
 @ToString(of = {
-        "room", "message","author"
+        "room", "message", "author"
 })
 @EqualsAndHashCode(of = "id")
 public class ChatMessage {
@@ -32,7 +33,7 @@ public class ChatMessage {
      * Global chatmessage id.
      */
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Integer id;
 

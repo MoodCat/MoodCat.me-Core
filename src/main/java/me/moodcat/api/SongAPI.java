@@ -9,7 +9,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.Song;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -25,6 +24,9 @@ import com.google.inject.persist.Transactional;
 @Produces(MediaType.APPLICATION_JSON)
 public class SongAPI {
 
+    /**
+     * Manager to talk to the database to obtain songs.
+     */
     private final SongDAO songDAO;
 
     @Inject

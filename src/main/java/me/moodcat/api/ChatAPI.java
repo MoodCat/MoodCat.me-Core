@@ -10,15 +10,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.google.inject.persist.Transactional;
 import lombok.Data;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
-import me.moodcat.database.entities.Room;
+import com.google.inject.persist.Transactional;
 
 /**
  * API to send and check for messages in a room.
@@ -75,7 +75,8 @@ public class ChatAPI {
     @POST
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    public ChatMessage postMessage(@PathParam(value = "roomId") final int roomId, final ChatMessageRequest input) {
+    public ChatMessage postMessage(@PathParam(value = "roomId") final int roomId,
+            final ChatMessageRequest input) {
         final Room room = this.roomDAO.findById(roomId);
         final ChatMessage message = new ChatMessage();
 

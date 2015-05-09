@@ -10,7 +10,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
-import com.google.inject.persist.PersistFilter;
 import me.moodcat.api.ChatAPI;
 import me.moodcat.api.RoomAPI;
 import me.moodcat.api.SongAPI;
@@ -37,6 +36,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
+import com.google.inject.persist.PersistFilter;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
@@ -46,8 +46,6 @@ import com.google.inject.util.Modules;
  * {@link #server} and connects to the database.
  */
 public class App {
-
-    private final AtomicReference<Injector> injectorAtomicReference = new AtomicReference<>();
 
     /**
      * The time that sessions are kept in the cache.
@@ -65,6 +63,11 @@ public class App {
     private static Logger log = LoggerFactory.getLogger(App.class);
 
     /**
+     * Reference for injector in order to have concurrent transactions to our database.
+     */
+    private final AtomicReference<Injector> injectorAtomicReference = new AtomicReference<>();
+
+    /**
      * The server that handles the requests.
      */
     private final Server server;
@@ -73,10 +76,10 @@ public class App {
      * Instantiates the server and adds handlers for the requests.
      */
     public App() {
-        final File staticsFolder = new File("src/main/resources/static");
+        final File staticsFolder = new File("src/main/resources/static/app");
 
         for (final String file : staticsFolder.list()) {
-            log.info("Found resouce {}", file);
+            log.info("Found resource {}", file);
         }
 
         this.server = new Server(SERVER_PORT);
@@ -99,8 +102,8 @@ public class App {
         final App app = new App();
         app.startServer();
         app.injectorAtomicReference.get()
-            .getInstance(MockData.class)
-            .insertMockData();
+                .getInstance(MockData.class)
+                .insertMockData();
         app.joinThread();
     }
 

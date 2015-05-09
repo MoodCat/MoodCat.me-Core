@@ -1,5 +1,10 @@
 package me.moodcat.database.entities;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
+
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,15 +14,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.BatchSize;
-
-import java.util.List;
 
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
@@ -68,7 +68,7 @@ public class Room {
     private int currentTime;
 
     /**
-     * The chat messages in the room
+     * The chat messages in the room.
      */
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
