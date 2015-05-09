@@ -33,7 +33,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.google.inject.persist.jpa.JpaPersistModule;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
@@ -185,7 +184,7 @@ public class App {
      * MoodCat base API service. It tells Google Guice which classes (and their
      * dependencies) to instantiate.
      */
-    public class MoodcatServletModule extends ServletModule {
+    public static class MoodcatServletModule extends ServletModule {
 
         private final File rootFolder;
 
