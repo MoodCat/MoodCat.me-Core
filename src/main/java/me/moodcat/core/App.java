@@ -3,12 +3,15 @@ package me.moodcat.core;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
+import me.moodcat.api.ChatAPI;
+import me.moodcat.api.RoomAPI;
 import me.moodcat.api.SongAPI;
 import me.moodcat.database.DbModule;
 import me.moodcat.database.MockData;
@@ -33,11 +36,21 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
+import com.google.inject.persist.PersistFilter;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
 
+/**
+ * Main entry-point for the backend server. Initializes all {@link me.moodcat.api APIs}, starts the
+ * {@link #server} and connects to the database.
+ */
 public class App {
+
+    /**
+     * The time that sessions are kept in the cache.
+     */
+    private static final int SESSION_KEEP_ALIVE = 1800;
 
     /**
      * Default TCP port.
@@ -50,6 +63,11 @@ public class App {
     private static Logger log = LoggerFactory.getLogger(App.class);
 
     /**
+     * Reference for injector in order to have concurrent transactions to our database.
+     */
+    private final AtomicReference<Injector> injectorAtomicReference = new AtomicReference<>();
+
+    /**
      * The server that handles the requests.
      */
     private final Server server;
@@ -58,10 +76,10 @@ public class App {
      * Instantiates the server and adds handlers for the requests.
      */
     public App() {
-        final File staticsFolder = new File("src/main/resources/static");
+        final File staticsFolder = new File("src/main/resources/static/app");
 
         for (final String file : staticsFolder.list()) {
-            log.info("Found resouce {}", file);
+            log.info("Found resource {}", file);
         }
 
         this.server = new Server(SERVER_PORT);
@@ -83,6 +101,9 @@ public class App {
 
         final App app = new App();
         app.startServer();
+        app.injectorAtomicReference.get()
+                .getInstance(MockData.class)
+                .insertMockData();
         app.joinThread();
     }
 
@@ -95,7 +116,7 @@ public class App {
         resources.setCacheControl("max-age=3600");
 
         final HashSessionManager hashSessionManager = new HashSessionManager();
-        hashSessionManager.setMaxInactiveInterval(1800);
+        hashSessionManager.setMaxInactiveInterval(SESSION_KEEP_ALIVE);
 
         final ContextHandlerCollection handlers = new ContextHandlerCollection();
         // CHECKSTYLE:OFF
@@ -171,6 +192,7 @@ public class App {
                             injector.getInstance(GuiceFilter.class));
                     MoodcatHandler.this.addFilter(guiceFilterHolder, "/*",
                             EnumSet.allOf(DispatcherType.class));
+                    injectorAtomicReference.set(injector);
                 }
             });
 
@@ -186,6 +208,9 @@ public class App {
      */
     public static class MoodcatServletModule extends ServletModule {
 
+        /**
+         * The rootFolder that contains all resources.
+         */
         private final File rootFolder;
 
         public MoodcatServletModule(final File rootFolder) {
@@ -202,13 +227,23 @@ public class App {
             this.bind(File.class).annotatedWith(Names.named("root.folder"))
                     .toInstance(this.rootFolder);
             // Bind the database module
-            install(new DbModule());
-            requireBinding(EntityManager.class);
-            requireBinding(EntityManagerFactory.class);
+            this.bindDatabaseModule();
             // Insert mock data
             this.bind(MockData.class).asEagerSingleton();
-            // Bind the reqources, so they can serve requests
+            this.bindAPI();
+        }
+
+        private void bindDatabaseModule() {
+            install(new DbModule());
+            filter("/*").through(PersistFilter.class);
+            requireBinding(EntityManager.class);
+            requireBinding(EntityManagerFactory.class);
+        }
+
+        private void bindAPI() {
             this.bind(SongAPI.class);
+            this.bind(ChatAPI.class);
+            this.bind(RoomAPI.class);
         }
     }
 

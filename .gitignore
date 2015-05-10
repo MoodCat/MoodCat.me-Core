@@ -30,4 +30,5 @@ hs_err_pid*
 # Database
 *.db
 
-src/main/resources/persistence.properties
+# Frontend generated code
+src/main/resources/static/app/
