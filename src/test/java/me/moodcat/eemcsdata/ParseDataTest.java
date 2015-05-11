@@ -52,13 +52,6 @@ public class ParseDataTest {
         assertEquals(120.082946777, result.getRhythm().getBpm(), 1e-4);
     }
 
-    @Test
-    public void testReadFolder() throws IOException {
-
-        data.parseFolder("src/test/resources/acousticbrainz/todo/",
-                "src/test/resources/acousticbrainz/result/");
-    }
-
     @Test(expected = IOException.class)
     public void testReadNotExsitsingFileLocal() throws IOException {
         data.parseFileAsLocal(
