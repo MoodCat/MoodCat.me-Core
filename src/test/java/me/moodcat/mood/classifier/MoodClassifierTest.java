@@ -25,6 +25,15 @@ public class MoodClassifierTest {
 
     // Decrease the value for more precise testing
     private final static double EPSILON = 450.0;
+    private final AcousticBrainzData data;
+    private final VAVector expected;
+    private final MoodClassifier moodClassifier;
+
+    public MoodClassifierTest(final String path, final VAVector expected) throws IOException {
+        this.data = parseData(path);
+        this.expected = expected;
+        this.moodClassifier = new MoodClassifier();
+    }
 
     @Parameters
     public static Collection<Object[]> data() {
@@ -75,29 +84,7 @@ public class MoodClassifierTest {
         });
     }
 
-    private final AcousticBrainzData data;
-
-    private final VAVector expected;
-
-    private final MoodClassifier moodClassifier;
-
-    public MoodClassifierTest(final String path, final VAVector expected) throws IOException {
-        this.data = parseData(path);
-        this.expected = expected;
-        this.moodClassifier = new MoodClassifier();
-    }
-
-    @Test
-    public void testMoodClassifierClassifiesExpectedValue() {
-        final VAVector actual = this.moodClassifier.predict(this.data);
-
-        assertVAVectorEquals(this.expected, actual);
-    }
-
     public static void assertVAVectorEquals(final VAVector expected, final VAVector actual) {
-        System.out.println("getArousal" + actual.getArousal());
-        System.out.println("getValence" + actual.getValence());
-
         assertEquals(expected.getArousal(), actual.getArousal(), EPSILON);
         assertEquals(expected.getValence(), actual.getValence(), EPSILON);
     }
@@ -108,6 +95,13 @@ public class MoodClassifierTest {
         try (InputStream in = MoodClassifierTest.class.getResourceAsStream(path)) {
             return objectMapper.readValue(in, AcousticBrainzData.class);
         }
+    }
+
+    @Test
+    public void testMoodClassifierClassifiesExpectedValue() {
+        final VAVector actual = this.moodClassifier.predict(this.data);
+
+        assertVAVectorEquals(this.expected, actual);
     }
 
 }
