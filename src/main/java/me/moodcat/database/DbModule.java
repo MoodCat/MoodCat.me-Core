@@ -18,6 +18,16 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 public class DbModule extends AbstractModule {
 
     /**
+     * The name of the environment variable to set when running in production.
+     */
+    private static final String ENVIRONMENT_DATABASE_VARIABLE_NAME = "database-password";
+
+    /**
+     * The name of the property to set when running tests/locally.
+     */
+    private static final String PASSWORD_PROPERTY_NAME = "javax.persistence.jdbc.password";
+
+    /**
      * Unit defined in src/main/resources/META-INF/persistence.xml.
      */
     private static final String MOODCAT_PERSISTENCE_UNIT = "moodcat";
@@ -40,12 +50,38 @@ public class DbModule extends AbstractModule {
         install(jpaModule);
     }
 
-    private void setDatabasePassword(final Properties properties) {
-        final String databasePassword = System.getenv("database-password");
+    private void setDatabasePassword(final Properties properties)
+            throws DatabaseConfigurationException {
+        final String databasePassword = System.getenv(ENVIRONMENT_DATABASE_VARIABLE_NAME);
 
         // This will be null if it is run in the test environment.
         if (databasePassword != null) {
-            properties.setProperty("javax.persistence.jdbc.password", databasePassword);
+            properties.setProperty(PASSWORD_PROPERTY_NAME, databasePassword);
         }
+
+        // Make sure the property is set, else notify developer/admin the configuration is invalid
+        if (properties.getProperty(PASSWORD_PROPERTY_NAME) == null) {
+            throw new DatabaseConfigurationException("The database password is not set."
+                    + "Make sure the environment contains the variable '"
+                    + ENVIRONMENT_DATABASE_VARIABLE_NAME + "'.");
+        }
+    }
+
+    /**
+     * Exception thrown when the database configuration is invalid.
+     *
+     * @author JeremybellEU
+     */
+    private static class DatabaseConfigurationException extends Exception {
+
+        /**
+         * Generated UID.
+         */
+        private static final long serialVersionUID = 1071139882151857332L;
+
+        private DatabaseConfigurationException(final String string) {
+            super(string);
+        }
+
     }
 }
