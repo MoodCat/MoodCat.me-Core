@@ -40,7 +40,7 @@ public class ParseDataTest {
     public void testReadFolderLocal() throws IOException {
 
         data.parseFolder("src/test/resources/acousticbrainz/testData/folderTest/",
-                "src/test/resources/acousticbrainz/result/", false);
+                "src/test/resources/acousticbrainz/result/");
         AcousticBrainzData result = data.getResult();
 
         assertEquals("F", result.getTonal().getKeyKey());
@@ -62,7 +62,7 @@ public class ParseDataTest {
     @Test(expected = IOException.class)
     public void testReadNotExsitsingFolderLocal() throws IOException {
         data.parseFolder("src/test/resources/acousticbrainz/unknown/",
-                "src/test/resources/acousticbrainz/result/", false);
+                "src/test/resources/acousticbrainz/result/");
     }
 
     @Test
@@ -87,5 +87,4 @@ public class ParseDataTest {
                 "/acousticbrainz/testData/folderTest/nonExcisting.txt",
                 "src/test/resources/acousticbrainz/result/nonExcisting.json");
     }
-
 }
