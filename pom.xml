@@ -144,6 +144,12 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Utilities -->
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.9</version>
+		</dependency>
 		<dependency>
 			<groupId>com.github.jeremybelleu.recommendation-library</groupId>
 			<artifactId>recommendation-library</artifactId>

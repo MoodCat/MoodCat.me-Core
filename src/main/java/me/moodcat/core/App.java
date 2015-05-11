@@ -9,10 +9,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
+import javax.ws.rs.Path;
 
-import me.moodcat.api.ChatAPI;
-import me.moodcat.api.RoomAPI;
-import me.moodcat.api.SongAPI;
+import lombok.SneakyThrows;
 import me.moodcat.database.DbModule;
 import me.moodcat.database.MockData;
 
@@ -27,6 +26,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -209,6 +209,11 @@ public class App {
     public static class MoodcatServletModule extends ServletModule {
 
         /**
+         * The string representation of the api package.
+         */
+        private static final String API_PACKAGE_NAME = "me.moodcat.api";
+
+        /**
          * The rootFolder that contains all resources.
          */
         private final File rootFolder;
@@ -240,10 +245,13 @@ public class App {
             requireBinding(EntityManagerFactory.class);
         }
 
+        @SneakyThrows
         private void bindAPI() {
-            this.bind(SongAPI.class);
-            this.bind(ChatAPI.class);
-            this.bind(RoomAPI.class);
+            final Reflections reflections = new Reflections(API_PACKAGE_NAME);
+
+            for (final Class<?> clazz : reflections.getTypesAnnotatedWith(Path.class)) {
+                this.bind(clazz);
+            }
         }
     }
 
