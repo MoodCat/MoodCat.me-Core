@@ -97,8 +97,7 @@ public class ParseData {
      * @throws IOException
      *             If the folder can not be found,throw IOException.
      */
-    public void parseFolder(final String inputFolder, final String outputPath,
-            final boolean resource) throws IOException {
+    public void parseFolder(final String inputFolder, final String outputPath) throws IOException {
         final java.util.Iterator<Path> iterator = Files.walk(Paths.get(inputFolder)).iterator();
 
         while (iterator.hasNext()) {

@@ -18,20 +18,60 @@ import org.junit.runners.Parameterized.Parameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * @author Jan-Willem Gmelig Meyling
+ *
  */
 @RunWith(Parameterized.class)
 public class MoodClassifierTest {
 
     // Decrease the value for more precise testing
-    private final static double EPSILON = 200.0;
+    private final static double EPSILON = 450.0;
 
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 {
-                        "/acousticbrainz/testData/100019264.json", new VAVector(-1, 1)
-            }
+                        "/acousticbrainz/testData/ReeceMastin-GoodNight.json",
+                        new VAVector(0.3, 0.3)
+                },
+                {
+                        "/acousticbrainz/testData/GaryJules-MadWorld.json",
+                        new VAVector(-0.3, -0.3)
+                },
+                {
+                        "/acousticbrainz/testData/PharellWiliams-Happy.json",
+                        new VAVector(0.4, 0.4)
+                },
+                {
+                        "/acousticbrainz/testData/Racoon-YoungAndWise.json",
+                        new VAVector(0.4, -0.4)
+                },
+                {
+                        "/acousticbrainz/testData/Heideroosjes-DanZalIkMijnBakkesHouden!.json",
+                        new VAVector(-0.6, 0.7)
+                },
+                {
+                        "/acousticbrainz/testData/Nickelback-EdgeOfRevolution.json",
+                        new VAVector(-0.8, 0.8)
+                },
+                {
+                        "/acousticbrainz/testData/EdSheeran-Nina.json", new VAVector(-0.2, 0.2)
+                },
+                {
+                        "/acousticbrainz/testData/BillyJoel-PianoMan.json",
+                        new VAVector(0.3, 0.6)
+                },
+                {
+                        "/acousticbrainz/testData/3DoorsDown-HereWithoutYou.json",
+                        new VAVector(-0.4, -0.2)
+                },
+                {
+                        "/acousticbrainz/testData/JamesBay-HoldBackTheRiver.json",
+                        new VAVector(-0.8, 0.2)
+                },
+                {
+                        "/acousticbrainz/testData/HollywoodUndead-NotesFromTheUnderground.json",
+                        new VAVector(-0.8, 0.8)
+                },
         });
     }
 
@@ -55,6 +95,9 @@ public class MoodClassifierTest {
     }
 
     public static void assertVAVectorEquals(final VAVector expected, final VAVector actual) {
+        System.out.println("getArousal" + actual.getArousal());
+        System.out.println("getValence" + actual.getValence());
+
         assertEquals(expected.getArousal(), actual.getArousal(), EPSILON);
         assertEquals(expected.getValence(), actual.getValence(), EPSILON);
     }
