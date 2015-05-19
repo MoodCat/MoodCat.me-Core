@@ -3,7 +3,6 @@ package me.moodcat.database.embeddables;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 public class VAVector {
 
     /**
@@ -31,6 +29,23 @@ public class VAVector {
      */
     @Column(name = "arousal")
     private double arousal;
+
+    /**
+     * Constructor to create a vector. Asserts that the provided valence and arousal are in the
+     * specified range.
+     *
+     * @param valence
+     *            The valence of this vector.
+     * @param arousal
+     *            The arousal of this vector.
+     */
+    public VAVector(final double valence, final double arousal) {
+        assert valence >= -1.0 && valence <= 1.0 : "Valence must be in [-1,1] range.";
+        assert arousal >= -1.0 && arousal <= 1.0 : "Arousal must be in [-1,1] range.";
+
+        this.setValence(valence);
+        this.setArousal(arousal);
+    }
 
     /**
      * Add this VAVector to another VAVector.
