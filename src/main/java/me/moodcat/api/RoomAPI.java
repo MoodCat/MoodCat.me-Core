@@ -3,6 +3,7 @@ package me.moodcat.api;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -17,6 +18,7 @@ import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
+import ch.qos.logback.core.joran.spi.DefaultClass;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -46,7 +48,7 @@ public class RoomAPI {
     @GET
     @Transactional
     public List<Room> getRooms(@QueryParam("mood") final List<String> moods,
-            @QueryParam("limit") int limit) {
+            @QueryParam("limit") @DefaultValue("100000") int limit) {
         VAVector targetVector = VAVector.createTargetVector(moods);
         List<Room> allRooms = roomDAO.listRooms(targetVector, limit);
 
