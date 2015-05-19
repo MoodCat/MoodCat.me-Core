@@ -85,8 +85,8 @@ public class RoomAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response postChatMessage(@PathParam("id") final int id,
-            @FormParam("author") String author, @FormParam("message") String message) {
+    public Response postChatMessage(@FormParam("message") String message,
+            @FormParam("author") String author, @PathParam("id") final int id) {
         Preconditions.checkNotNull(author);
         ChatMessage msg = new ChatMessage();
         msg.setAuthor(author);

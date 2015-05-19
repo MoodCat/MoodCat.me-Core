@@ -77,20 +77,12 @@ public class Room {
      * The arousal value of this room.
      */
     @Column(name = "arousal")
-    @Getter(onMethod = @__({
-            @JsonIgnore
-    }))
-    @Setter
     private double arousal;
 
     /**
      * The valence value of this room.
      */
     @Column(name = "valence")
-    @Getter(onMethod = @__({
-            @JsonIgnore
-    }))
-    @Setter
     private double valence;
 
     /**
