@@ -54,16 +54,14 @@ public class SongAPITest {
         final VAVector songVector = new VAVector(0.5, 0.5);
         when(song.getValenceArousal()).thenReturn(songVector);
 
-        final double classifiedArousal = 0.7;
-        final double classifiedValence = 0.2;
-        final ClassificationRequest request = new ClassificationRequest(classifiedArousal,
-                classifiedValence);
+        final ClassificationRequest request = new ClassificationRequest(0.7, 0.2);
 
         songAPI.classifySong(SONG_ID, request);
 
         verify(songDAO).merge(song);
-        assertTrue(vectorCaptor.getValue().getArousal() < classifiedArousal);
-        assertTrue(vectorCaptor.getValue().getValence() > classifiedValence);
+        System.out.println(vectorCaptor.getValue());
+        assertTrue(vectorCaptor.getValue().getValence() > 0.5);
+        assertTrue(vectorCaptor.getValue().getArousal() < 0.5);
     }
 
     @Test

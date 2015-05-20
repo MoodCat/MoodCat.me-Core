@@ -86,7 +86,7 @@ public class SongAPI {
 
             final VAVector songVector = song.getValenceArousal();
 
-            final VAVector scaledDistance = songVector.subtract(classificationVector)
+            final VAVector scaledDistance = classificationVector.subtract(songVector)
                     .multiply(CLASSIFICATION_WEIGHT);
 
             song.setValenceArousal(songVector.add(scaledDistance));
@@ -135,14 +135,14 @@ public class SongAPI {
     protected static class ClassificationRequest {
 
         /**
-         * The arousal for the song.
-         */
-        private final double arousal;
-
-        /**
          * The valence for the song.
          */
         private final double valence;
+
+        /**
+         * The arousal for the song.
+         */
+        private final double arousal;
     }
 
     /**
