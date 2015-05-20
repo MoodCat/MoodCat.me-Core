@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import me.moodcat.api.SongAPI.ClassificationRequest;
+import me.moodcat.api.SongAPI.InvalidClassificationException;
 import me.moodcat.api.SongAPI.InvalidVoteException;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
@@ -53,12 +54,12 @@ public class SongAPITest {
     }
 
     @Test
-    public void classificationUpdatesSong() {
+    public void classificationUpdatesSong() throws InvalidClassificationException {
         Mockito.doNothing().when(song).setValenceArousal(vectorCaptor.capture());
         final VAVector songVector = new VAVector(0.5, 0.5);
         when(song.getValenceArousal()).thenReturn(songVector);
 
-        final ClassificationRequest request = new ClassificationRequest(0.7, 0.2);
+        final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
 
         songAPI.classifySong(SONG_ID, request);
 
@@ -69,7 +70,8 @@ public class SongAPITest {
     }
 
     @Test
-    public void classificationDoesNotUpdateSongWhenEnoughPositiveVotes() {
+    public void classificationDoesNotUpdateSongWhenEnoughPositiveVotes()
+            throws InvalidClassificationException {
         when(song.getNumberOfPositiveVotes()).thenReturn(
                 SongAPI.MINIMUM_NUMBER_OF_POSITIVE_VOTES + 1);
 
@@ -78,6 +80,15 @@ public class SongAPITest {
         songAPI.classifySong(SONG_ID, request);
 
         verify(songDAO, never()).merge(song);
+    }
+
+    @Test(expected = InvalidClassificationException.class)
+    public void invalidClassificationThrowsException()
+            throws InvalidClassificationException {
+
+        final ClassificationRequest request = new ClassificationRequest(0.8, 0.2);
+
+        songAPI.classifySong(SONG_ID, request);
     }
 
     @Test

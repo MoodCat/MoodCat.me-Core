@@ -1,5 +1,6 @@
 package me.moodcat.api;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -9,7 +10,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
@@ -37,6 +39,13 @@ public class SongAPI {
      * classification vector.
      */
     private static final double CLASSIFICATION_WEIGHT = 0.01;
+
+    /**
+     * The accepted valence and arousal values.
+     */
+    private static final Double[] ACCEPTED_DIMENSION_VALUES = new Double[] {
+            -1.0, -0.5, 0.0, 0.5, 1.0
+    };
 
     /**
      * Manager to talk to the database to obtain songs.
@@ -70,26 +79,21 @@ public class SongAPI {
      * @param classification
      *            The classification of the user for the song.
      * @return The classification provided.
+     * @throws InvalidClassificationException
+     *             When the classification provided was invalid
      */
     @POST
     @Path("{id}/classify")
     @Transactional
     public ClassificationRequest classifySong(@PathParam("id") final int id,
-            final ClassificationRequest classification) {
+            final ClassificationRequest classification) throws InvalidClassificationException {
         final Song song = this.songDAO.findById(id);
 
+        assertDimensionIsValid(classification.getValence());
+        assertDimensionIsValid(classification.getArousal());
+
         if (song.getNumberOfPositiveVotes() < MINIMUM_NUMBER_OF_POSITIVE_VOTES) {
-            final VAVector classificationVector = new VAVector(
-
-                    classification.getValence(),
-                    classification.getArousal());
-
-            final VAVector songVector = song.getValenceArousal();
-
-            final VAVector scaledDistance = classificationVector.subtract(songVector)
-                    .multiply(CLASSIFICATION_WEIGHT);
-
-            song.setValenceArousal(songVector.add(scaledDistance));
+            song.setValenceArousal(adjustSongVector(classification, song));
             this.songDAO.merge(song);
         }
 
@@ -125,24 +129,60 @@ public class SongAPI {
         return song;
     }
 
+    private void assertDimensionIsValid(final double value) throws InvalidClassificationException {
+        if (!Arrays.asList(ACCEPTED_DIMENSION_VALUES).contains(value)) {
+            throw new InvalidClassificationException();
+        }
+    }
+
+    private VAVector adjustSongVector(final ClassificationRequest classification, final Song song) {
+        final VAVector classificationVector = new VAVector(
+
+                classification.getValence(),
+                classification.getArousal());
+
+        final VAVector songVector = song.getValenceArousal();
+
+        final VAVector scaledDistance = classificationVector.subtract(songVector)
+                .multiply(CLASSIFICATION_WEIGHT);
+
+        final VAVector updatedVector = songVector.add(scaledDistance);
+        return updatedVector;
+    }
+
     /**
      * Classificationrequest with the arousal and valence the user would classify the specific song
      * for.
      *
      * @author JeremybellEU
      */
-    @Data
+    @AllArgsConstructor
     protected static class ClassificationRequest {
 
         /**
          * The valence for the song.
          */
+        @Getter
         private final double valence;
 
         /**
          * The arousal for the song.
          */
+        @Getter
         private final double arousal;
+    }
+
+    /**
+     * Thrown if the classification was invalid.
+     *
+     * @author JeremybellEU
+     */
+    protected static class InvalidClassificationException extends Exception {
+
+        /**
+         * Generated ID.
+         */
+        private static final long serialVersionUID = -6684926632173744801L;
     }
 
     /**
