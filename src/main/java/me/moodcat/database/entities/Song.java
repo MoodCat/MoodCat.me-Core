@@ -12,11 +12,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.moodcat.database.embeddables.AcousticBrainzData;
 import me.moodcat.database.embeddables.VAVector;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * TODO: Add explanation.
@@ -51,10 +51,6 @@ public class Song {
 
     @Column(name = "artworkUrl")
     private String artworkUrl;
-
-    @JsonIgnore
-    @Embedded
-    private AcousticBrainzData features;
 
     @JsonIgnore
     @Embedded
