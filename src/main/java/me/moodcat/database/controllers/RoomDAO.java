@@ -88,9 +88,4 @@ public class RoomDAO extends AbstractDAO<Room> {
                 .list(chatMessage);
     }
 
-    public void addMessage(ChatMessage msg) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

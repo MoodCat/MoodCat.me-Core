@@ -58,4 +58,15 @@ public class ChatDAO extends AbstractDAO<ChatMessage> {
                 .limit(NUMBER_OF_CHAT_MESSAGE)
                 .list(chatMessage);
     }
+
+    /**
+     * Persists a message object in the database.
+     * 
+     * @param msg
+     *            The ChatMessage object to persist.
+     */
+    @Transactional
+    public void addMessage(ChatMessage msg) {
+        this.persist(msg);
+    }
 }

@@ -11,6 +11,9 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
         "room", "message", "author"
 })
 @EqualsAndHashCode(of = "id")
+@NoArgsConstructor()
 public class ChatMessage {
 
     /**
@@ -41,12 +45,14 @@ public class ChatMessage {
      * The actual message.
      */
     @Column(name = "message", nullable = false)
+    @NonNull
     private String message;
 
     /**
      * The sender of the message.
      */
     @Column(name = "author", nullable = false)
+    @NonNull
     private String author;
 
     /**

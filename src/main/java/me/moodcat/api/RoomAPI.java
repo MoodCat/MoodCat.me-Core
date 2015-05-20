@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,14 +13,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
-import ch.qos.logback.core.joran.spi.DefaultClass;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
@@ -39,10 +37,16 @@ public class RoomAPI {
      */
     private final RoomDAO roomDAO;
 
+    /**
+     * Access to the chat DAO.
+     */
+    private final ChatDAO chatDAO;
+
     @Inject
     @VisibleForTesting
-    public RoomAPI(final RoomDAO roomDAO) {
+    public RoomAPI(final RoomDAO roomDAO, final ChatDAO chatDAO) {
         this.roomDAO = roomDAO;
+        this.chatDAO = chatDAO;
     }
 
     @GET
@@ -85,15 +89,11 @@ public class RoomAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response postChatMessage(@FormParam("message") String message,
-            @FormParam("author") String author, @PathParam("id") final int id) {
-        Preconditions.checkNotNull(author);
-        ChatMessage msg = new ChatMessage();
-        msg.setAuthor(author);
-        msg.setMessage(message);
+    public Response postChatMessage(ChatMessage msg, @PathParam("id") final int id) {
+        System.out.println(msg.toString());
         msg.setRoom(roomDAO.findById(id));
-        roomDAO.addMessage(msg);
-
+        msg.setTimestamp(System.currentTimeMillis() / 1000);
+        chatDAO.addMessage(msg);
         return Response.ok().build();
     }
 }
