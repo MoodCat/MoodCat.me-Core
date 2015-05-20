@@ -99,8 +99,8 @@ public class SongAPI {
     /**
      * Process a vote to a song. A vote is either "like" or "dislike".
      *
-     * @param id
-     *            The songID.
+     * @param soundCloudId
+     *            The soundCloudID.
      * @param vote
      *            The vote.
      * @return The song object, if the process was succesful.
@@ -110,9 +110,9 @@ public class SongAPI {
     @POST
     @Path("{id}/vote/{vote}")
     @Transactional
-    public Song voteSong(@PathParam("id") final int scid,
+    public Song voteSong(@PathParam("id") final int soundCloudId,
             @PathParam("vote") final String vote) throws InvalidVoteException {
-        final Song song = this.songDAO.findBySoundCloudId(scid);
+        final Song song = this.songDAO.findBySoundCloudId(soundCloudId);
 
         if (vote.equals("like")) {
             song.increaseNumberOfPositiveVotes();

@@ -26,6 +26,8 @@ public class SongAPITest {
 
     private static final int SONG_ID = 1;
 
+    private static final int SOUNCLOUD_ID = 25;
+
     private static final int NUMBER_OF_VOTES = 3;
 
     @Mock
@@ -43,9 +45,11 @@ public class SongAPITest {
     @Before
     public void setUp() {
         when(song.getId()).thenReturn(SONG_ID);
+        when(song.getSoundCloudId()).thenReturn(SOUNCLOUD_ID);
         when(song.getNumberOfPositiveVotes()).thenReturn(NUMBER_OF_VOTES);
 
         when(songDAO.findById(Matchers.eq(SONG_ID))).thenReturn(song);
+        when(songDAO.findBySoundCloudId(Matchers.eq(SOUNCLOUD_ID))).thenReturn(song);
     }
 
     @Test
@@ -78,21 +82,21 @@ public class SongAPITest {
 
     @Test
     public void positiveVoteIncreasesSongVotes() throws InvalidVoteException {
-        songAPI.voteSong(SONG_ID, "like");
+        songAPI.voteSong(SOUNCLOUD_ID, "like");
 
         verify(song).increaseNumberOfPositiveVotes();
     }
 
     @Test
     public void positiveVoteDecreasesSongVotes() throws InvalidVoteException {
-        songAPI.voteSong(SONG_ID, "dislike");
+        songAPI.voteSong(SOUNCLOUD_ID, "dislike");
 
         verify(song).decreaseNumberOfPositiveVotes();
     }
 
     @Test(expected = InvalidVoteException.class)
     public void bogusVoteThrowsException() throws InvalidVoteException {
-        songAPI.voteSong(SONG_ID, "bogus");
+        songAPI.voteSong(SOUNCLOUD_ID, "bogus");
     }
 
 }
