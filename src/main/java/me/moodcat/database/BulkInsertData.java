@@ -3,12 +3,17 @@ package me.moodcat.database;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Artist;
+import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudExtract;
@@ -84,7 +89,7 @@ public class BulkInsertData {
     public void insertData() throws IOException, SoundCloudException {
         final ArtistDAO artistDAO = artistDAOProvider.get();
         final SongDAO songDAO = songDAOProvider.get();
-        final VAVector defaultVecor = new VAVector(0, 0);
+        final VAVector defaultVector = new VAVector(0, 0);
 
         int[] soundCloudIds = readSoundCloudIds();
         for (int id : soundCloudIds) {
@@ -94,11 +99,35 @@ public class BulkInsertData {
                 artist.setName(track.getUser().getUsername());
                 artistDAO.persist(artist);
 
-                Song song = songToTrack(track, id, artist, defaultVecor);
+                Song song = songToTrack(track, id, artist, defaultVector);
                 songDAO.persist(song);
             } catch (Exception e) {
                 System.out.println(e.getLocalizedMessage());
             }
+        }
+    }
+
+    /**
+     * Insert a given amount of random generated rooms into the database. This is used for testing
+     * purposes.
+     * 
+     * @param nRooms
+     *            the amount of rooms to generate.
+     */
+    public void insertRandomRooms(int nRooms) {
+        final RoomDAO roomDAO = roomDAOProvider.get();
+        final SongDAO songDAO = songDAOProvider.get();
+        List<Song> songs = songDAO.listSongs();
+        Random random = new Random();
+        for (int i = 0; i < nRooms; i++) {
+            Room room = new Room();
+            System.out.println(songs.size());
+            room.setCurrentSong(songs.get(random.nextInt(songs.size())));
+            room.setRoomName("ROOM_STUB #" + i);
+            room.setCurrentTime(0);
+            room.setPosition(i);
+            room.setChatMessages(Collections.<ChatMessage> emptyList());
+            roomDAO.persist(room);
         }
     }
 
