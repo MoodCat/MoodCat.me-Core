@@ -90,7 +90,6 @@ public class SongAPI {
     public ClassificationRequest classifySong(@PathParam("id") final int id,
             final ClassificationRequest classification) throws InvalidClassificationException {
         final Song song = this.songDAO.findBySoundCloudId(id);
-        System.out.println(song.getDuration());
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
 
