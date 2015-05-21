@@ -12,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
@@ -87,8 +89,8 @@ public class SongAPI {
     @Transactional
     public ClassificationRequest classifySong(@PathParam("id") final int id,
             final ClassificationRequest classification) throws InvalidClassificationException {
-        final Song song = this.songDAO.findById(id);
-
+        final Song song = this.songDAO.findBySoundCloudId(id);
+        System.out.println(song.getDuration());
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
 
@@ -157,19 +159,22 @@ public class SongAPI {
      * @author JeremybellEU
      */
     @AllArgsConstructor
+    @NoArgsConstructor
     protected static class ClassificationRequest {
 
         /**
          * The valence for the song.
          */
         @Getter
-        private final double valence;
+        @Setter
+        private double valence;
 
         /**
          * The arousal for the song.
          */
         @Getter
-        private final double arousal;
+        @Setter
+        private double arousal;
     }
 
     /**

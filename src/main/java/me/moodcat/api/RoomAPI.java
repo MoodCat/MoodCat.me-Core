@@ -16,8 +16,10 @@ import javax.ws.rs.core.Response;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Song;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
@@ -56,15 +58,11 @@ public class RoomAPI {
         VAVector targetVector = VAVector.createTargetVector(moods);
         List<Room> allRooms = roomDAO.listRooms(targetVector, limit);
 
-        if (limit > allRooms.size()) {
+        if (limit > allRooms.size() || limit < 1) {
             return allRooms;
-        } else if (limit == 1) {
-            return allRooms.subList(0, 1);
-        } else if (limit > 1) {
+        } else {
             return allRooms.subList(0, limit);
         }
-
-        return allRooms;
     }
 
     @GET
