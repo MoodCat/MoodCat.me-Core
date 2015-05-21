@@ -177,7 +177,7 @@ public class SongAPI {
      *
      * @author JeremybellEU
      */
-    protected static class InvalidClassificationException extends Exception {
+    protected static class InvalidClassificationException extends IllegalArgumentException {
 
         /**
          * Generated ID.
@@ -190,7 +190,7 @@ public class SongAPI {
      *
      * @author JeremybellEU
      */
-    protected static class InvalidVoteException extends Exception {
+    protected static class InvalidVoteException extends IllegalArgumentException {
 
         /**
          * Generated ID.
