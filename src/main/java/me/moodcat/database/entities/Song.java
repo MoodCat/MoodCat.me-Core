@@ -12,11 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import me.moodcat.database.embeddables.AcousticBrainzData;
 import me.moodcat.database.embeddables.VAVector;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * TODO: Add explanation.
@@ -67,5 +68,22 @@ public class Song {
             @AttributeOverride(name = "arousal", column = @Column(name = "expected_arousal"))
     })
     private VAVector expectedValenceArousal;
+
+    @JsonIgnore
+    private int numberOfPositiveVotes;
+
+    /**
+     * Increase {@link #numberOfPositiveVotes}.
+     */
+    public void increaseNumberOfPositiveVotes() {
+        this.numberOfPositiveVotes++;
+    }
+
+    /**
+     * Decreases {@link #numberOfPositiveVotes}.
+     */
+    public void decreaseNumberOfPositiveVotes() {
+        this.numberOfPositiveVotes--;
+    }
 
 }
