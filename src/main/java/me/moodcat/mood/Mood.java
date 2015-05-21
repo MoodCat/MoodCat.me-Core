@@ -14,16 +14,16 @@ import me.moodcat.database.embeddables.VAVector;
 public enum Mood {
 
     // CHECKSTYLE:OFF
-    ANGRY(new VAVector(-1.0, -1.0), "Angry"),
-    CALM(new VAVector(0.0, 0.0), "Calm"),
-    EXCITING(new VAVector(0.0, 0.0), "Exiting"),
-    HAPPY(new VAVector(1.0, 1.0), "Happy"),
-    NERVOUS(new VAVector(0.0, 0.0), "Nervous"),
-    PLEASING(new VAVector(0.0, 0.0), "Pleasing"),
-    PEACEFUL(new VAVector(0.0, 0.0), "Peaceful"),
-    RELAXED(new VAVector(0.0, 0.0), "Relaxed"),
-    SAD(new VAVector(0.0, 0.0), "Sad"),
-    SLEEPY(new VAVector(0.0, 0.0), "Sleepy");
+    ANGRY(new VAVector(-0.6, 0.6), "Angry"),
+    CALM(new VAVector(0.3, -0.9), "Calm"),
+    EXCITING(new VAVector(0.4, 0.8), "Exiting"),
+    HAPPY(new VAVector(0.7, 0.6), "Happy"),
+    NERVOUS(new VAVector(-0.7, 0.4), "Nervous"),
+    PLEASING(new VAVector(0.6, 0.3), "Pleasing"),
+    PEACEFUL(new VAVector(0.5, -0.7), "Peaceful"),
+    RELAXED(new VAVector(0.6, -0.3), "Relaxed"),
+    SAD(new VAVector(-0.7, -0.2), "Sad"),
+    SLEEPY(new VAVector(-0.2, -0.9), "Sleepy");
 
     // CHECKSTYLE:ON
 
