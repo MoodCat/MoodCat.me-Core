@@ -64,4 +64,21 @@ public class Song {
     })
     private VAVector expectedValenceArousal;
 
+    @JsonIgnore
+    private int numberOfPositiveVotes;
+
+    /**
+     * Increase {@link #numberOfPositiveVotes}.
+     */
+    public void increaseNumberOfPositiveVotes() {
+        this.numberOfPositiveVotes++;
+    }
+
+    /**
+     * Decreases {@link #numberOfPositiveVotes}.
+     */
+    public void decreaseNumberOfPositiveVotes() {
+        this.numberOfPositiveVotes--;
+    }
+
 }

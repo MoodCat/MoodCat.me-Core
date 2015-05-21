@@ -1,12 +1,14 @@
 package me.moodcat.database.embeddables;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.moodcat.mood.Mood;
 
 /**
  * Valence/Arousal vector class.
@@ -17,7 +19,6 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 public class VAVector {
 
     /**
@@ -31,6 +32,23 @@ public class VAVector {
      */
     @Column(name = "arousal")
     private double arousal;
+
+    /**
+     * Constructor to create a vector. Asserts that the provided valence and arousal are in the
+     * specified range.
+     *
+     * @param valence
+     *            The valence of this vector.
+     * @param arousal
+     *            The arousal of this vector.
+     */
+    public VAVector(final double valence, final double arousal) {
+        assert valence >= -1.0 && valence <= 1.0 : "Valence must be in [-1,1] range.";
+        assert arousal >= -1.0 && arousal <= 1.0 : "Arousal must be in [-1,1] range.";
+
+        this.setValence(valence);
+        this.setArousal(arousal);
+    }
 
     /**
      * Add this VAVector to another VAVector.
@@ -103,6 +121,27 @@ public class VAVector {
      */
     public static double distance(final VAVector one, final VAVector other) {
         return one.distance(other);
+    }
+
+    public static VAVector createTargetVector(final List<String> moods) {
+        double sumarousal = 0.0;
+        double sumvalence = 0.0;
+        int count = 0;
+
+        for (final String mood : moods) {
+            final Mood thisMood = Mood.valueOf(mood.toUpperCase());
+            if (thisMood != null) {
+                sumarousal += thisMood.getVector().getArousal();
+                sumvalence += thisMood.getVector().getValence();
+                count++;
+            }
+        }
+        if (count > 0) {
+            final double val = sumvalence / count;
+            final double aro = sumarousal / count;
+            return new VAVector(val, aro);
+        }
+        return new VAVector(0.0, 0.0);
     }
 
 }

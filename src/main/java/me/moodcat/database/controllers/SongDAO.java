@@ -44,6 +44,13 @@ public class SongDAO extends AbstractDAO<Song> {
                 .where(song.id.eq(id))
                 .singleResult(song);
     }
+    
+    @Transactional
+    public Song findBySoundCloudId(final int id) {
+        return this.query().from(song)
+                .where(song.soundCloudId.eq(id))
+                .singleResult(song);
+    }
 
     /**
      * Fetches the next {@link #NUMBER_OF_SONGS_TO_PROCESS} in order to process to determine the

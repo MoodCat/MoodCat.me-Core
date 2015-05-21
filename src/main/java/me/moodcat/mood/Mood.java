@@ -1,5 +1,7 @@
 package me.moodcat.mood;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import me.moodcat.database.embeddables.VAVector;
 
@@ -8,19 +10,20 @@ import me.moodcat.database.embeddables.VAVector;
  *
  * @author JeremybellEU
  */
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Mood {
 
     // CHECKSTYLE:OFF
-    ANGRY(0.0, 0.0),
-    CALM(0.0, 0.0),
-    EXCITING(0.0, 0.0),
-    HAPPY(0.0, 0.0),
-    NERVOUS(0.0, 0.0),
-    PLEASING(0.0, 0.0),
-    PEACEFUL(0.0, 0.0),
-    RELAXED(0.0, 0.0),
-    SAD(0.0, 0.0),
-    SLEEPY(0.0, 0.0);
+    ANGRY(new VAVector(-1.0, -1.0), "Angry"),
+    CALM(new VAVector(0.0, 0.0), "Calm"),
+    EXCITING(new VAVector(0.0, 0.0), "Exiting"),
+    HAPPY(new VAVector(1.0, 1.0), "Happy"),
+    NERVOUS(new VAVector(0.0, 0.0), "Nervous"),
+    PLEASING(new VAVector(0.0, 0.0), "Pleasing"),
+    PEACEFUL(new VAVector(0.0, 0.0), "Peaceful"),
+    RELAXED(new VAVector(0.0, 0.0), "Relaxed"),
+    SAD(new VAVector(0.0, 0.0), "Sad"),
+    SLEEPY(new VAVector(0.0, 0.0), "Sleepy");
 
     // CHECKSTYLE:ON
 
@@ -28,10 +31,18 @@ public enum Mood {
      * The vector that represents this mood.
      */
     @Getter
-    public VAVector vector;
+    @JsonIgnore
+    public final VAVector vector;
 
-    private Mood(final double valence, final double arousal) {
-        this.vector = new VAVector(valence, arousal);
+    /**
+     * Readable name for the frontend
+     */
+    @Getter
+    public final String name;
+
+    Mood(final VAVector vector, final String name) {
+        this.vector = vector;
+        this.name = name;
     }
 
     /**
