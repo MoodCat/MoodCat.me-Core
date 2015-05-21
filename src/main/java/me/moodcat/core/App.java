@@ -13,7 +13,6 @@ import javax.ws.rs.Path;
 
 import lombok.SneakyThrows;
 import me.moodcat.database.DbModule;
-import me.moodcat.database.MockData;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -101,9 +100,6 @@ public class App {
 
         final App app = new App();
         app.startServer();
-        app.injectorAtomicReference.get()
-                .getInstance(MockData.class)
-                .insertMockData();
         app.joinThread();
     }
 
@@ -233,8 +229,6 @@ public class App {
                     .toInstance(this.rootFolder);
             // Bind the database module
             this.bindDatabaseModule();
-            // Insert mock data
-            this.bind(MockData.class).asEagerSingleton();
             this.bindAPI();
         }
 

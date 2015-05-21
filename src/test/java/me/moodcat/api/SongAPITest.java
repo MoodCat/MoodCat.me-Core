@@ -64,7 +64,6 @@ public class SongAPITest {
         songAPI.classifySong(SONG_ID, request);
 
         verify(songDAO).merge(song);
-        System.out.println(vectorCaptor.getValue());
         assertTrue(vectorCaptor.getValue().getValence() > 0.5);
         assertTrue(vectorCaptor.getValue().getArousal() < 0.5);
     }

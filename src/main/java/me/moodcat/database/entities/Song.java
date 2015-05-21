@@ -14,7 +14,6 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.moodcat.database.embeddables.AcousticBrainzData;
 import me.moodcat.database.embeddables.VAVector;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -52,10 +51,6 @@ public class Song {
 
     @Column(name = "artworkUrl")
     private String artworkUrl;
-
-    @JsonIgnore
-    @Embedded
-    private AcousticBrainzData features;
 
     @JsonIgnore
     @Embedded
