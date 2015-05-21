@@ -1,11 +1,14 @@
 package me.moodcat.database.embeddables;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import me.moodcat.mood.Mood;
 
 /**
  * Valence/Arousal vector class.
@@ -118,6 +121,27 @@ public class VAVector {
      */
     public static double distance(final VAVector one, final VAVector other) {
         return one.distance(other);
+    }
+
+    public static VAVector createTargetVector(final List<String> moods) {
+        double sumarousal = 0.0;
+        double sumvalence = 0.0;
+        int count = 0;
+
+        for (final String mood : moods) {
+            final Mood thisMood = Mood.valueOf(mood.toUpperCase());
+            if (thisMood != null) {
+                sumarousal += thisMood.getVector().getArousal();
+                sumvalence += thisMood.getVector().getValence();
+                count++;
+            }
+        }
+        if (count > 0) {
+            final double val = sumvalence / count;
+            final double aro = sumarousal / count;
+            return new VAVector(val, aro);
+        }
+        return new VAVector(0.0, 0.0);
     }
 
 }

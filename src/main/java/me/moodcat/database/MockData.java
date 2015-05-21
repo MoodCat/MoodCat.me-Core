@@ -56,11 +56,22 @@ public class MockData {
         songDAO.persist(song);
 
         final Room room = new Room();
-        room.setCurrentSong(song);
+        room.setSong(song);
         room.setPosition(4);
-        room.setCurrentTime(42);
-        room.setRoomName("Silver Ass Wankers");
+        room.setTime(42);
+        room.setName("Silver Ass Wankers");
+        room.setArousal(1.0);
+        room.setValence(1.0);
         roomDAO.persist(room);
+
+        final Room room2 = new Room();
+        room2.setSong(song);
+        room2.setPosition(1);
+        room2.setTime(25);
+        room2.setName("Negative");
+        room2.setArousal(0.5);
+        room2.setValence(0.5);
+        roomDAO.persist(room2);
     }
 
 }
