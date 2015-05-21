@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import com.mysema.query.jpa.hibernate.HibernateQueryFactory;
 import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
@@ -23,6 +25,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.persist.Transactional;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.sql.ordering.antlr.Factory;
 
 /**
  * MockData inserts initial data in to a clean database.
@@ -31,6 +37,11 @@ import com.google.inject.persist.Transactional;
  */
 @Singleton
 public class BulkInsertData {
+
+    /**
+     * The default [0,0] VA vector.
+     */
+    private static final VAVector DEFAULT_VECTOR = new VAVector(0, 0);
 
     /**
      * The path to a newline seperated list of SoundCloud ids.
@@ -87,19 +98,15 @@ public class BulkInsertData {
      */
     @Transactional
     public void insertData() throws IOException, SoundCloudException {
-        final ArtistDAO artistDAO = artistDAOProvider.get();
         final SongDAO songDAO = songDAOProvider.get();
-        final VAVector defaultVector = new VAVector(0, 0);
+        HashMap<String, Artist> artistMap = new HashMap<>();
 
         int[] soundCloudIds = readSoundCloudIds();
         for (int id : soundCloudIds) {
             try {
                 SoundCloudTrack track = soundCloudExtract.extract(id);
-                Artist artist = new Artist();
-                artist.setName(track.getUser().getUsername());
-                artistDAO.persist(artist);
-
-                Song song = songToTrack(track, id, artist, defaultVector);
+                Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
+                Song song = songToTrack(track, id, artist, DEFAULT_VECTOR);
                 songDAO.persist(song);
             } catch (Exception e) {
                 System.out.println(e.getLocalizedMessage());
@@ -108,18 +115,39 @@ public class BulkInsertData {
     }
 
     /**
+     * Persist an artist in a database given a username.
+     * 
+     * @param username
+     *            the username of the artist.
+     * @param artistMap
+     *            the map with already persisted arists.
+     */
+    private Artist getOrPersistArtist(String username, HashMap<String, Artist> artistMap) {
+        final ArtistDAO artistDAO = artistDAOProvider.get();
+        Artist artist;
+        if (artistMap.containsKey(username)) {
+            artist = artistMap.get(username);
+        } else {
+            artist = new Artist();
+            artist.setName(username);
+            artistDAO.persist(artist);
+        }
+        return artist;
+    }
+
+    /**
      * Insert a given amount of random generated rooms into the database. This is used for testing
      * purposes.
      * 
-     * @param nRooms
+     * @param numberOfRooms
      *            the amount of rooms to generate.
      */
-    public void insertRandomRooms(int nRooms) {
+    public void insertRandomRooms(int numberOfRooms) {
         final RoomDAO roomDAO = roomDAOProvider.get();
         final SongDAO songDAO = songDAOProvider.get();
         List<Song> songs = songDAO.listSongs();
         Random random = new Random();
-        for (int i = 0; i < nRooms; i++) {
+        for (int i = 0; i < numberOfRooms; i++) {
             Room room = new Room();
             System.out.println(songs.size());
             room.setCurrentSong(songs.get(random.nextInt(songs.size())));
