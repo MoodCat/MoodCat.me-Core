@@ -150,9 +150,9 @@ public class BulkInsertData {
         for (int i = 0; i < numberOfRooms; i++) {
             Room room = new Room();
             System.out.println(songs.size());
-            room.setCurrentSong(songs.get(random.nextInt(songs.size())));
-            room.setRoomName("ROOM_STUB #" + i);
-            room.setCurrentTime(0);
+            room.setSong(songs.get(random.nextInt(songs.size())));
+            room.setName("ROOM_STUB #" + i);
+            room.setTime(0);
             room.setPosition(i);
             room.setChatMessages(Collections.<ChatMessage> emptyList());
             roomDAO.persist(room);
@@ -211,7 +211,7 @@ public class BulkInsertData {
         final SongDAO songDAO = songDAOProvider.get();
         final RoomDAO roomDAO = roomDAOProvider.get();
 
-        roomDAO.listRooms().forEach(roomDAO::remove);
+        roomDAO.listRooms(Integer.MAX_VALUE).forEach(roomDAO::remove);
         songDAO.listSongs().forEach(songDAO::remove);
         artistDAO.listArtists().forEach(artistDAO::remove);
     }
