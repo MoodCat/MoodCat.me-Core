@@ -62,7 +62,7 @@ public class BulkInsertApp {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
         server.setHandler(attachHandlers());
         server.start();
-        // Clear the database to avoid dubplicates
+        // Clear the database to avoid duplicates
         injectorAtomicReference.get().getInstance(BulkInsertData.class).clear();
 
         // Insert the data
