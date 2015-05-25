@@ -91,7 +91,7 @@ public enum Mood {
                     return one.add(other);
                 });
 
-        return counter.get(actualMood);
+        return counter.average(actualMood);
     }
 
     /**
@@ -114,9 +114,9 @@ public enum Mood {
             counter++;
         }
 
-        public VAVector get(final VAVector vector) {
+        public VAVector average(final VAVector vector) {
             if (counter > 0) {
-                return vector;
+                return vector.multiply(1.0 / counter);
             }
 
             return new VAVector(0.0, 0.0);
