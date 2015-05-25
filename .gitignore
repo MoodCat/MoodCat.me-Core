@@ -29,6 +29,3 @@ hs_err_pid*
 
 # Database
 *.db
-
-# Frontend generated code
-src/main/resources/static/app/
