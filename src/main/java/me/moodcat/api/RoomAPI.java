@@ -13,7 +13,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -40,6 +39,11 @@ import datastructures.dataholders.Pair;
 public class RoomAPI {
 
     /**
+     * The number of miliseconds in a second, duh.
+     */
+    private static final int SECOND_OF_MILISECONDS = 1000;
+
+    /**
      * The DAO of the room.
      */
     private final RoomDAO roomDAO;
@@ -56,6 +60,15 @@ public class RoomAPI {
         this.chatDAO = chatDAO;
     }
 
+    /**
+     * Get all the rooms that are sorted on how close they are to the provided moods.
+     *
+     * @param moods
+     *            The moods we want to have rooms for.
+     * @param limit
+     *            The number of rooms to retrieve.
+     * @return The list of rooms that are close to the provided moods.
+     */
     @GET
     @Transactional
     public List<Room> getRooms(@QueryParam("mood") final List<String> moods,
@@ -78,16 +91,33 @@ public class RoomAPI {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get the room according to the provided id.
+     *
+     * @param roomId
+     *            The id of the room to find.
+     * @return The room according to the id.
+     * @throws IllegalArgumentException
+     *             If the roomId is null.
+     */
     @GET
     @Path("{id}")
     @Transactional
-    public Response getRoom(@PathParam("id") final Integer roomId) {
+    public Room getRoom(@PathParam("id") final Integer roomId) throws IllegalArgumentException {
         if (roomId == null) {
-            return Response.serverError().entity("id cannot be blank").build();
+            throw new IllegalArgumentException();
         }
-        return Response.ok(roomDAO.findById(roomId.intValue())).build();
+
+        return roomDAO.findById(roomId.intValue());
     }
 
+    /**
+     * Get all the messages of the room.
+     *
+     * @param roomId
+     *            The id of the room to retrieve messages from.
+     * @return The list of messages of the room.
+     */
     @GET
     @Path("{id}/messages")
     @Transactional
@@ -95,16 +125,26 @@ public class RoomAPI {
         return roomDAO.listMessages(roomId);
     }
 
+    /**
+     * Post a message to a room.
+     *
+     * @param msg
+     *            The message to post.
+     * @param id
+     *            The id of the room.
+     * @return The chatmessage if storage was succesful.
+     */
     @POST
     @Path("{id}/messages")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response postChatMessage(final ChatMessage msg, @PathParam("id") final int id) {
-        System.out.println(msg.toString());
+    public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int id) {
         msg.setRoom(roomDAO.findById(id));
-        msg.setTimestamp(System.currentTimeMillis() / 1000);
-        chatDAO.addMessage(msg);
-        return Response.ok().build();
+        msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
+
+        chatDAO.persist(msg);
+        return msg;
     }
+
 }

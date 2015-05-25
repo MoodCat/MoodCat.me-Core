@@ -1,7 +1,8 @@
 package me.moodcat.mood;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import me.moodcat.database.embeddables.VAVector;
@@ -20,7 +21,7 @@ public enum Mood {
     // CHECKSTYLE:OFF
     ANGRY(new VAVector(-0.6, 0.6), "Angry"),
     CALM(new VAVector(0.3, -0.9), "Calm"),
-    EXCITING(new VAVector(0.4, 0.8), "Exiting"),
+    EXCITING(new VAVector(0.4, 0.8), "Exciting"),
     HAPPY(new VAVector(0.7, 0.6), "Happy"),
     NERVOUS(new VAVector(-0.7, 0.4), "Nervous"),
     PLEASING(new VAVector(0.6, 0.3), "Pleasing"),
@@ -30,6 +31,14 @@ public enum Mood {
     SLEEPY(new VAVector(-0.2, -0.9), "Sleepy");
 
     // CHECKSTYLE:ON
+
+    /**
+     * List of all names that represent moods. Used in {@link #nameRepresentsMood(String)}.
+     * By storing this once, we save a lot of unnecessary list creations.
+     */
+    private static final List<String> MOOD_NAMES = Arrays.asList(Mood.values()).stream()
+            .map(moodValue -> moodValue.getName())
+            .collect(Collectors.toList());
 
     /**
      * The vector that represents this mood.
@@ -80,46 +89,16 @@ public enum Mood {
      * @return The average vector, or the zero-vector if no moods were found.
      */
     public static VAVector createTargetVector(final List<String> moods) {
-        final Counter counter = new Counter();
-
-        final VAVector actualMood = moods.stream()
+        final List<VAVector> actualMoods = moods.stream()
+                .filter(Mood::nameRepresentsMood)
                 .map(mood -> Mood.valueOf(mood.toUpperCase()))
-                .filter(Objects::nonNull)
                 .map(mood -> mood.getVector())
-                .reduce(new VAVector(0.0, 0.0), (one, other) -> {
-                    counter.increment();
-                    return one.add(other);
-                });
+                .collect(Collectors.toList());
 
-        return counter.average(actualMood);
+        return VAVector.average(actualMoods);
     }
 
-    /**
-     * Helper class in order to reduce more easily in {@link Mood#createTargetVector(List)}.
-     *
-     * @author JeremybellEU
-     */
-    private static final class Counter {
-
-        /**
-         * The actual counter.
-         */
-        private int counter;
-
-        public Counter() {
-            counter = 0;
-        }
-
-        public void increment() {
-            counter++;
-        }
-
-        public VAVector average(final VAVector vector) {
-            if (counter > 0) {
-                return vector.multiply(1.0 / counter);
-            }
-
-            return new VAVector(0.0, 0.0);
-        }
+    private static boolean nameRepresentsMood(final String mood) {
+        return MOOD_NAMES.contains(mood);
     }
 }

@@ -11,9 +11,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
@@ -157,6 +156,7 @@ public class SongAPI {
      *
      * @author JeremybellEU
      */
+    @Data
     @AllArgsConstructor
     @NoArgsConstructor
     protected static class ClassificationRequest {
@@ -164,15 +164,11 @@ public class SongAPI {
         /**
          * The valence for the song.
          */
-        @Getter
-        @Setter
         private double valence;
 
         /**
          * The arousal for the song.
          */
-        @Getter
-        @Setter
         private double arousal;
     }
 
