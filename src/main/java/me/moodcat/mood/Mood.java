@@ -1,9 +1,13 @@
 package me.moodcat.mood;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+import java.util.Objects;
+
 import lombok.Getter;
 import me.moodcat.database.embeddables.VAVector;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A mood represents a vector in the valence-arousal plane which will be attached to song.
@@ -35,7 +39,7 @@ public enum Mood {
     public final VAVector vector;
 
     /**
-     * Readable name for the frontend
+     * Readable name for the frontend.
      */
     @Getter
     public final String name;
@@ -66,5 +70,56 @@ public enum Mood {
         }
 
         return mood;
+    }
+
+    /**
+     * Get the vector that represents the average of the provided list of moods.
+     *
+     * @param moods
+     *            The textual list of moods.
+     * @return The average vector, or the zero-vector if no moods were found.
+     */
+    public static VAVector createTargetVector(final List<String> moods) {
+        final Counter counter = new Counter();
+
+        final VAVector actualMood = moods.stream()
+                .map(mood -> Mood.valueOf(mood.toUpperCase()))
+                .filter(Objects::nonNull)
+                .map(mood -> mood.getVector())
+                .reduce(new VAVector(0.0, 0.0), (one, other) -> {
+                    counter.increment();
+                    return one.add(other);
+                });
+
+        return counter.get(actualMood);
+    }
+
+    /**
+     * Helper class in order to reduce more easily in {@link Mood#createTargetVector(List)}.
+     *
+     * @author JeremybellEU
+     */
+    private static final class Counter {
+
+        /**
+         * The actual counter.
+         */
+        private int counter;
+
+        public Counter() {
+            counter = 0;
+        }
+
+        public void increment() {
+            counter++;
+        }
+
+        public VAVector get(final VAVector vector) {
+            if (counter > 0) {
+                return vector;
+            }
+
+            return new VAVector(0.0, 0.0);
+        }
     }
 }

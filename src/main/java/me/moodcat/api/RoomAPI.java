@@ -1,6 +1,8 @@
 package me.moodcat.api;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -16,14 +18,17 @@ import javax.ws.rs.core.Response;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.Room.RoomDistanceMetric;
+import me.moodcat.mood.Mood;
+import algorithms.KNearestNeighbours;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+
+import datastructures.dataholders.Pair;
 
 /**
  * The API for the room.
@@ -54,15 +59,23 @@ public class RoomAPI {
     @GET
     @Transactional
     public List<Room> getRooms(@QueryParam("mood") final List<String> moods,
-            @QueryParam("limit") @DefaultValue("100000") int limit) {
-        VAVector targetVector = VAVector.createTargetVector(moods);
-        List<Room> allRooms = roomDAO.listRooms(targetVector, limit);
+            @QueryParam("limit") @DefaultValue("25") final int limit) {
+        final VAVector targetVector = Mood.createTargetVector(moods);
 
-        if (limit > allRooms.size() || limit < 1) {
-            return allRooms;
-        } else {
-            return allRooms.subList(0, limit);
-        }
+        final Room idealroom = new Room();
+        idealroom.setArousal(targetVector.getArousal());
+        idealroom.setValence(targetVector.getValence());
+
+        final List<Room> allRooms = roomDAO.listRooms();
+
+        final KNearestNeighbours<Room> knearest = new KNearestNeighbours<Room>(allRooms,
+                new RoomDistanceMetric());
+        final Collection<Pair<Double, Room>> knearestResult = knearest.getNearestNeighbours(limit,
+                idealroom);
+
+        return knearestResult.stream()
+                .map(neighbour -> neighbour.getRight())
+                .collect(Collectors.toList());
     }
 
     @GET
@@ -87,7 +100,7 @@ public class RoomAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response postChatMessage(ChatMessage msg, @PathParam("id") final int id) {
+    public Response postChatMessage(final ChatMessage msg, @PathParam("id") final int id) {
         System.out.println(msg.toString());
         msg.setRoom(roomDAO.findById(id));
         msg.setTimestamp(System.currentTimeMillis() / 1000);
