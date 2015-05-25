@@ -174,25 +174,46 @@ public class App {
          *            Zero or more modules that are attached to the listener.
          */
         public MoodcatHandler(final File rootFolder, final Module... overrides) {
-            this.addEventListener(new GuiceResteasyBootstrapServletContextListener() {
-
-                @Override
-                protected List<Module> getModules(final ServletContext context) {
-                    final MoodcatServletModule module = new MoodcatServletModule(rootFolder);
-                    return ImmutableList.<Module> of(Modules.override(module).with(overrides));
-                }
-
-                @Override
-                protected void withInjector(final Injector injector) {
-                    final FilterHolder guiceFilterHolder = new FilterHolder(
-                            injector.getInstance(GuiceFilter.class));
-                    MoodcatHandler.this.addFilter(guiceFilterHolder, "/*",
-                            EnumSet.allOf(DispatcherType.class));
-                    injectorAtomicReference.set(injector);
-                }
-            });
+            this.addEventListener(new AppContextListener(rootFolder, overrides));
 
             this.addServlet(HttpServletDispatcher.class, "/");
+        }
+
+        /**
+         * Listener that connects the API's to the correct overriden module.
+         */
+        private final class AppContextListener extends
+                GuiceResteasyBootstrapServletContextListener {
+
+            /**
+             * The folder to retrieve all resources from.
+             */
+            private final File rootFolder;
+
+            /**
+             * All modules that should be overriding path calls.
+             */
+            private final Module[] overrides;
+
+            private AppContextListener(final File rootFolder, final Module[] overrides) {
+                this.rootFolder = rootFolder;
+                this.overrides = overrides;
+            }
+
+            @Override
+            protected List<Module> getModules(final ServletContext context) {
+                final MoodcatServletModule module = new MoodcatServletModule(rootFolder);
+                return ImmutableList.<Module> of(Modules.override(module).with(overrides));
+            }
+
+            @Override
+            protected void withInjector(final Injector injector) {
+                final FilterHolder guiceFilterHolder = new FilterHolder(
+                        injector.getInstance(GuiceFilter.class));
+                MoodcatHandler.this.addFilter(guiceFilterHolder, "/*",
+                        EnumSet.allOf(DispatcherType.class));
+                injectorAtomicReference.set(injector);
+            }
         }
 
     }
