@@ -8,7 +8,6 @@ import javax.persistence.Embeddable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import me.moodcat.mood.Mood;
 
 /**
  * Valence/Arousal vector class.
@@ -43,9 +42,6 @@ public class VAVector {
      *            The arousal of this vector.
      */
     public VAVector(final double valence, final double arousal) {
-        assert valence >= -1.0 && valence <= 1.0 : "Valence must be in [-1,1] range.";
-        assert arousal >= -1.0 && arousal <= 1.0 : "Arousal must be in [-1,1] range.";
-
         this.setValence(valence);
         this.setArousal(arousal);
     }
@@ -81,7 +77,7 @@ public class VAVector {
      *            Another VAVector
      * @return a new VAVector
      */
-    public VAVector multiply(final VAVector other) {
+    public VAVector dotProduct(final VAVector other) {
         return new VAVector(this.getValence() * other.getValence(), this.getArousal()
                 * other.getArousal());
     }
@@ -123,25 +119,60 @@ public class VAVector {
         return one.distance(other);
     }
 
-    public static VAVector createTargetVector(final List<String> moods) {
-        double sumarousal = 0.0;
-        double sumvalence = 0.0;
-        int count = 0;
-
-        for (final String mood : moods) {
-            final Mood thisMood = Mood.valueOf(mood.toUpperCase());
-            if (thisMood != null) {
-                sumarousal += thisMood.getVector().getArousal();
-                sumvalence += thisMood.getVector().getValence();
-                count++;
-            }
-        }
-        if (count > 0) {
-            final double val = sumvalence / count;
-            final double aro = sumarousal / count;
-            return new VAVector(val, aro);
-        }
-        return new VAVector(0.0, 0.0);
+    /**
+     * Get the length of this vector.
+     *
+     * @return The length of this vector.
+     */
+    public double length() {
+        return this.distance(new VAVector(0.0, 0.0));
     }
 
+    /**
+     * Get the average vector of the list of vectors.
+     *
+     * @param vectors
+     *            The list of vectors.
+     * @return The average.
+     */
+    public static VAVector average(final List<VAVector> vectors) {
+        final Counter counter = new Counter();
+
+        final VAVector average = vectors.stream()
+                .reduce(new VAVector(0.0, 0.0), (one, other) -> {
+                    counter.increment();
+                    return one.add(other);
+                });
+
+        return counter.average(average);
+    }
+
+    /**
+     * Helper class in order to reduce more easily in {@link VAVector#average(List)}.
+     *
+     * @author JeremybellEU
+     */
+    private static final class Counter {
+
+        /**
+         * The actual counter.
+         */
+        private int counter;
+
+        public Counter() {
+            counter = 0;
+        }
+
+        public void increment() {
+            counter++;
+        }
+
+        public VAVector average(final VAVector vector) {
+            if (counter > 0) {
+                return vector.multiply(1.0 / counter);
+            }
+
+            return new VAVector(0.0, 0.0);
+        }
+    }
 }

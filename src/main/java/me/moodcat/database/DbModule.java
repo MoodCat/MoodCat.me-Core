@@ -1,5 +1,6 @@
 package me.moodcat.database;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -37,22 +38,31 @@ public class DbModule extends AbstractModule {
     protected void configure() {
         final JpaPersistModule jpaModule = new JpaPersistModule(MOODCAT_PERSISTENCE_UNIT);
 
-        try (InputStream stream = DbModule.class.getResourceAsStream("/persistence.properties")) {
-            Preconditions.checkNotNull(stream, "Persistence properties not found");
-            final Properties properties = new Properties();
-            properties.load(stream);
+        final Properties properties = getProperties();
+        setDatabasePassword(properties);
 
-            setDatabasePassword(properties);
-
-            jpaModule.properties(properties);
-        }
+        jpaModule.properties(properties);
 
         install(jpaModule);
     }
 
+    protected Properties getProperties() throws IOException {
+        try (InputStream stream = DbModule.class.getResourceAsStream("/persistence.properties")) {
+            final Properties properties = new Properties();
+            Preconditions.checkNotNull(stream, "Persistence properties not found");
+            properties.load(stream);
+            return properties;
+        }
+
+    }
+
+    protected String getSystemEnvironmentVariable() {
+        return System.getenv(ENVIRONMENT_DATABASE_VARIABLE_NAME);
+    }
+
     private void setDatabasePassword(final Properties properties)
             throws DatabaseConfigurationException {
-        final String databasePassword = System.getenv(ENVIRONMENT_DATABASE_VARIABLE_NAME);
+        final String databasePassword = getSystemEnvironmentVariable();
 
         // This will be null if it is run in the test environment.
         if (databasePassword != null) {
@@ -72,7 +82,7 @@ public class DbModule extends AbstractModule {
      *
      * @author JeremybellEU
      */
-    private static class DatabaseConfigurationException extends Exception {
+    protected static class DatabaseConfigurationException extends Exception {
 
         /**
          * Generated UID.

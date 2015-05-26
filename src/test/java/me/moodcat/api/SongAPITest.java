@@ -61,7 +61,7 @@ public class SongAPITest {
 
         final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
 
-        songAPI.classifySong(SONG_ID, request);
+        songAPI.classifySong(SOUNCLOUD_ID, request);
 
         verify(songDAO).merge(song);
         assertTrue(vectorCaptor.getValue().getValence() > 0.5);
@@ -76,7 +76,7 @@ public class SongAPITest {
 
         final ClassificationRequest request = new ClassificationRequest(0.5, 0.5);
 
-        songAPI.classifySong(SONG_ID, request);
+        songAPI.classifySong(SOUNCLOUD_ID, request);
 
         verify(songDAO, never()).merge(song);
     }
@@ -87,7 +87,7 @@ public class SongAPITest {
 
         final ClassificationRequest request = new ClassificationRequest(0.8, 0.2);
 
-        songAPI.classifySong(SONG_ID, request);
+        songAPI.classifySong(SOUNCLOUD_ID, request);
     }
 
     @Test

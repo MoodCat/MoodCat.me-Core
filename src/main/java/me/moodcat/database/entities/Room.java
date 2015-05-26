@@ -17,13 +17,8 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import me.moodcat.database.embeddables.VAVector;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import distanceMetric.DistanceMetric;
 
 /**
@@ -94,15 +89,15 @@ public class Room {
     /**
      * DistanceMetric to determine the distance between 2 rooms. Will take {@link Room#arousal} and
      * {@link Room#valence} to create vectors.
-     * 
+     *
      * @author Gijs Weterings
      */
     public static final class RoomDistanceMetric implements DistanceMetric<Room> {
 
         @Override
-        public double distanceBetween(Room room1, Room room2) {
-            VAVector room1vector = new VAVector(room1.getValence(), room1.getArousal());
-            VAVector room2vector = new VAVector(room2.getValence(), room2.getArousal());
+        public double distanceBetween(final Room room1, final Room room2) {
+            final VAVector room1vector = new VAVector(room1.getValence(), room1.getArousal());
+            final VAVector room2vector = new VAVector(room2.getValence(), room2.getArousal());
             return room1vector.distance(room2vector);
         }
     }

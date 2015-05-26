@@ -1,9 +1,14 @@
 package me.moodcat.mood;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 import me.moodcat.database.embeddables.VAVector;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A mood represents a vector in the valence-arousal plane which will be attached to song.
@@ -16,7 +21,7 @@ public enum Mood {
     // CHECKSTYLE:OFF
     ANGRY(new VAVector(-0.6, 0.6), "Angry"),
     CALM(new VAVector(0.3, -0.9), "Calm"),
-    EXCITING(new VAVector(0.4, 0.8), "Exiting"),
+    EXCITING(new VAVector(0.4, 0.8), "Exciting"),
     HAPPY(new VAVector(0.7, 0.6), "Happy"),
     NERVOUS(new VAVector(-0.7, 0.4), "Nervous"),
     PLEASING(new VAVector(0.6, 0.3), "Pleasing"),
@@ -28,6 +33,14 @@ public enum Mood {
     // CHECKSTYLE:ON
 
     /**
+     * List of all names that represent moods. Used in {@link #nameRepresentsMood(String)}.
+     * By storing this once, we save a lot of unnecessary list creations.
+     */
+    private static final List<String> MOOD_NAMES = Arrays.asList(Mood.values()).stream()
+            .map(moodValue -> moodValue.getName())
+            .collect(Collectors.toList());
+
+    /**
      * The vector that represents this mood.
      */
     @Getter
@@ -35,7 +48,7 @@ public enum Mood {
     public final VAVector vector;
 
     /**
-     * Readable name for the frontend
+     * Readable name for the frontend.
      */
     @Getter
     public final String name;
@@ -66,5 +79,26 @@ public enum Mood {
         }
 
         return mood;
+    }
+
+    /**
+     * Get the vector that represents the average of the provided list of moods.
+     *
+     * @param moods
+     *            The textual list of moods.
+     * @return The average vector, or the zero-vector if no moods were found.
+     */
+    public static VAVector createTargetVector(final List<String> moods) {
+        final List<VAVector> actualMoods = moods.stream()
+                .filter(Mood::nameRepresentsMood)
+                .map(mood -> Mood.valueOf(mood.toUpperCase()))
+                .map(mood -> mood.getVector())
+                .collect(Collectors.toList());
+
+        return VAVector.average(actualMoods);
+    }
+
+    private static boolean nameRepresentsMood(final String mood) {
+        return MOOD_NAMES.contains(mood);
     }
 }
