@@ -9,6 +9,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -30,12 +31,18 @@ import com.google.inject.util.Modules;
  * 
  * @author Jaap Heijligers
  */
+@Slf4j
 public class BulkInsertApp {
 
     /**
      * The port the bulk insert server runs on.
      */
     private static final int SERVER_PORT = 9001;
+
+    /**
+     * The port the bulk insert server runs on.
+     */
+    private static final int NUMBER_OF_ROOMS = 5;
 
     /**
      * Reference for injector in order to have concurrent transactions to our database.
@@ -68,6 +75,10 @@ public class BulkInsertApp {
         // Insert the data
         injectorAtomicReference.get().getInstance(BulkInsertData.class).insertData();
 
+        // Insert rooms
+        injectorAtomicReference.get().getInstance(BulkInsertData.class)
+                .insertRandomRooms(NUMBER_OF_ROOMS);
+
         // When done, stop the server
         server.stop();
     }
@@ -79,7 +90,7 @@ public class BulkInsertApp {
         try {
             this.server.stop();
         } catch (final Exception e) {
-            e.printStackTrace();
+            log.error("Couldn't stop server.", e);
         }
     }
 

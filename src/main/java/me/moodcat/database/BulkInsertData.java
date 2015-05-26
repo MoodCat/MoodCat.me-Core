@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.mysema.query.jpa.hibernate.HibernateQueryFactory;
+import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
@@ -36,6 +37,7 @@ import org.hibernate.sql.ordering.antlr.Factory;
  * @author Jan-Willem Gmelig Meyling
  */
 @Singleton
+@Slf4j
 public class BulkInsertData {
 
     /**
@@ -109,7 +111,7 @@ public class BulkInsertData {
                 Song song = songToTrack(track, id, artist, DEFAULT_VECTOR);
                 songDAO.persist(song);
             } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+                log.warn("Track " + id + " could not be persisted.");
             }
         }
     }
@@ -149,7 +151,6 @@ public class BulkInsertData {
         Random random = new Random();
         for (int i = 0; i < numberOfRooms; i++) {
             Room room = new Room();
-            System.out.println(songs.size());
             room.setSong(songs.get(random.nextInt(songs.size())));
             room.setName("ROOM_STUB #" + i);
             room.setTime(0);
