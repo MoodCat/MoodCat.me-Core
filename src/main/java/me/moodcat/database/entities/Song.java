@@ -19,7 +19,7 @@ import me.moodcat.database.embeddables.VAVector;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * TODO: Add explanation.
+ * Song entity
  *
  * @author Jan-Willem Gmelig Meyling
  */

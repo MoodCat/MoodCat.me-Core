@@ -50,7 +50,7 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-    
+
     @Embedded
     @JsonIgnore
     private VAVector valenceArousal;
@@ -64,7 +64,7 @@ public class Room {
     private Song currentSong;
 
     /**
-     * Songs to be played
+     * Songs to be played.
      */
     @ManyToMany
     @JoinTable(name = "room_play_queue", joinColumns = {
@@ -81,7 +81,7 @@ public class Room {
     private String name;
 
     /**
-     * The songs recently played in the roomProvider<ChatDAO> chatDAOProvider
+     * The songs recently played in the roomProvider<ChatDAO> chatDAOProvider.
      */
     @ManyToMany
     @JsonIgnore
@@ -93,7 +93,7 @@ public class Room {
     private List<Song> playHistory;
 
     /**
-     * Development flag to temporarily repeat the current song in a room
+     * Development flag to temporarily repeat the current song in a room.
      */
     @Column(name = "repeat")
     private boolean repeat;
