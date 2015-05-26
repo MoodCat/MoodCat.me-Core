@@ -38,8 +38,7 @@ public class DbModule extends AbstractModule {
     protected void configure() {
         final JpaPersistModule jpaModule = new JpaPersistModule(MOODCAT_PERSISTENCE_UNIT);
 
-
-        Properties properties = getProperties();
+        final Properties properties = getProperties();
         setDatabasePassword(properties);
 
         jpaModule.properties(properties);
@@ -56,6 +55,7 @@ public class DbModule extends AbstractModule {
         }
 
     }
+
     protected String getSystemEnvironmentVariable() {
         return System.getenv(ENVIRONMENT_DATABASE_VARIABLE_NAME);
     }
