@@ -38,9 +38,8 @@ public class DbModule extends AbstractModule {
     protected void configure() {
         final JpaPersistModule jpaModule = new JpaPersistModule(MOODCAT_PERSISTENCE_UNIT);
 
-        final Properties properties = new Properties();
-        properties.load(this.getResourceStream("/persistence.properties"));
 
+        Properties properties = getProperties();
         setDatabasePassword(properties);
 
         jpaModule.properties(properties);
@@ -48,14 +47,15 @@ public class DbModule extends AbstractModule {
         install(jpaModule);
     }
 
-    protected InputStream getResourceStream(final String fileLocation) throws IOException {
-        try (InputStream stream = DbModule.class.getResourceAsStream(fileLocation)) {
+    protected Properties getProperties() throws IOException {
+        try (InputStream stream = DbModule.class.getResourceAsStream("/persistence.properties")) {
+            final Properties properties = new Properties();
             Preconditions.checkNotNull(stream, "Persistence properties not found");
-
-            return stream;
+            properties.load(stream);
+            return properties;
         }
-    }
 
+    }
     protected String getSystemEnvironmentVariable() {
         return System.getenv(ENVIRONMENT_DATABASE_VARIABLE_NAME);
     }

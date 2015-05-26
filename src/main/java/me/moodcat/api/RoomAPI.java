@@ -103,12 +103,8 @@ public class RoomAPI {
     @GET
     @Path("{id}")
     @Transactional
-    public Room getRoom(@PathParam("id") final Integer roomId) throws IllegalArgumentException {
-        if (roomId == null) {
-            throw new IllegalArgumentException();
-        }
-
-        return roomDAO.findById(roomId.intValue());
+    public Room getRoom(@PathParam("id") final int roomId) {
+        return roomDAO.findById(roomId);
     }
 
     /**

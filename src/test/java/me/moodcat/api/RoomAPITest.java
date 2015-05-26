@@ -96,11 +96,6 @@ public class RoomAPITest {
         assertEquals(oneRoom, this.roomAPI.getRoom(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullIsInvalidArgumentWhenRetrievingRoom() {
-        assertEquals(oneRoom, this.roomAPI.getRoom(null));
-    }
-
     @Test
     public void retrieveMessages() {
         assertEquals(messagesList, this.roomAPI.getMessages(1));

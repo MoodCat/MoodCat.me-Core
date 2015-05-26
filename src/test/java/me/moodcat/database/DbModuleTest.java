@@ -1,15 +1,15 @@
 package me.moodcat.database;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 import me.moodcat.database.DbModule.DatabaseConfigurationException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,10 +27,17 @@ public class DbModuleTest {
     @Spy
     private DbModule module;
 
+    private Properties properties;
+
+    @Before
+    public void before() throws IOException {
+        properties = new Properties();
+        when(module.getProperties()).thenReturn(properties);
+    }
+
     @Test
     public void succesfullyLoadedConfiguration() throws IOException {
-        when(module.getResourceStream(anyString())).thenReturn(
-                new ByteArrayInputStream("javax.persistence.jdbc.password = bogus".getBytes()));
+        properties.setProperty("javax.persistence.jdbc.password", "bogus");
 
         module.configure(binder);
 
@@ -39,8 +46,6 @@ public class DbModuleTest {
 
     @Test
     public void succesfullyLoadedConfigurationWithEnvironmentVariable() throws IOException {
-        when(module.getResourceStream(anyString())).thenReturn(
-                new ByteArrayInputStream("".getBytes()));
         when(module.getSystemEnvironmentVariable()).thenReturn("yes");
 
         module.configure(binder);
@@ -50,9 +55,6 @@ public class DbModuleTest {
 
     @Test(expected = DatabaseConfigurationException.class)
     public void throwsExceptionWhenNoPasswordSet() throws IOException {
-        when(module.getResourceStream(anyString())).thenReturn(
-                new ByteArrayInputStream("".getBytes()));
-
         module.configure(binder);
     }
 }
