@@ -3,12 +3,14 @@ package me.moodcat.database;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
-import com.mysema.query.jpa.hibernate.HibernateQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -26,10 +28,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.persist.Transactional;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.sql.ordering.antlr.Factory;
 
 /**
  * MockData inserts initial data in to a clean database.
@@ -101,10 +99,10 @@ public class BulkInsertData {
     @Transactional
     public void insertData() throws IOException, SoundCloudException {
         final SongDAO songDAO = songDAOProvider.get();
-        HashMap<String, Artist> artistMap = new HashMap<>();
+        Map<String, Artist> artistMap = new HashMap<>();
 
-        int[] soundCloudIds = readSoundCloudIds();
-        for (int id : soundCloudIds) {
+        List<Integer> soundCloudIds = readSoundCloudIds();
+        for (Integer id : soundCloudIds) {
             try {
                 SoundCloudTrack track = soundCloudExtract.extract(id);
                 Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
@@ -124,7 +122,7 @@ public class BulkInsertData {
      * @param artistMap
      *            the map with already persisted arists.
      */
-    private Artist getOrPersistArtist(String username, HashMap<String, Artist> artistMap) {
+    private Artist getOrPersistArtist(String username, Map<String, Artist> artistMap) {
         final ArtistDAO artistDAO = artistDAOProvider.get();
         Artist artist;
         if (artistMap.containsKey(username)) {
@@ -192,15 +190,11 @@ public class BulkInsertData {
      * @throws IOException
      *             when the file is not found or can not be read.
      */
-    private int[] readSoundCloudIds() throws IOException {
-        String soundcloudIdString = new String(Files.readAllBytes(Paths
+    private List<Integer> readSoundCloudIds() throws IOException {
+        String soundCloudIdString = new String(Files.readAllBytes(Paths
                 .get(SOUNDCLOUD_ID_FILE_PATH)));
-        String[] soundcloudIds = soundcloudIdString.split("\n");
-        int[] ids = new int[soundcloudIds.length];
-        for (int i = 0; i < ids.length; i++) {
-            ids[i] = Integer.parseInt(soundcloudIds[i]);
-        }
-        return ids;
+        return Arrays.asList(soundCloudIdString.split("\n")).stream()
+                .map(Integer::valueOf).collect(Collectors.toList());
     }
 
     /**
