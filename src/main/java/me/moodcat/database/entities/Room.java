@@ -19,6 +19,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -51,13 +52,7 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
-
-    /**
-     * The name of the room.
-     */
-    @Column(name = "roomName")
-    private String roomName;
-
+    
     @Embedded
     @JsonIgnore
     private VAVector valenceArousal;
@@ -71,9 +66,10 @@ public class Room {
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "currentSong")
+    @JsonProperty("song")
     private Song currentSong;
 
-    /*
+    /**
      * Songs to be played
      * Start with chat backend
      */
@@ -95,7 +91,7 @@ public class Room {
     @Column(name = "name")
     private String name;
 
-    /*
+    /**
      * The songs recently played in the roomProvider<ChatDAO> chatDAOProvider
      */
     @ManyToMany
