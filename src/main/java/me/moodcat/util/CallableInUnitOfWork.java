@@ -36,7 +36,10 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         }
     }
 
-    public static class CallableInUnitOfWorkFactory<T> {
+    /**
+     * Factory for {@link Callable Callables} that should be ran in a {@link UnitOfWork}
+     */
+    public static class CallableInUnitOfWorkFactory {
 
         private final Provider<UnitOfWork> workProvider;
 
@@ -45,7 +48,13 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
             this.workProvider = workProvider;
         }
 
-        public CallableInUnitOfWork<T> create(Callable<T> callable) {
+        /**
+         * Create a  {@link Callable} in {@link UnitOfWork}
+         * @param callable {@code Callable} to run in {@code UnitOfWork}
+         * @param <T> Type of {@code Callable}
+         * @return the {@code CallableInUnitOfWork}
+         */
+        public <T> CallableInUnitOfWork<T> create(Callable<T> callable) {
             return new CallableInUnitOfWork<>(workProvider, callable);
         }
 
