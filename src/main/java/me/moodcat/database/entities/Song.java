@@ -18,7 +18,9 @@ import me.moodcat.database.embeddables.VAVector;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * A song that can be played.
+ * Song entity
+ *
+ * @author Jan-Willem Gmelig Meyling
  */
 @Data
 @Entity

@@ -37,7 +37,7 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
     }
 
     /**
-     * Factory for {@link Callable Callables} that should be ran in a {@link UnitOfWork}
+     * Factory for {@link Callable Callables} that should be ran in a {@link UnitOfWork}.
      */
     public static class CallableInUnitOfWorkFactory {
 
@@ -49,7 +49,8 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         }
 
         /**
-         * Create a  {@link Callable} in {@link UnitOfWork}
+         * Create a  {@link Callable} in {@link UnitOfWork}.
+         *
          * @param callable {@code Callable} to run in {@code UnitOfWork}
          * @param <T> Type of {@code Callable}
          * @return the {@code CallableInUnitOfWork}
