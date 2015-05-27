@@ -1,0 +1,33 @@
+{
+	"artists":[
+		{
+			"id": 1,
+			"name": "Fall Out Boy",
+			"songs": [
+				{
+					"id": 1,
+					"name": "Thanks for the Memories",
+					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
+					"soundCloudId": 202330997,
+					"duration": 600
+				}
+			]
+		}
+	],
+	"rooms": [
+		{
+			"id": 1,
+			"name": "No Merge Conflicts PL0x",
+			"position": 1,
+			"time": 0,
+			"songId" : 1,
+			"messages": [
+				{
+					"author": "System",
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		}
+	]
+}

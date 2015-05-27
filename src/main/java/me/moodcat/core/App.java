@@ -14,6 +14,7 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
+import com.google.inject.Inject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.DbModule;
@@ -136,7 +137,7 @@ public class App {
      * @throws Exception
      *             In case the server could not be started.
      */
-    protected void startServer() throws Exception {
+    public void startServer() throws Exception {
         this.server.start();
         Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
     }
@@ -144,8 +145,17 @@ public class App {
     /**
      * Joins the {@link App} server.
      */
-    protected void joinThread() throws InterruptedException {
+    public void joinThread() throws InterruptedException {
         this.server.join();
+    }
+
+    /**
+     * Get the injector.
+     *
+     * @return the injector
+     */
+    public Injector getInjector() {
+        return injectorAtomicReference.get();
     }
 
     /**
