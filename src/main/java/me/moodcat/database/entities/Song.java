@@ -1,7 +1,5 @@
 package me.moodcat.database.entities;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -19,7 +17,7 @@ import me.moodcat.database.embeddables.VAVector;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Song entity
+ * A song that can be played.
  *
  * @author Jan-Willem Gmelig Meyling
  */
@@ -31,39 +29,88 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 })
 public class Song {
 
+    /**
+     * The unique id of the song.
+     *
+     * @param id
+     *            The new Id to set.
+     * @return The id of the song.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    /**
+     * The corresponding soundcloud id, in order to be used by the frontend.
+     *
+     * @param soundCloudId
+     *            The new SoundCloudId to set.
+     * @return The SoundCloudId of this song.
+     */
     @Column(name = "soundcloudID")
     private Integer soundCloudId;
 
+    /**
+     * The artist that composed this song.
+     *
+     * @param artist
+     *            The new artist to set.
+     * @return The artist that composed this song.
+     */
     @ManyToOne
     @JoinColumn(name = "artist", nullable = true)
     private Artist artist;
 
+    /**
+     * The textual name of the song.
+     *
+     * @param name
+     *            The new name to set.
+     * @return The textual name of the song.
+     */
     @Column(name = "name", nullable = false)
     private String name;
 
+    /**
+     * The duration in seconds of the song.
+     *
+     * @param duration
+     *            The new duration to set.
+     * @return The duration in seconds of the song.
+     */
     @Column(name = "duration")
     private int duration;
 
+    /**
+     * The link to the artwork image of the song.
+     *
+     * @param artworkUrl
+     *            The new artworkURL to set.
+     * @return The url to the artwork image.
+     */
     @Column(name = "artworkUrl")
     private String artworkUrl;
 
+    /**
+     * The valence and arousal vector of this song.
+     *
+     * @param valenceArousal
+     *            The new vector to set.
+     * @return The valence-arousal vector of this song.
+     */
     @JsonIgnore
     @Embedded
     private VAVector valenceArousal;
 
-    @JsonIgnore
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "valence", column = @Column(name = "expected_valence")),
-            @AttributeOverride(name = "arousal", column = @Column(name = "expected_arousal"))
-    })
-    private VAVector expectedValenceArousal;
-
+    /**
+     * The amount of votes received. Can become negative if more people voted it negative than
+     * positive.
+     *
+     * @param numberOfPositiveVotes
+     *            The new amount of votes to set.
+     * @return The amount of netto votes that this song received.
+     */
     @JsonIgnore
     private int numberOfPositiveVotes;
 
