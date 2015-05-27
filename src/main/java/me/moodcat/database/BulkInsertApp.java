@@ -60,13 +60,6 @@ public class BulkInsertApp {
      */
     public static class BulkInsertServletModule extends ServletModule {
 
-        /**
-         * The rootFolder that contains all resources.
-         */
-
-        public BulkInsertServletModule() {
-        }
-
         @Override
         protected void configureServlets() {
             this.bindDatabaseModule();
