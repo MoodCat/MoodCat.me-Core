@@ -12,25 +12,35 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
 /**
- * TODO: Add explanation.
+ * Used to retrieve songs from the database.
  *
  * @author Jan-Willem Gmelig Meyling
  */
 public class SongDAO extends AbstractDAO<Song> {
-
-    private static final long NUMBER_OF_SONGS_TO_PROCESS = 10;
 
     @Inject
     public SongDAO(final EntityManager entityManager) {
         super(entityManager);
     }
 
+    /**
+     * Get all the lists stored in the database.
+     *
+     * @return The list of songs stored in the database.
+     */
     @Transactional
     public List<Song> listSongs() {
         return this.query().from(song)
                 .list(song);
     }
 
+    /**
+     * Get a song by name.
+     *
+     * @param name
+     *            The (case-ignored) name of the song.
+     * @return The song, if found.
+     */
     @Transactional
     public Song findByName(final String name) {
         return this.query().from(song)
@@ -38,6 +48,13 @@ public class SongDAO extends AbstractDAO<Song> {
                 .singleResult(song);
     }
 
+    /**
+     * Get a song by id.
+     *
+     * @param id
+     *            The id of song.
+     * @return The song, if found.
+     */
     @Transactional
     public Song findById(final int id) {
         return this.query().from(song)
@@ -45,6 +62,13 @@ public class SongDAO extends AbstractDAO<Song> {
                 .singleResult(song);
     }
 
+    /**
+     * Get a song by SoundCloud id.
+     * 
+     * @param id
+     *            The SoundCloud id of the song.
+     * @return The song, if found.
+     */
     @Transactional
     public Song findBySoundCloudId(final int id) {
         return this.query().from(song)
