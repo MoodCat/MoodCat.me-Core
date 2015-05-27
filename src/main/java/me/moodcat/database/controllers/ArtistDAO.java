@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 
 /**
- * TODO: Add explanation.
+ * Used to retrieve artists from the database.
  *
  * @author Jan-Willem Gmelig Meyling
  */
@@ -23,12 +23,24 @@ public class ArtistDAO extends AbstractDAO<Artist> {
         super(entityManager);
     }
 
+    /**
+     * Get all the artists stored in the database.
+     *
+     * @return A list of all artists.
+     */
     @Transactional
     public List<Artist> listArtists() {
         return this.query().from(artist)
                 .list(artist);
     }
 
+    /**
+     * Get an artist by name.
+     *
+     * @param name
+     *            The (case-ignored) name of the artist.
+     * @return The artist, if found.
+     */
     @Transactional
     public Artist findByName(final String name) {
         return this.query().from(artist)
@@ -36,6 +48,13 @@ public class ArtistDAO extends AbstractDAO<Artist> {
                 .singleResult(artist);
     }
 
+    /**
+     * Get an artist by id.
+     * 
+     * @param id
+     *            The id of the artist.
+     * @return The artist, if found.
+     */
     @Transactional
     public Artist findById(final int id) {
         return ensureExists(this.query().from(artist)

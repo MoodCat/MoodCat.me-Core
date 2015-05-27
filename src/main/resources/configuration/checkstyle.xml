@@ -174,7 +174,6 @@
     </module>
     <module name="InnerAssignment"/>
     <module name="MagicNumber"/>
-    <module name="MultipleStringLiterals"/>
     <module name="NestedForDepth">
       <property name="max" value="2"/>
     </module>
