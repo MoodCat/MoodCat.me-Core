@@ -38,11 +38,19 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
         this.urlFactory = new HttpClientInvoker();
     }
 
+    @SneakyThrows
+    protected static String getUrlFromArtistAndPermalink(final String artist,
+            final String permalink) {
+        return String.format(SOUNDCLOUD_HOST + "/%s/%s",
+                URLEncoder.encode(artist, URI_CHARSET),
+                URLEncoder.encode(permalink, URI_CHARSET));
+    }
+
     /**
      * Retrieve a SoundCloudTrack given a SoundCloud URL.
      *
      * @param soundCloudUrl
-     *            the give SoundCloud URL
+     *            the given SoundCloud URL
      * @return the parsed {@link SoundCloudTrack}
      * @throws SoundCloudException
      *             if the URL is malformed
@@ -57,6 +65,19 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
         }
 
         throw new SoundCloudException("Wrong URL supplied");
+    }
+
+    /**
+     * Retrieve a SoundCloudTrack given a SoundCloud id.
+     *
+     * @param id
+     *            the given SoundCloud id
+     * @return the parsed {@link SoundCloudTrack}
+     * @throws SoundCloudException
+     *             if the URL is malformed
+     */
+    public SoundCloudTrack extract(int id) throws SoundCloudException {
+        return this.getUrlFactory().retrieve(id, SoundCloudTrack.class);
     }
 
     /**
@@ -76,14 +97,6 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
             throws SoundCloudException {
         final String url = getUrlFromArtistAndPermalink(artist, permalink);
         return this.getUrlFactory().resolve(url, SoundCloudTrack.class);
-    }
-
-    @SneakyThrows
-    protected static String getUrlFromArtistAndPermalink(final String artist,
-            final String permalink) {
-        return String.format(SOUNDCLOUD_HOST + "/%s/%s",
-                URLEncoder.encode(artist, URI_CHARSET),
-                URLEncoder.encode(permalink, URI_CHARSET));
     }
 
     /**
@@ -128,7 +141,6 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
          */
         protected String redirectLocation(final String url) throws SoundCloudException {
             final Client client = SoundCloudExtract.this.createClient();
-
             try {
                 final Response redirect = client.target(SOUNDCLOUD_API)
                         .path("resolve.json")
@@ -143,6 +155,33 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
                 client.close();
             }
         }
+
+        /**
+         * The retrieve resource allows you to retrieve access API resources given a SoundCloud id,
+         * this method avoids the need of resolving the the URL through an extra request.
+         *
+         * @param id
+         *            the url to retrieve
+         * @throws SoundCloudException
+         *             if the resource could not be accessed
+         */
+        protected <T> T retrieve(int id, final Class<T> targetEntity)
+                throws SoundCloudException {
+            final Client client = SoundCloudExtract.this.createClient();
+            try {
+                return client.target(SOUNDCLOUD_API)
+                        .path("tracks")
+                        .path(id + ".json")
+                        .queryParam("client_id", CLIENT_ID)
+                        .request()
+                        .get(targetEntity);
+            } catch (final Exception e) {
+                throw new SoundCloudException(e.getMessage(), e);
+            } finally {
+                client.close();
+            }
+        }
+
     }
 
 }
