@@ -103,9 +103,7 @@ public class BulkInsertApp {
         final ContextHandlerCollection handlers = new ContextHandlerCollection();
 
         MoodcatHandler moodcatHandler = new MoodcatHandler();
-
-        // Add arbitrary spaces to avoid checkstyle warnings.
-        handlers.addContext("/ ", "/  ").setHandler(moodcatHandler);
+        handlers.addContext("/ ", "/").setHandler(moodcatHandler);
 
         return handlers;
     }
@@ -136,8 +134,7 @@ public class BulkInsertApp {
         private void bindDatabaseModule() {
             install(new DbModule());
 
-            // Add arbitrary spaces to avoid checkstyle warnings.
-            filter("/* ").through(PersistFilter.class);
+            filter("/*").through(PersistFilter.class);
             requireBinding(EntityManager.class);
             requireBinding(EntityManagerFactory.class);
         }
