@@ -6,6 +6,8 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /**
  * @author Jaap Heijligers
@@ -14,9 +16,13 @@ public class IllegalArgumentExceptionMapperTest {
 
     private IllegalArgumentExceptionMapper mapper;
 
+    @Mock
+    private IllegalArgumentException exception;
+
     @Before
     public void before() {
         mapper = new IllegalArgumentExceptionMapper();
+        exception = Mockito.mock(IllegalArgumentException.class);
     }
 
     @Test
@@ -26,7 +32,6 @@ public class IllegalArgumentExceptionMapperTest {
 
     @Test
     public void testToResponse() throws Exception {
-        IllegalArgumentException exception = new IllegalArgumentException();
         Response response = mapper.toResponse(exception);
         AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
                 .getEntity();
@@ -36,7 +41,7 @@ public class IllegalArgumentExceptionMapperTest {
     @Test
     public void testToResponseMessage() throws Exception {
         final String message = "Test Message";
-        IllegalArgumentException exception = new IllegalArgumentException(message);
+        Mockito.when(exception.getMessage()).thenReturn(message);
         Response response = mapper.toResponse(exception);
         AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
                 .getEntity();

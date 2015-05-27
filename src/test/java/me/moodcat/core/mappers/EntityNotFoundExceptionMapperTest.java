@@ -7,6 +7,8 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /**
  * @author Jaap Heijligers
@@ -15,9 +17,13 @@ public class EntityNotFoundExceptionMapperTest {
 
     private EntityNotFoundExceptionMapper mapper;
 
+    @Mock
+    private EntityNotFoundException exception;
+
     @Before
     public void before() {
         mapper = new EntityNotFoundExceptionMapper();
+        exception = Mockito.mock(EntityNotFoundException.class);
     }
 
     @Test
@@ -27,7 +33,6 @@ public class EntityNotFoundExceptionMapperTest {
 
     @Test
     public void testToResponse() throws Exception {
-        EntityNotFoundException exception = new EntityNotFoundException();
         Response response = mapper.toResponse(exception);
         AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
                 .getEntity();
@@ -37,7 +42,7 @@ public class EntityNotFoundExceptionMapperTest {
     @Test
     public void testToResponseMessage() throws Exception {
         final String message = "Test Message";
-        EntityNotFoundException exception = new EntityNotFoundException(message);
+        Mockito.when(exception.getMessage()).thenReturn(message);
         Response response = mapper.toResponse(exception);
         AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
                 .getEntity();

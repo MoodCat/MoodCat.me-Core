@@ -1,22 +1,29 @@
 package me.moodcat.core.mappers;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /**
  * @author Jaap Heijligers
  */
 public class NotFoundExceptionMapperTest {
+
     private NotFoundExceptionMapper mapper;
+
+    @Mock
+    private NotFoundException exception;
 
     @Before
     public void before() {
         mapper = new NotFoundExceptionMapper();
+        exception = Mockito.mock(NotFoundException.class);
     }
 
     @Test
@@ -25,8 +32,7 @@ public class NotFoundExceptionMapperTest {
     }
 
     @Test
-    public void testToResponse() throws Exception {
-        NotFoundException exception = new NotFoundException();
+    public void testToResponse() {
         Response response = mapper.toResponse(exception);
         AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
                 .getEntity();
@@ -34,9 +40,9 @@ public class NotFoundExceptionMapperTest {
     }
 
     @Test
-    public void testToResponseMessage() throws Exception {
+    public void testToResponseMessage() {
         final String message = "Test Message";
-        NotFoundException exception = new NotFoundException(message);
+        Mockito.when(exception.getMessage()).thenReturn(message);
         Response response = mapper.toResponse(exception);
         AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
                 .getEntity();
