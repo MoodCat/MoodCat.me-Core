@@ -14,21 +14,22 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+		<checkstyle.version>2.15</checkstyle.version>
+		<cobertura.version>2.7</cobertura.version>
+		<findbugs.version>3.0.1</findbugs.version>
 		<guice.version>3.0</guice.version>
 		<hibernate.version>4.3.8.Final</hibernate.version>
 		<jackson.version>2.4.4</jackson.version>
 		<jetty.version>9.2.10.v20150310</jetty.version>
-		<resteasy.version>3.0.11.Final</resteasy.version>
-		<slf4j.version>1.7.7</slf4j.version>
-		<logback.version>1.0.13</logback.version>
 		<junit.version>4.12</junit.version>
-		<mockito.version>1.10.19</mockito.version>
+		<logback.version>1.0.13</logback.version>
 		<lombok.version>1.16.4</lombok.version>
-		<checkstyle.version>2.14</checkstyle.version>
-		<pmd.version>3.2</pmd.version>
-		<findbugs.version>3.0.1</findbugs.version>
+		<mockito.version>1.10.19</mockito.version>
+		<pmd.version>3.4</pmd.version>
 		<querydsl.version>3.6.0</querydsl.version>
 		<recommendation-library.version>2.0.0</recommendation-library.version>
+		<resteasy.version>3.0.11.Final</resteasy.version>
+		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
 
 	<repositories>
@@ -197,6 +198,14 @@
 			<artifactId>resteasy-client</artifactId>
 			<version>${resteasy.version}</version>
 		</dependency>
+
+		<!-- This dependency is needed in order to let JavaDoc not throw an exception 
+			on the @Transactional annotation. -->
+		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+			<version>1.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -220,24 +229,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
-				<configuration>
-					<failOnViolation>false</failOnViolation>
-					<configLocation>configuration/checkstyle.xml</configLocation>
-					<suppressionsLocation>configuration/checkstyle-suppressions.xml</suppressionsLocation>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>${pmd.version}</version>
-				<configuration>
-					<format>xml</format>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>com.mysema.maven</groupId>
 				<artifactId>maven-apt-plugin</artifactId>
 				<version>1.0.4</version>
@@ -258,16 +249,49 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>${checkstyle.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>6.6</version>
+					</dependency>
+				</dependencies>
 				<configuration>
+					<propertyExpansion>basedir=${basedir}</propertyExpansion>
 					<failOnViolation>false</failOnViolation>
-					<configLocation>configuration/checkstyle.xml</configLocation>
-					<suppressionsLocation>configuration/checkstyle-suppressions.xml</suppressionsLocation>
+					<configLocation>src/main/resources/configuration/checkstyle.xml</configLocation>
+					<suppressionsLocation>src/main/resources/configuration/checkstyle-suppressions.xml</suppressionsLocation>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>${cobertura.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.ow2.asm</groupId>
+						<artifactId>asm</artifactId>
+						<version>5.0.3</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
 	<reporting>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${checkstyle.version}</version>
+				<configuration>
+					<propertyExpansion>basedir=${basedir}</propertyExpansion>
+					<failOnViolation>false</failOnViolation>
+					<configLocation>src/main/resources/configuration/checkstyle.xml</configLocation>
+					<suppressionsLocation>src/main/resources/configuration/checkstyle-suppressions.xml</suppressionsLocation>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -277,7 +301,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.1</version>
+				<version>2.10.3</version>
 				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>
@@ -301,15 +325,18 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
+				<version>${cobertura.version}</version>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.4</version>
+				<version>${pmd.version}</version>
 				<configuration>
 					<skipEmptyReport>false</skipEmptyReport>
+					<rulesets>
+						<ruleset>src/main/resources/configuration/pmd-rules.xml</ruleset>
+					</rulesets>
 				</configuration>
 			</plugin>
 
