@@ -107,10 +107,6 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
     protected class HttpClientInvoker {
 
         /**
-         * The client used to invoke requests.
-         */
-
-        /**
          * The resolve resource allows you to lookup and access API resources
          * when you only know the SoundCloud.com URL.
          *
