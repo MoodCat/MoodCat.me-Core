@@ -2,6 +2,7 @@ package me.moodcat.mood;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -45,13 +46,13 @@ public enum Mood {
      */
     @Getter
     @JsonIgnore
-    public final VAVector vector;
+    private final VAVector vector;
 
     /**
      * Readable name for the frontend.
      */
     @Getter
-    public final String name;
+    private final String name;
 
     Mood(final VAVector vector, final String name) {
         this.vector = vector;
@@ -91,7 +92,7 @@ public enum Mood {
     public static VAVector createTargetVector(final List<String> moods) {
         final List<VAVector> actualMoods = moods.stream()
                 .filter(Mood::nameRepresentsMood)
-                .map(mood -> Mood.valueOf(mood.toUpperCase()))
+                .map(mood -> Mood.valueOf(mood.toUpperCase(Locale.ROOT)))
                 .map(mood -> mood.getVector())
                 .collect(Collectors.toList());
 

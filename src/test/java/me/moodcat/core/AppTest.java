@@ -3,11 +3,16 @@ package me.moodcat.core;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+<<<<<<< HEAD
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+=======
+import java.io.IOException;
+
+>>>>>>> Various PMD errors fixed.
 import org.junit.Test;
 
 /**
