@@ -1,12 +1,58 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>me.moodcat</groupId>
 	<artifactId>moodcat-core</artifactId>
-	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
 	<name>MoodCat Core</name>
 	<url>http://moodcat.me</url>
+	<description>MoodCat allows users (and friends!) to unite in rooms, and listen to and discuss music together.</description>
+
+	<organization>
+		<name>TU Delft</name>
+		<url>http://ewi.tudelft.nl</url>
+	</organization>
+
+	<scm>
+		<connection>scm:git:git@github.com:MoodCat/MoodCat.me-Core.git</connection>
+		<developerConnection>scm:git:git@github.com:MoodCat/MoodCat.me-Core.git</developerConnection>
+		<url>https://github.com/MoodCat/MoodCat.me-Core</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Eva Anker</name>
+			<email>E.S.Anker@student.tudelft.nl</email>
+		</developer>
+		<developer>
+			<name>Jan-Willem Gmelig Meyling</name>
+			<email>j.gmeligmeyling@student.tudelft.nl</email>
+		</developer>
+		<developer>
+			<name>Jaap Heijligers</name>
+			<email>J.A.Heijligers@student.tudelft.nl</email>
+		</developer>
+		<developer>
+			<name>Tim van der Lippe</name>
+			<email>T.J.vanderLippe@student.tudelft.nl</email>
+		</developer>
+		<developer>
+			<name>Gijs Weterings</name>
+			<email>G.Weterings@student.tudelft.nl</email>
+		</developer>
+	</developers>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -14,21 +60,22 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+		<checkstyle.version>2.15</checkstyle.version>
+		<cobertura.version>2.7</cobertura.version>
+		<findbugs.version>3.0.1</findbugs.version>
 		<guice.version>3.0</guice.version>
 		<hibernate.version>4.3.8.Final</hibernate.version>
 		<jackson.version>2.4.4</jackson.version>
 		<jetty.version>9.2.10.v20150310</jetty.version>
-		<resteasy.version>3.0.11.Final</resteasy.version>
-		<slf4j.version>1.7.7</slf4j.version>
-		<logback.version>1.0.13</logback.version>
 		<junit.version>4.12</junit.version>
-		<mockito.version>1.10.19</mockito.version>
+		<logback.version>1.0.13</logback.version>
 		<lombok.version>1.16.4</lombok.version>
-		<checkstyle.version>2.14</checkstyle.version>
-		<pmd.version>3.2</pmd.version>
-		<findbugs.version>3.0.1</findbugs.version>
+		<mockito.version>1.10.19</mockito.version>
+		<pmd.version>3.4</pmd.version>
 		<querydsl.version>3.6.0</querydsl.version>
 		<recommendation-library.version>2.0.0</recommendation-library.version>
+		<resteasy.version>3.0.11.Final</resteasy.version>
+		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
 
 	<repositories>
@@ -197,6 +244,14 @@
 			<artifactId>resteasy-client</artifactId>
 			<version>${resteasy.version}</version>
 		</dependency>
+
+		<!-- This dependency is needed in order to let JavaDoc not throw an exception 
+			on the @Transactional annotation. -->
+		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+			<version>1.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -219,24 +274,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
-				<configuration>
-					<failOnViolation>false</failOnViolation>
-					<configLocation>configuration/checkstyle.xml</configLocation>
-					<suppressionsLocation>configuration/checkstyle-suppressions.xml</suppressionsLocation>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>${pmd.version}</version>
-				<configuration>
-					<format>xml</format>
-				</configuration>
-			</plugin>
+
 			<plugin>
 				<groupId>com.mysema.maven</groupId>
 				<artifactId>maven-apt-plugin</artifactId>
@@ -258,58 +296,32 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>${checkstyle.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>6.6</version>
+					</dependency>
+				</dependencies>
 				<configuration>
+					<propertyExpansion>basedir=${basedir}</propertyExpansion>
 					<failOnViolation>false</failOnViolation>
-					<configLocation>configuration/checkstyle.xml</configLocation>
-					<suppressionsLocation>configuration/checkstyle-suppressions.xml</suppressionsLocation>
+					<configLocation>src/main/resources/configuration/checkstyle.xml</configLocation>
+					<suppressionsLocation>src/main/resources/configuration/checkstyle-suppressions.xml</suppressionsLocation>
+					<sourceDirectory>target/generated-sources/delombok</sourceDirectory>
 				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.8</version>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.1</version>
-				<configuration>
-					<failOnError>false</failOnError>
-				</configuration>
-				<reportSets>
-					<reportSet>
-						<id>default</id>
-						<reports>
-							<report>javadoc</report>
-						</reports>
-					</reportSet>
-				</reportSets>
-			</plugin>
-
-
-			<plugin> <!-- JUnit report -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.18.1</version>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.4</version>
+				<version>${pmd.version}</version>
 				<configuration>
 					<skipEmptyReport>false</skipEmptyReport>
+					<rulesets>
+						<ruleset>src/main/resources/configuration/pmd-rules.xml</ruleset>
+					</rulesets>
+					<includeTests>true</includeTests>
 				</configuration>
 			</plugin>
 
@@ -321,6 +333,159 @@
 					<failOnError>false</failOnError>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>${cobertura.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.ow2.asm</groupId>
+						<artifactId>asm</artifactId>
+						<version>5.0.3</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<!-- The Lombok plugin compiles lombok annotations to the target/generated-sources folder
+				so that they can be used for static analysis -->
+			<plugin>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok-maven-plugin</artifactId>
+				<version>1.16.4.1</version>
+				<executions>
+					<execution>
+						<id>delombok</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>delombok</goal>
+						</goals>
+						<configuration>
+							<addOutputDirectory>false</addOutputDirectory>
+							<sourceDirectory>src/main/java</sourceDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<!-- Link sources for reports -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<configuration>
+					<linkJavadoc>true</linkJavadoc>
+				</configuration>
+				<version>2.5</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.8</version>
+			</plugin>
+
+			<!-- JUnit report -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.18.1</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${checkstyle.version}</version>
+				<configuration>
+					<propertyExpansion>basedir=${basedir}</propertyExpansion>
+					<failOnViolation>false</failOnViolation>
+					<configLocation>src/main/resources/configuration/checkstyle.xml</configLocation>
+					<suppressionsLocation>src/main/resources/configuration/checkstyle-suppressions.xml</suppressionsLocation>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+					<failOnError>true</failOnError>
+					<sourcepath>target/generated-sources/delombok</sourcepath>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>default</id>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>${cobertura.version}</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>${pmd.version}</version>
+				<configuration>
+					<skipEmptyReport>false</skipEmptyReport>
+					<rulesets>
+						<ruleset>src/main/resources/configuration/pmd-rules.xml</ruleset>
+					</rulesets>
+					<includeTests>true</includeTests>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>${findbugs.version}</version>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</reporting>
+
+	<!-- Profile is required for the lombok maven plugin.
+			see: http://awhitford.github.io/lombok.maven/lombok-maven-plugin/usage.html -->
+	<profiles>
+		<profile>
+			<id>lombok-needs-tools-jar</id>
+			<activation>
+				<file>
+					<exists>${java.home}/../lib/tools.jar</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.projectlombok</groupId>
+						<artifactId>lombok-maven-plugin</artifactId>
+						<version>1.16.4.1</version>
+						<dependencies>
+							<dependency>
+								<groupId>sun.jdk</groupId>
+								<artifactId>tools</artifactId>
+								<version>1.6</version>
+								<scope>system</scope>
+								<systemPath>${java.home}/../lib/tools.jar</systemPath>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 </project>

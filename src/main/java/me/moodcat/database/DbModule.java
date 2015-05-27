@@ -89,7 +89,7 @@ public class DbModule extends AbstractModule {
          */
         private static final long serialVersionUID = 1071139882151857332L;
 
-        private DatabaseConfigurationException(final String string) {
+        protected DatabaseConfigurationException(final String string) {
             super(string);
         }
 

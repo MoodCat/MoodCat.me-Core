@@ -109,9 +109,9 @@ public class VAVector {
     /**
      * Get the distance between two vectors.
      *
-     * @param a
+     * @param one
      *            first vector
-     * @param b
+     * @param other
      *            second vector
      * @return the distance
      */
