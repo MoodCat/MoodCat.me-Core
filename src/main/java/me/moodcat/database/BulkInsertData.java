@@ -206,7 +206,7 @@ public class BulkInsertData {
         final SongDAO songDAO = songDAOProvider.get();
         final RoomDAO roomDAO = roomDAOProvider.get();
 
-        roomDAO.listRooms(Integer.MAX_VALUE).forEach(roomDAO::remove);
+        roomDAO.listRooms().forEach(roomDAO::remove);
         songDAO.listSongs().forEach(songDAO::remove);
         artistDAO.listArtists().forEach(artistDAO::remove);
     }
