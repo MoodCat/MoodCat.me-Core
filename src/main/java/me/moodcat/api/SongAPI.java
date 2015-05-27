@@ -118,9 +118,9 @@ public class SongAPI {
             @PathParam("vote") final String vote) throws InvalidVoteException {
         final Song song = this.songDAO.findBySoundCloudId(soundCloudId);
 
-        if (vote.equals("like")) {
+        if ("like".equals(vote)) {
             song.increaseNumberOfPositiveVotes();
-        } else if (vote.equals("dislike")) {
+        } else if ("dislike".equals(vote)) {
             song.decreaseNumberOfPositiveVotes();
         } else {
             throw new InvalidVoteException();
@@ -146,8 +146,7 @@ public class SongAPI {
         final VAVector scaledDistance = classificationVector.subtract(songVector)
                 .multiply(CLASSIFICATION_WEIGHT);
 
-        final VAVector updatedVector = songVector.add(scaledDistance);
-        return updatedVector;
+        return songVector.add(scaledDistance);
     }
 
     /**

@@ -21,7 +21,7 @@ public abstract class AbstractDAO<T> {
     /**
      * Manager that can talk to the actual database.
      */
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     protected AbstractDAO(final EntityManager entityManager) {
         this.entityManager = entityManager;

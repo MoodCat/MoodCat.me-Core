@@ -34,17 +34,17 @@ public class SoundCloudIntegrationTest {
 
     @BeforeClass
     public static void initializeTrack1() throws SoundCloudException {
-        SoundCloudExtract soundCloudExtract = new SoundCloudExtract();
+        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
+        final SoundCloudExtract soundCloudExtract = new SoundCloudExtract();
         testTrack = soundCloudExtract.extract(TRACK_URL);
     }
 
     @Test
     public void testSearch() throws SoundCloudException {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
-        SoundCloudSearch search = new SoundCloudSearch();
-        List<SoundCloudTrack> tracks = search.search("Katfyr");
+        final SoundCloudSearch search = new SoundCloudSearch();
+        final List<SoundCloudTrack> tracks = search.search("Katfyr");
         assertTrue(tracks.size() > 10);
-        for (SoundCloudTrack track : tracks) {
+        for (final SoundCloudTrack track : tracks) {
             assertTrue(track.getId() > 0);
             assertTrue(track.getPermalink() != null);
         }
@@ -52,43 +52,36 @@ public class SoundCloudIntegrationTest {
 
     @Test
     public void testExtractTitle() throws SoundCloudException {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.getTitle(), TRACK_TITLE);
     }
 
     @Test
     public void testExtractPermalink() throws SoundCloudException {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.getPermalink(), TRACK_PERMALINK);
     }
 
     @Test
     public void testExtractUser() throws SoundCloudException {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.getUser().getUsername(), TRACK_USER);
     }
 
     @Test
     public void testExtractId() {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.getId(), TRACK_ID);
     }
 
     @Test
     public void testArtworkUrl() {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.getArtworkUrl(), TRACK_ARTWORK_URL);
     }
 
     @Test
     public void testDuration() {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.getDuration(), TRACK_DURATION);
     }
 
     @Test
     public void testDownloadable() {
-        Assume.assumeTrue("true".equals(System.getProperty("runWithIntegration")));
         assertEquals(testTrack.isDownloadable(), TRACK_DOWNLOADABLE);
     }
 }

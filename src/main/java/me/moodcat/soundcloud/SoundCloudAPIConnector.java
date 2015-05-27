@@ -5,7 +5,7 @@ import javax.ws.rs.client.Client;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
- * Connects to the SoundCloud API using its {@link #urlFactory}.
+ * Connects to the SoundCloud API using its {@link #createClient()}.
  *
  * @author JeremyBellEU
  */

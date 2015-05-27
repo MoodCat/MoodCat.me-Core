@@ -1,6 +1,8 @@
 package me.moodcat.core;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -69,9 +71,18 @@ public class App {
 
     /**
      * Instantiates the server and adds handlers for the requests.
+     *
+     * @throws IOException
+     *             If the statics folder threw an IOException.
      */
-    public App() {
-        final File staticsFolder = new File("src/main/resources/static/app");
+    public App() throws IOException {
+        final File staticsFolder = new File(Paths.get(".").toAbsolutePath().toString()
+                + "/src/main/resources/static/app");
+
+        // Make sure the folder is available, else we can't start the server.
+        if (!staticsFolder.exists() && !staticsFolder.mkdir()) {
+            throw new IOException("Static folder could not be initialized.");
+        }
 
         for (final String file : staticsFolder.list()) {
             log.info("Found resource {}", file);
@@ -90,7 +101,7 @@ public class App {
      * @throws Exception
      *             Thrown when a thread-exception occured.
      */
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String... args) throws Exception {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
@@ -191,7 +202,7 @@ public class App {
              */
             private final Module[] overrides;
 
-            private AppContextListener(final File rootFolder, final Module[] overrides) {
+            protected AppContextListener(final File rootFolder, final Module... overrides) {
                 this.rootFolder = rootFolder;
                 this.overrides = overrides;
             }

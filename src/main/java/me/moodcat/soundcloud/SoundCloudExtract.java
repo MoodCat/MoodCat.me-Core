@@ -98,9 +98,14 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
          * when you only know the SoundCloud.com URL.
          *
          * @param url
-         *            the url to retrieve
+         *            The url to retrieve.
+         * @param targetEntity
+         *            What entity type should be returned.
+         * @param <T>
+         *            The type of the entity.
+         * @return The entity that corresponds to the request.
          * @throws SoundCloudException
-         *             if the resource could not be accessed
+         *             Thrown if the resource could not be accessed.
          */
         protected <T> T resolve(final String url, final Class<T> targetEntity)
                 throws SoundCloudException {

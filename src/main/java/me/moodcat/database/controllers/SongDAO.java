@@ -44,26 +44,11 @@ public class SongDAO extends AbstractDAO<Song> {
                 .where(song.id.eq(id))
                 .singleResult(song);
     }
-    
+
     @Transactional
     public Song findBySoundCloudId(final int id) {
         return this.query().from(song)
                 .where(song.soundCloudId.eq(id))
                 .singleResult(song);
-    }
-
-    /**
-     * Fetches the next {@link #NUMBER_OF_SONGS_TO_PROCESS} in order to process to determine the
-     * {@link Song#getValenceArousal() valenceArousal}.
-     *
-     * @return A list consisting of songs that should be processed with a maximum size of
-     *         {@link #NUMBER_OF_SONGS_TO_PROCESS}
-     */
-    @Transactional
-    public List<Song> findNextUnprocessedSongs() {
-        return this.query().from(song)
-                .where(song.valenceArousal.isNull())
-                .limit(NUMBER_OF_SONGS_TO_PROCESS)
-                .list(song);
     }
 }
