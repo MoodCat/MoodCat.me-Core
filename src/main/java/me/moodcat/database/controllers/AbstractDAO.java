@@ -45,8 +45,8 @@ public abstract class AbstractDAO<T> {
      */
     @Transactional
     public T persist(final T object) {
+        log.debug("Persisting {}", object);
         this.entityManager.persist(object);
-        log.debug("Persistied {}", object);
         return object;
     }
 

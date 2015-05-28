@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
+import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Artist;
@@ -16,9 +20,7 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import java.util.Map;
 
 /**
  * The {@code Bootstrapper} loads an environment for a test
@@ -28,10 +30,9 @@ import com.google.inject.Inject;
 @Slf4j
 public class Bootstrapper {
 
-    /**
-     * List of persisted artists for clean up.
-     */
-    private final List<Artist> persistedArtists;
+    private final Map<Integer, Artist> persistedArtists;
+    private final Map<Integer, Song> persistedSongs;
+    private final Map<Integer, Room> persistedRooms;
 
     /**
      * ObjectMapper used for the bootstrapper.
@@ -47,14 +48,19 @@ public class Bootstrapper {
 
     private final SongDAO songDAO;
 
+    private final ChatDAO chatDAO;
+
     @Inject
     public Bootstrapper(final ObjectMapper objectMapper, final ArtistDAO artistDAO,
-            final RoomDAO roomDAO, final SongDAO songDAO) {
+                        final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO) {
         this.objectMapper = objectMapper;
         this.artistDAO = artistDAO;
-        this.persistedArtists = Lists.newArrayList();
         this.roomDAO = roomDAO;
         this.songDAO = songDAO;
+        this.chatDAO = chatDAO;
+        this.persistedArtists = Maps.newHashMap();
+        this.persistedSongs = Maps.newHashMap();
+        this.persistedRooms = Maps.newHashMap();
     }
 
     /**
@@ -140,50 +146,53 @@ public class Bootstrapper {
         }
     }
 
-    protected void createRoom(final BRoom bRoom) {
-        final Room room = new Room();
+    @Transactional
+    protected void createRoom(BRoom bRoom) {
+        Room room = new Room();
         room.setId(bRoom.getId());
         room.setName(bRoom.getName());
         room.setTime(bRoom.getTime());
         room.setPosition(bRoom.getPosition());
         room.setChatMessages(Collections.<ChatMessage> emptyList());
-        room.setChatMessages(bRoom.getMessages().stream()
-                .map(bSong -> createChatMessage(bSong, room))
-                .collect(Collectors.toList()));
-        room.setSong(songDAO.findById(bRoom.getSongId()));
-        final Room persistedRoom = roomDAO.merge(room);
+        room.setSong(persistedSongs.get(bRoom.getSongId()));
+        Room persistedRoom = roomDAO.merge(room);
+        bRoom.getMessages().forEach(bSong -> createChatMessage(bSong, persistedRoom));
+        persistedRooms.put(bRoom.getId(), persistedRoom);
         log.info("Bootstrapper created room {}", persistedRoom);
     }
 
-    protected static ChatMessage createChatMessage(final BMessage bMessage, final Room room) {
-        final ChatMessage chatMessage = new ChatMessage();
+    @Transactional
+    protected ChatMessage createChatMessage(BMessage bMessage, Room room) {
+        ChatMessage chatMessage = new ChatMessage();
         chatMessage.setAuthor(bMessage.getAuthor());
         chatMessage.setMessage(bMessage.getMessage());
         chatMessage.setTimestamp(bMessage.getTime());
         chatMessage.setRoom(room);
-        return chatMessage;
+        return chatDAO.persist(chatMessage);
     }
 
-    protected static Song createSong(final BSong bSong, final Artist artist) {
-        final Song song = new Song();
+    @Transactional
+    protected Song createSong(BSong bSong, Artist artist) {
+        Song song = new Song();
         song.setId(bSong.getId());
         song.setName(bSong.getName());
         song.setArtworkUrl(bSong.getArtworkUrl());
         song.setDuration(600);
         song.setSoundCloudId(bSong.getSoundCloudId());
         song.setArtist(artist);
+        song = songDAO.merge(song);
+        persistedSongs.put(bSong.getId(), song);
         return song;
     }
 
-    protected void createArtist(final BArtist bArtist) {
+    @Transactional
+    protected void createArtist(BArtist bArtist) {
         final Artist artist = new Artist();
         artist.setId(bArtist.getId());
         artist.setName(bArtist.getName());
-        artist.setSongs(bArtist.getSongs().stream()
-                .map(bSong -> createSong(bSong, artist))
-                .collect(Collectors.toList()));
-        final Artist persistedArtist = artistDAO.merge(artist);
-        persistedArtists.add(persistedArtist);
+        Artist persistedArtist = artistDAO.merge(artist);
+        persistedArtists.put(bArtist.getId(), persistedArtist);
+        bArtist.getSongs().forEach(bSong -> createSong(bSong, persistedArtist));
         log.info("Bootstrapper created artist {}", persistedArtist);
     }
 
@@ -192,15 +201,36 @@ public class Bootstrapper {
      */
     public void cleanup() {
         persistedArtists.clear();
+        persistedSongs.clear();
+        persistedRooms.clear();
+    }
+
+    /**
+     * Get a persisted artist
+     * @param id id for the artist
+     * @return artist
+     */
+    public Artist getArtist(Integer id) {
+        return persistedArtists.get(id);
+    }
+
+    /**
+     * Get a persisted Room
+     * @param id id for the Room
+     * @return Room
+     */
+    public Room getRoom(Integer id) {
+        return persistedRooms.get(id);
     }
 
     /**
      * Get an artist
      *
+     * @param id id for the Song
      * @return an artist
      */
-    public Artist getFirstArtist() {
-        return persistedArtists.stream().findAny().get();
+    public Song getSong(Integer id) {
+        return persistedSongs.get(id);
     }
 
 }

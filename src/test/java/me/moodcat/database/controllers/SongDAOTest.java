@@ -54,7 +54,7 @@ public class SongDAOTest {
 
     @Before
     public void setArtist() {
-        artist = bootstrapRule.getFirstArtist();
+        artist = bootstrapRule.getArtist(1);
     }
 
     /**
