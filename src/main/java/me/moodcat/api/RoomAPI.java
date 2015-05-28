@@ -31,8 +31,6 @@ import datastructures.dataholders.Pair;
 
 /**
  * The API for the room.
- *
- * @author Jaap Heijligers
  */
 @Path("/api/rooms/")
 @Produces(MediaType.APPLICATION_JSON)

@@ -47,6 +47,10 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
 
         /**
          * The unique id for the exception.
+         *
+         * @param uuid
+         *            The new unique id of this response.
+         * @return The unique id of this response.
          */
         @Getter
         @Setter
@@ -54,6 +58,10 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
 
         /**
          * The exception message.
+         *
+         * @param message
+         *            The message to inform the user.
+         * @return The message of this response.
          */
         @Getter
         @Setter

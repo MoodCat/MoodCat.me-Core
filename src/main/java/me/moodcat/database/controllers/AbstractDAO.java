@@ -10,8 +10,7 @@ import com.mysema.query.jpa.impl.JPAQuery;
 
 /**
  * Manages data to be retrieved or inserted into the database.
- *
- * @author Jan-Willem Gmelig Meyling
+ * 
  * @param <T>
  *            The type to be saved.
  */

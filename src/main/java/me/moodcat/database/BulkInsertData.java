@@ -31,8 +31,6 @@ import com.google.inject.persist.Transactional;
 
 /**
  * MockData inserts initial data in to a clean database.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 @Singleton
 @Slf4j
@@ -70,7 +68,7 @@ public class BulkInsertData {
 
     /**
      * Object to bulk insert a list of given songs into the databse.
-     * 
+     *
      * @param artistDAOProvider
      *            the artist provider.
      * @param songDAOProvider
@@ -90,7 +88,7 @@ public class BulkInsertData {
 
     /**
      * Retrieve songs from the API and put the in the database.
-     * 
+     *
      * @throws IOException
      *             when the file with song ids could not be parsed.
      * @throws SoundCloudException
@@ -99,16 +97,16 @@ public class BulkInsertData {
     @Transactional
     public void insertData() throws IOException, SoundCloudException {
         final SongDAO songDAO = songDAOProvider.get();
-        Map<String, Artist> artistMap = new HashMap<>();
+        final Map<String, Artist> artistMap = new HashMap<>();
 
-        List<Integer> soundCloudIds = readSoundCloudIds();
-        for (Integer id : soundCloudIds) {
+        final List<Integer> soundCloudIds = readSoundCloudIds();
+        for (final Integer id : soundCloudIds) {
             try {
-                SoundCloudTrack track = soundCloudExtract.extract(id);
-                Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
-                Song song = songToTrack(track, id, artist, DEFAULT_VECTOR);
+                final SoundCloudTrack track = soundCloudExtract.extract(id);
+                final Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
+                final Song song = songToTrack(track, id, artist, DEFAULT_VECTOR);
                 songDAO.persist(song);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.warn("Track " + id + " could not be persisted.");
             }
         }
@@ -116,13 +114,13 @@ public class BulkInsertData {
 
     /**
      * Persist an artist in a database given a username.
-     * 
+     *
      * @param username
      *            the username of the artist.
      * @param artistMap
      *            the map with already persisted arists.
      */
-    private Artist getOrPersistArtist(String username, Map<String, Artist> artistMap) {
+    private Artist getOrPersistArtist(final String username, final Map<String, Artist> artistMap) {
         final ArtistDAO artistDAO = artistDAOProvider.get();
         Artist artist;
         if (artistMap.containsKey(username)) {
@@ -138,17 +136,17 @@ public class BulkInsertData {
     /**
      * Insert a given amount of random generated rooms into the database. This is used for testing
      * purposes.
-     * 
+     *
      * @param numberOfRooms
      *            the amount of rooms to generate.
      */
-    public void insertRandomRooms(int numberOfRooms) {
+    public void insertRandomRooms(final int numberOfRooms) {
         final RoomDAO roomDAO = roomDAOProvider.get();
         final SongDAO songDAO = songDAOProvider.get();
-        List<Song> songs = songDAO.listSongs();
-        Random random = new Random();
+        final List<Song> songs = songDAO.listSongs();
+        final Random random = new Random();
         for (int i = 0; i < numberOfRooms; i++) {
-            Room room = new Room();
+            final Room room = new Room();
             room.setSong(songs.get(random.nextInt(songs.size())));
             room.setName("ROOM_STUB #" + i);
             room.setTime(0);
@@ -161,7 +159,7 @@ public class BulkInsertData {
     /**
      * Helper method to create a {@link Song} given a {@link SoundCloudTrack} and an id,
      * {@link Artist} and {@link VAVector}.
-     * 
+     *
      * @param track
      *            the given track.
      * @param id
@@ -172,8 +170,9 @@ public class BulkInsertData {
      *            the given {@link VAVector}
      * @return the resulting song.
      */
-    private Song songToTrack(SoundCloudTrack track, int id, Artist artist, VAVector vector) {
-        Song song = new Song();
+    private Song songToTrack(final SoundCloudTrack track, final int id, final Artist artist,
+            final VAVector vector) {
+        final Song song = new Song();
         song.setName(track.getTitle());
         song.setSoundCloudId(id);
         song.setDuration(track.getDuration());
@@ -185,13 +184,13 @@ public class BulkInsertData {
 
     /**
      * Read and parse the file specified in SOUNDCLOUD_ID_FILE_PATH and return an int array.
-     * 
+     *
      * @return the parsed int array.
      * @throws IOException
      *             when the file is not found or can not be read.
      */
     private List<Integer> readSoundCloudIds() throws IOException {
-        String soundCloudIdString = new String(Files.readAllBytes(Paths
+        final String soundCloudIdString = new String(Files.readAllBytes(Paths
                 .get(SOUNDCLOUD_ID_FILE_PATH)));
         return Arrays.asList(soundCloudIdString.split("\n")).stream()
                 .map(Integer::valueOf).collect(Collectors.toList());

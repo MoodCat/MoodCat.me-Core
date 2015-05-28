@@ -24,8 +24,6 @@ import distanceMetric.DistanceMetric;
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
  * of the room and then position of the room.
- *
- * @author Jaap Heijligers
  */
 @Data
 @Entity
@@ -38,6 +36,10 @@ public class Room {
 
     /**
      * The unique identifier for the room.
+     *
+     * @param id
+     *            The id to set.
+     * @return The id of this room.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +48,10 @@ public class Room {
 
     /**
      * The current song of the room.
+     *
+     * @param song
+     *            The song to set.
+     * @return The currently played song in this room.
      */
     @ManyToOne(optional = false)
     @JoinColumn(name = "currentSong")
@@ -53,11 +59,19 @@ public class Room {
 
     /**
      * The current position of the song in milliseconds.
+     *
+     * @param position
+     *            The position of this song.
+     * @return The position of the song in the queue.
      */
     private Integer position;
 
     /**
      * The name of the room.
+     *
+     * @param name
+     *            The name to set.
+     * @return The name of this room.
      */
     @Column(name = "name")
     private String name;
@@ -65,23 +79,39 @@ public class Room {
     /**
      * The time of the {@link #song} in order to 'jump' right into listening.
      * This is not persisted in the database due to the high rate of updating
+     *
+     * @param time
+     *            The time the song is played on.
+     * @return The time that this song is played at.
      */
     private int time;
 
     /**
      * The arousal value of this room.
+     *
+     * @param arousal
+     *            The arousal component of this room.
+     * @return The arousal of this room.
      */
     @Column(name = "arousal")
     private double arousal;
 
     /**
      * The valence value of this room.
+     *
+     * @param valence
+     *            The valence component of this room.
+     * @return The valence of this room.
      */
     @Column(name = "valence")
     private double valence;
 
     /**
      * The chat messages in the room.
+     *
+     * @param chatMessages
+     *            The last chatmessages sent in this room.
+     * @return A list of all last chatmessages sent in this room.
      */
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
@@ -89,8 +119,6 @@ public class Room {
     /**
      * DistanceMetric to determine the distance between 2 rooms. Will take {@link Room#arousal} and
      * {@link Room#valence} to create vectors.
-     *
-     * @author Gijs Weterings
      */
     public static final class RoomDistanceMetric implements DistanceMetric<Room> {
 

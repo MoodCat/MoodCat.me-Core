@@ -13,8 +13,6 @@ import com.google.inject.persist.Transactional;
 
 /**
  * Used to retrieve artists from the database.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 public class ArtistDAO extends AbstractDAO<Artist> {
 
@@ -50,7 +48,7 @@ public class ArtistDAO extends AbstractDAO<Artist> {
 
     /**
      * Get an artist by id.
-     * 
+     *
      * @param id
      *            The id of the artist.
      * @return The artist, if found.

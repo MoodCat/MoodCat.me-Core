@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A song that can be played.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 @Data
 @Entity

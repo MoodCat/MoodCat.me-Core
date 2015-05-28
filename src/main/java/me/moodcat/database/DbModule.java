@@ -13,8 +13,6 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 /**
  * Guice AbstractModule that installs the JpaPersistModule for the current Persistence unit.
  * The properties are loaded from the resource which allows a different configuration under test.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 public class DbModule extends AbstractModule {
 
@@ -79,8 +77,6 @@ public class DbModule extends AbstractModule {
 
     /**
      * Exception thrown when the database configuration is invalid.
-     *
-     * @author JeremybellEU
      */
     protected static class DatabaseConfigurationException extends Exception {
 

@@ -23,8 +23,6 @@ import com.google.inject.persist.Transactional;
 
 /**
  * The {@code ArtistAPI} is an API entry point to do CRUD operations to {@link Song} entities.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 @Path("/api/songs")
 @Produces(MediaType.APPLICATION_JSON)
@@ -152,8 +150,6 @@ public class SongAPI {
     /**
      * Classificationrequest with the arousal and valence the user would classify the specific song
      * for.
-     *
-     * @author JeremybellEU
      */
     @Data
     @AllArgsConstructor
@@ -162,19 +158,25 @@ public class SongAPI {
 
         /**
          * The valence for the song.
+         *
+         * @param valence
+         *            The valence to set.
+         * @return The valence that was classified.
          */
         private double valence;
 
         /**
          * The arousal for the song.
+         *
+         * @param arousal
+         *            The arousal to set.
+         * @return The arousal that was classified.
          */
         private double arousal;
     }
 
     /**
      * Thrown if the classification was invalid.
-     *
-     * @author JeremybellEU
      */
     protected static class InvalidClassificationException extends IllegalArgumentException {
 
@@ -186,8 +188,6 @@ public class SongAPI {
 
     /**
      * Thrown if the vote was invalid.
-     *
-     * @author JeremybellEU
      */
     protected static class InvalidVoteException extends IllegalArgumentException {
 

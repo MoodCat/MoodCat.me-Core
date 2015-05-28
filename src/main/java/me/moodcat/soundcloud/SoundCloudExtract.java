@@ -13,8 +13,6 @@ import lombok.SneakyThrows;
 
 /**
  * An extractor that can connect to SoundCloud using a {@link HttpClientInvoker}.
- *
- * @author Jaapp-
  */
 public class SoundCloudExtract extends SoundCloudAPIConnector {
 
@@ -26,6 +24,10 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
 
     /**
      * {@link HttpClientInvoker} used to connect to the internet.
+     *
+     * @param urlFactory
+     *            The new factory to connect to the internet.
+     * @return The factory that is used to connect to the internet.
      */
     @Setter
     @Getter
@@ -76,7 +78,7 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
      * @throws SoundCloudException
      *             if the URL is malformed
      */
-    public SoundCloudTrack extract(int id) throws SoundCloudException {
+    public SoundCloudTrack extract(final int id) throws SoundCloudException {
         return this.getUrlFactory().retrieve(id, SoundCloudTrack.class);
     }
 
@@ -101,8 +103,6 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
 
     /**
      * Mockable HttpClientInvoker that takes care of network connection.
-     *
-     * @author JeremyBellEU
      */
     protected class HttpClientInvoker {
 
@@ -167,10 +167,12 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
          *
          * @param id
          *            the url to retrieve
+         * @param <T>
+         *            The type of the entity.
          * @throws SoundCloudException
          *             if the resource could not be accessed
          */
-        protected <T> T retrieve(int id, final Class<T> targetEntity)
+        protected <T> T retrieve(final int id, final Class<T> targetEntity)
                 throws SoundCloudException {
             final Client client = SoundCloudExtract.this.createClient();
             try {

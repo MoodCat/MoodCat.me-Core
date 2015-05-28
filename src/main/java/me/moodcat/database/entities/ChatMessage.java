@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A chat message for a room.
- *
- * @author JeremybellEU
  */
 @Data
 @Entity
@@ -34,6 +32,10 @@ public class ChatMessage {
 
     /**
      * Global chatmessage id.
+     *
+     * @param id
+     *            The new id of this chatmessage.
+     * @return The id of this chatmessage.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,6 +44,10 @@ public class ChatMessage {
 
     /**
      * The actual message.
+     *
+     * @param message
+     *            The actual message to set.
+     * @return The actual message of this chatmessage.
      */
     @Column(name = "message", nullable = false)
     @NonNull
@@ -49,6 +55,10 @@ public class ChatMessage {
 
     /**
      * The sender of the message.
+     *
+     * @param author
+     *            The author to set.
+     * @return The author that made this chatmessage
      */
     @Column(name = "author", nullable = false)
     @NonNull
@@ -56,6 +66,10 @@ public class ChatMessage {
 
     /**
      * The room the message was for.
+     *
+     * @param room
+     *            The room to set.
+     * @return The room that the message was posted into.
      */
     @ManyToOne
     @JsonIgnore
@@ -64,6 +78,10 @@ public class ChatMessage {
 
     /**
      * The timestamp the message was posted.
+     *
+     * @param timestamp
+     *            The timestamp to set.
+     * @return The timestamp at which the chatmessage has been received by the server.
      */
     @Column(name = "timestamp", nullable = true)
     private Long timestamp;

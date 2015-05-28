@@ -2,8 +2,6 @@ package me.moodcat.soundcloud;
 
 /**
  * Exception thrown when there is a connection problem with the SoundCloud.com API.
- *
- * @author Jaapp-
  */
 public class SoundCloudException extends Exception {
 
@@ -18,7 +16,7 @@ public class SoundCloudException extends Exception {
      * @param msg
      *            Description of the error
      */
-    SoundCloudException(final String msg) {
+    protected SoundCloudException(final String msg) {
         super(msg);
     }
 
@@ -30,7 +28,7 @@ public class SoundCloudException extends Exception {
      * @param throwable
      *            Throwable that caused the exception
      */
-    SoundCloudException(final String msg, final Throwable throwable) {
+    protected SoundCloudException(final String msg, final Throwable throwable) {
         super(msg, throwable);
     }
 

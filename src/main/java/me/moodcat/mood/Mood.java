@@ -13,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A mood represents a vector in the valence-arousal plane which will be attached to song.
- *
- * @author JeremybellEU
  */
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Mood {
@@ -43,6 +41,8 @@ public enum Mood {
 
     /**
      * The vector that represents this mood.
+     *
+     * @return The vector of this mood.
      */
     @Getter
     @JsonIgnore
@@ -50,11 +50,13 @@ public enum Mood {
 
     /**
      * Readable name for the frontend.
+     *
+     * @return The readable name of this mood.
      */
     @Getter
     private final String name;
 
-    Mood(final VAVector vector, final String name) {
+    private Mood(final VAVector vector, final String name) {
         this.vector = vector;
         this.name = name;
     }
