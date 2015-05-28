@@ -1,0 +1,47 @@
+{
+	"artists":[],
+	"rooms": [
+		{
+			"id": 1,
+			"name": "No Merge Conflicts PL0x",
+			"position": 1,
+			"time": 0,
+			"songId" : 1,
+			"messages": [
+				{
+					"author": "System",
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		},
+		{
+			"id": 2,
+			"name": "Silver ass wankers",
+			"position": 2,
+			"time": 0,
+			"songId" : 1,
+			"messages": [
+				{
+					"author": "System",
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "Better room",
+			"position": 3,
+			"time": 0,
+			"songId" : 1,
+			"messages": [
+				{
+					"author": "System",
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		}
+	]
+}

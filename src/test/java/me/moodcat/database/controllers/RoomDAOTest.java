@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import me.moodcat.database.DatabaseTestModule;
 import me.moodcat.database.bootstrapper.BootstrapRule;
 import me.moodcat.database.bootstrapper.TestBootstrap;
-import me.moodcat.database.entities.Artist;
 
 import org.jukito.JukitoRunner;
 import org.jukito.UseModules;
@@ -21,9 +20,7 @@ import com.google.inject.Inject;
  */
 @RunWith(JukitoRunner.class)
 @UseModules(DatabaseTestModule.class)
-public class ArtistDAOTest {
-
-    private final static String ARTIST_NAME = "Fall Out Boy New";
+public class RoomDAOTest {
 
     /**
      * The ArtistDAO.
@@ -38,31 +35,30 @@ public class ArtistDAOTest {
      * The ArtistDAO.
      */
     @Inject
-    private ArtistDAO artistDAO;
+    private RoomDAO roomDAO;
 
-    /**
-     * Persist a song with data.
-     */
     @Test
-    public void persistArtist() {
-        final Artist artist = new Artist();
-        artist.setName(ARTIST_NAME);
-        artistDAO.persist(artist);
-
-        final Artist actual = artistDAO.findByName(ARTIST_NAME);
-        assertEquals(artist, actual);
+    @TestBootstrap("/bootstrap/rooms.json")
+    public void canRetrieveAllRooms() {
+        assertEquals(3, roomDAO.listRooms().size());
     }
 
     @Test
-    @TestBootstrap("/bootstrap/artists.json")
-    public void canRetrieveAllLists() {
-        assertEquals(3, artistDAO.listArtists().size());
+    @TestBootstrap("/bootstrap/rooms.json")
+    public void canRetrieveAllRoomsWithLimit() {
+        assertEquals(1, roomDAO.listRooms(1).size());
     }
 
     @Test
-    @TestBootstrap("/bootstrap/artists.json")
+    @TestBootstrap("/bootstrap/rooms.json")
     public void canRetrieveById() {
-        assertEquals(2, artistDAO.findById(2).getId().intValue());
+        assertEquals(2, roomDAO.findById(2).getId().intValue());
+    }
+
+    @Test
+    @TestBootstrap("/bootstrap/rooms.json")
+    public void canRetrieveChatMessages() {
+        assertEquals("Welcome to Moodcat!", equals(roomDAO.listMessages(1).get(0).getMessage()));
     }
 
 }

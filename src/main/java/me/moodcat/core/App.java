@@ -14,7 +14,6 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
-import com.google.inject.Inject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.DbModule;
