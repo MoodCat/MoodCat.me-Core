@@ -1,33 +1,44 @@
 package me.moodcat.database.entities;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import junitx.extensions.EqualsHashCodeTestCase;
 
 import com.google.common.collect.Lists;
 
 /**
  * @author Jaap Heijligers
  */
-public class ArtistTest {
+public class ArtistTest extends EqualsHashCodeTestCase {
 
-    @Test
-    public void testArtist() {
-        Artist artist1 = createDefaultArist();
-        Artist artist2 = createDefaultArist();
-        assertEquals(artist1, artist2);
+    public ArtistTest(final String name) {
+        super(name);
     }
 
-    private Artist createDefaultArist() {
-        Song song1 = new Song();
+    @Override
+    protected Object createInstance() throws Exception {
+        final Song song1 = new Song();
         song1.setName("First song");
 
-        Song song2 = new Song();
+        final Song song2 = new Song();
         song1.setName("Second song");
 
-        Artist artist = new Artist();
+        final Artist artist = new Artist();
         artist.setName("ARTIST NAME");
         artist.setId(34);
+        artist.setSongs(Lists.newArrayList(song1, song2));
+        return artist;
+    }
+
+    @Override
+    protected Object createNotEqualInstance() throws Exception {
+        final Song song1 = new Song();
+        song1.setName("First song");
+
+        final Song song2 = new Song();
+        song1.setName("Second song");
+
+        final Artist artist = new Artist();
+        artist.setName("ARTIST NAME");
+        artist.setId(35);
         artist.setSongs(Lists.newArrayList(song1, song2));
         return artist;
     }

@@ -1,9 +1,9 @@
 package me.moodcat.database.embeddables;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import junitx.extensions.EqualsHashCodeTestCase;
 
 import org.junit.Test;
 
@@ -12,7 +12,11 @@ import org.junit.Test;
  *
  * @author JeremybellEU
  */
-public class VAVectorTest {
+public class VAVectorTest extends EqualsHashCodeTestCase {
+
+    public VAVectorTest(final String name) {
+        super(name);
+    }
 
     @Test
     public void additionAndSubstractionReturnSameVector() {
@@ -36,6 +40,7 @@ public class VAVectorTest {
         final double scalar = 2;
 
         assertEquals(one.length(), one.distance(one.multiply(scalar)), 1E-5);
+        assertEquals(one.length(), VAVector.distance(one, one.multiply(scalar)), 1E-5);
     }
 
     @Test
@@ -61,5 +66,15 @@ public class VAVectorTest {
         final List<VAVector> vectors = new ArrayList<VAVector>();
 
         assertEquals(zero, VAVector.average(vectors));
+    }
+
+    @Override
+    protected Object createInstance() throws Exception {
+        return new VAVector(0.5, 0.5);
+    }
+
+    @Override
+    protected Object createNotEqualInstance() throws Exception {
+        return new VAVector(0.5, 1.0);
     }
 }

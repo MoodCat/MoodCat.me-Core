@@ -172,6 +172,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>junit-addons</groupId>
+			<artifactId>junit-addons</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.jukito</groupId>
 			<artifactId>jukito</artifactId>
 			<version>1.4.1</version>

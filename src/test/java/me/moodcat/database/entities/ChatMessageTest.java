@@ -1,28 +1,38 @@
 package me.moodcat.database.entities;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import junitx.extensions.EqualsHashCodeTestCase;
 
 /**
  * @author Jaap Heijligers
  */
-public class ChatMessageTest {
+public class ChatMessageTest extends EqualsHashCodeTestCase {
 
-    @Test
-    public void chatMessageTest() {
-        ChatMessage chatMessage1 = createDefaultChatMessage();
-        ChatMessage chatMessage2 = createDefaultChatMessage();
-        assertEquals(chatMessage1, chatMessage2);
+    public ChatMessageTest(final String name) {
+        super(name);
     }
 
-    private ChatMessage createDefaultChatMessage() {
-        ChatMessage chatMessage = new ChatMessage();
+    @Override
+    protected Object createInstance() throws Exception {
+        final ChatMessage chatMessage = new ChatMessage();
         chatMessage.setId(3);
         chatMessage.setAuthor("Henk");
         chatMessage.setMessage("Hello");
-        Room room = new Room();
+        final Room room = new Room();
         room.setName("Stub ROom");
+        chatMessage.setRoom(room);
+        chatMessage.setTimestamp(343234L);
+
+        return chatMessage;
+    }
+
+    @Override
+    protected Object createNotEqualInstance() throws Exception {
+        final ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setId(4);
+        chatMessage.setAuthor("Henk");
+        chatMessage.setMessage("Hello");
+        final Room room = new Room();
+        room.setName("Stub Room 2");
         chatMessage.setRoom(room);
         chatMessage.setTimestamp(343234L);
 
