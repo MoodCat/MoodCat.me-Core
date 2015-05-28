@@ -17,6 +17,7 @@ import javax.ws.rs.ext.Provider;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.DbModule;
+import me.moodcat.backend.chat.ChatBackend;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -107,6 +108,9 @@ public class App {
 
         final App app = new App();
         app.startServer();
+        app.injectorAtomicReference.get()
+            .getInstance(ChatBackend.class)
+            .initializeInitialRooms();
         app.joinThread();
     }
 
@@ -264,6 +268,7 @@ public class App {
             this.bindDatabaseModule();
             this.bindAPI();
             this.bindExceptionMappers();
+            this.bind(ChatBackend.class).asEagerSingleton();
         }
 
         private void bindDatabaseModule() {

@@ -6,20 +6,26 @@ import static javax.persistence.FetchType.LAZY;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import me.moodcat.database.embeddables.VAVector;
 import distanceMetric.DistanceMetric;
+
+import java.util.List;
 
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
@@ -45,28 +51,53 @@ public class Room {
     private Integer id;
 
     /**
+     * The name of the room.
+     */
+    @Column(name = "roomName")
+    private String roomName;
+
+    @Embedded
+    @JsonIgnore
+    private VAVector valenceArousal;
+
+    /**
      * The current song of the room.
      */
     @ManyToOne
     @JoinColumn(name = "currentSong")
-    private Song song;
+    private Song currentSong;
 
-    /**
-     * The current position of the song in milliseconds.
+    /*
+     * Songs to be played
      */
-    private Integer position;
+    @ManyToMany
+    @JoinTable(name = "room_play_queue", joinColumns = {
+        @JoinColumn(name = "room_id", referencedColumnName = "id")
+    }, inverseJoinColumns = {
+        @JoinColumn(name = "song_id", referencedColumnName = "id")
+    })
+    private List<Song> playQueue;
 
     /**
-     * The name of the room.
+     * The songs recently played in the roomProvider<ChatDAO> chatDAOProvider
      */
     @Column(name = "name")
     private String name;
 
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "room_play_history", joinColumns = {
+            @JoinColumn(name = "room_id", referencedColumnName = "id")
+    }, inverseJoinColumns = {
+            @JoinColumn(name = "song_id", referencedColumnName = "id")
+    })
+    private List<Song> playHistory;
+
     /**
-     * The time of the {@link #song} in order to 'jump' right into listening.
-     * This is not persisted in the database due to the high rate of updating
+     * Development flag to temporarily repeat the current song in a room
      */
-    private int time;
+    @Column(name = "repeat")
+    private boolean repeat;
 
     /**
      * The arousal value of this room.
@@ -83,6 +114,7 @@ public class Room {
     /**
      * The chat messages in the room.
      */
+    @JsonIgnore
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
 
