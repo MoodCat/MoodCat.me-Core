@@ -14,8 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import me.moodcat.database.controllers.ChatDAO;
-import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.backend.chat.ChatBackend;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -26,7 +25,6 @@ import algorithms.KNearestNeighbours;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
-
 import datastructures.dataholders.Pair;
 
 /**
@@ -44,20 +42,14 @@ public class RoomAPI {
     private static final int SECOND_OF_MILISECONDS = 1000;
 
     /**
-     * The DAO of the room.
+     * The backend of the room.
      */
-    private final RoomDAO roomDAO;
-
-    /**
-     * Access to the chat DAO.
-     */
-    private final ChatDAO chatDAO;
+    ChatBackend backend;
 
     @Inject
     @VisibleForTesting
-    public RoomAPI(final RoomDAO roomDAO, final ChatDAO chatDAO) {
-        this.roomDAO = roomDAO;
-        this.chatDAO = chatDAO;
+    public RoomAPI(final ChatBackend backend) {
+        this.backend = backend;
     }
 
     /**
@@ -76,10 +68,9 @@ public class RoomAPI {
         final VAVector targetVector = Mood.createTargetVector(moods);
 
         final Room idealroom = new Room();
-        idealroom.setArousal(targetVector.getArousal());
-        idealroom.setValence(targetVector.getValence());
+        idealroom.setVaVector(targetVector);
 
-        final List<Room> allRooms = roomDAO.listRooms();
+        final List<Room> allRooms = backend.listAllRooms();
 
         final KNearestNeighbours<Room> knearest = new KNearestNeighbours<Room>(allRooms,
                 new RoomDistanceMetric());
@@ -87,7 +78,7 @@ public class RoomAPI {
                 idealroom);
 
         return knearestResult.stream()
-                .map(neighbour -> neighbour.getRight())
+                .map(Pair::getRight)
                 .collect(Collectors.toList());
     }
 
@@ -104,7 +95,7 @@ public class RoomAPI {
     @Path("{id}")
     @Transactional
     public Room getRoom(@PathParam("id") final int roomId) {
-        return roomDAO.findById(roomId);
+        return backend.getRoom(roomId);
     }
 
     /**
@@ -118,7 +109,7 @@ public class RoomAPI {
     @Path("{id}/messages")
     @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
-        return roomDAO.listMessages(roomId);
+        return backend.getRoom(roomId).getChatMessages();
     }
 
     /**
@@ -126,7 +117,7 @@ public class RoomAPI {
      *
      * @param msg
      *            The message to post.
-     * @param id
+     * @param roomId
      *            The id of the room.
      * @return The chatmessage if storage was succesful.
      */
@@ -135,11 +126,12 @@ public class RoomAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int id) {
-        msg.setRoom(roomDAO.findById(id));
+    public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int roomId) {
+        Room room = backend.getRoom(roomId);
+        msg.setRoom(room);
         msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
 
-        chatDAO.persist(msg);
+        room.getChatMessages().add(msg);
         return msg;
     }
 
