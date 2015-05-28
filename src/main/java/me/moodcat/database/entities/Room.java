@@ -31,7 +31,7 @@ import distanceMetric.DistanceMetric;
 @Entity
 @Table(name = "room")
 @ToString(of = {
-        "id",
+        "id", "song", "name"
 })
 @EqualsAndHashCode(of = "id")
 public class Room {
@@ -47,7 +47,7 @@ public class Room {
     /**
      * The current song of the room.
      */
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "currentSong")
     private Song song;
 

@@ -1,0 +1,43 @@
+{
+	"artists":[
+		{
+			"id": 1,
+			"name": "Fall Out Boy",
+			"songs": [
+				{
+					"id": 1,
+					"name": "Thanks for the Memories",
+					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
+					"soundCloudId": 202330997,
+					"duration": 600
+				}
+			]
+		},
+		{
+			"id": 2,
+			"name": "Base boys",
+			"songs": [
+				{
+					"id": 2,
+					"name": "Thanks for the Base",
+					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
+					"soundCloudId": 202330997,
+					"duration": 600
+				},
+				{
+					"id": 3,
+					"name": "Thanks for the Base Extended",
+					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
+					"soundCloudId": 202330997,
+					"duration": 600
+				}
+			]
+		},
+		{
+			"id": 3,
+			"name": "Boy joy",
+			"songs": []
+		}
+	],
+	"rooms": []
+}

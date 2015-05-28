@@ -1,5 +1,6 @@
 package me.moodcat.database.entities;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -58,7 +59,7 @@ public class Song {
      *            The new artist to set.
      * @return The artist that composed this song.
      */
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "artist", nullable = true)
     private Artist artist;
 

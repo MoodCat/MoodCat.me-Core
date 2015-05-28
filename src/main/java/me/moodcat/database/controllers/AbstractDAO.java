@@ -45,8 +45,8 @@ public abstract class AbstractDAO<T> {
      */
     @Transactional
     public T persist(final T object) {
+        log.debug("Persisting {}", object);
         this.entityManager.persist(object);
-        log.debug("Persisted {}", object);
         return object;
     }
 
@@ -59,8 +59,8 @@ public abstract class AbstractDAO<T> {
      */
     @Transactional
     public T merge(final T object) {
-        this.entityManager.merge(object);
-        return object;
+        log.debug("Merging {}", object);
+        return this.entityManager.merge(object);
     }
 
     /**
@@ -73,6 +73,7 @@ public abstract class AbstractDAO<T> {
     @Transactional
     public T remove(final T object) {
         this.entityManager.remove(object);
+        log.debug("Removed {}", object);
         return object;
     }
 

@@ -43,9 +43,9 @@ public class SongDAO extends AbstractDAO<Song> {
      */
     @Transactional
     public Song findByName(final String name) {
-        return this.query().from(song)
+        return ensureExists(this.query().from(song)
                 .where(song.name.equalsIgnoreCase(name))
-                .singleResult(song);
+                .singleResult(song));
     }
 
     /**
@@ -57,9 +57,9 @@ public class SongDAO extends AbstractDAO<Song> {
      */
     @Transactional
     public Song findById(final int id) {
-        return this.query().from(song)
+        return ensureExists(this.query().from(song)
                 .where(song.id.eq(id))
-                .singleResult(song);
+                .singleResult(song));
     }
 
     /**
@@ -71,8 +71,8 @@ public class SongDAO extends AbstractDAO<Song> {
      */
     @Transactional
     public Song findBySoundCloudId(final int id) {
-        return this.query().from(song)
+        return ensureExists(this.query().from(song)
                 .where(song.soundCloudId.eq(id))
-                .singleResult(song);
+                .singleResult(song));
     }
 }
