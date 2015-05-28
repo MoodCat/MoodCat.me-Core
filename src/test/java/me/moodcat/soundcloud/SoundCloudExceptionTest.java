@@ -14,4 +14,12 @@ public class SoundCloudExceptionTest {
         final SoundCloudException exception = new SoundCloudException("Error");
         assertEquals(exception.getMessage(), "Error");
     }
+
+    @Test
+    public void testWithThrowable() {
+        NullPointerException nullPointerException = new NullPointerException();
+        SoundCloudException exception = new SoundCloudException("hi", nullPointerException);
+        assertEquals(nullPointerException, exception.getCause());
+    }
+
 }

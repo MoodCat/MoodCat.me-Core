@@ -60,14 +60,14 @@ public class App {
     private static final int SERVER_PORT = 8080;
 
     /**
+     * The server that handles the requests.
+     */
+    protected final Server server;
+
+    /**
      * Reference for injector in order to have concurrent transactions to our database.
      */
     private final AtomicReference<Injector> injectorAtomicReference = new AtomicReference<>();
-
-    /**
-     * The server that handles the requests.
-     */
-    private final Server server;
 
     /**
      * Instantiates the server and adds handlers for the requests.
@@ -136,7 +136,7 @@ public class App {
      * @throws Exception
      *             In case the server could not be started.
      */
-    private void startServer() throws Exception {
+    protected void startServer() throws Exception {
         this.server.start();
         Runtime.getRuntime().addShutdownHook(new Thread(this::stopServer));
     }
@@ -144,7 +144,7 @@ public class App {
     /**
      * Joins the {@link App} server.
      */
-    private void joinThread() throws InterruptedException {
+    protected void joinThread() throws InterruptedException {
         this.server.join();
     }
 
