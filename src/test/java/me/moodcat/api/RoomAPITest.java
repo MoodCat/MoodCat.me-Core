@@ -60,13 +60,11 @@ public class RoomAPITest {
         when(roomDAO.listRooms()).thenReturn(roomList);
         when(roomDAO.listMessages(1)).thenReturn(messagesList);
 
-        when(oneRoom.getArousal()).thenReturn(Mood.HAPPY.getVector().getArousal());
-        when(oneRoom.getValence()).thenReturn(Mood.HAPPY.getVector().getValence());
+        when(oneRoom.getVaVector()).thenReturn(Mood.HAPPY.getVector());
         when(oneRoom.getId()).thenReturn(1);
         when(roomDAO.findById(1)).thenReturn(oneRoom);
 
-        when(otherRoom.getArousal()).thenReturn(Mood.ANGRY.getVector().getArousal());
-        when(otherRoom.getValence()).thenReturn(Mood.ANGRY.getVector().getValence());
+        when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
         when(otherRoom.getId()).thenReturn(2);
         when(roomDAO.findById(2)).thenReturn(otherRoom);
     }

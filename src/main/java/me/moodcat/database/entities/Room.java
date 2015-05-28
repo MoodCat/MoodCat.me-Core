@@ -5,28 +5,16 @@ import static javax.persistence.FetchType.LAZY;
 
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import me.moodcat.database.embeddables.VAVector;
-import distanceMetric.DistanceMetric;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import distanceMetric.DistanceMetric;
 
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
@@ -55,7 +43,7 @@ public class Room {
 
     @Embedded
     @JsonIgnore
-    private VAVector valenceArousal;
+    private VAVector vaVector;
 
     /**
      * The current song of the room.
@@ -74,9 +62,9 @@ public class Room {
      */
     @ManyToMany
     @JoinTable(name = "room_play_queue", joinColumns = {
-        @JoinColumn(name = "room_id", referencedColumnName = "id")
+            @JoinColumn(name = "room_id", referencedColumnName = "id")
     }, inverseJoinColumns = {
-        @JoinColumn(name = "song_id", referencedColumnName = "id")
+            @JoinColumn(name = "song_id", referencedColumnName = "id")
     })
     private List<Song> playQueue;
 
@@ -142,13 +130,14 @@ public class Room {
     /**
      * DistanceMetric to determine the distance between 2 rooms. Will take {@link Room#arousal} and
      * {@link Room#valence} to create vectors.
+     *
      */
     public static final class RoomDistanceMetric implements DistanceMetric<Room> {
 
         @Override
         public double distanceBetween(final Room room1, final Room room2) {
-            final VAVector room1vector = new VAVector(room1.getValence(), room1.getArousal());
-            final VAVector room2vector = new VAVector(room2.getValence(), room2.getArousal());
+            final VAVector room1vector = room1.getVaVector();
+            final VAVector room2vector = room2.getVaVector();
             return room1vector.distance(room2vector);
         }
     }
