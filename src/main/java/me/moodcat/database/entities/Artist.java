@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * An artist composes a {@link Song#getArtist()}.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 @Data
 @Entity

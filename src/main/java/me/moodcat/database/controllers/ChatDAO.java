@@ -14,8 +14,6 @@ import com.google.inject.persist.Transactional;
 
 /**
  * Manager that can fetch messages from the database.
- *
- * @author JeremybellEU
  */
 public class ChatDAO extends AbstractDAO<ChatMessage> {
 

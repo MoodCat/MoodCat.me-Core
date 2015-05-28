@@ -15,8 +15,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Request SoundCloud to supply tracks for a search-request.
- *
- * @author Jaapp--
  */
 public class SoundCloudSearch extends SoundCloudAPIConnector {
 
@@ -54,8 +52,6 @@ public class SoundCloudSearch extends SoundCloudAPIConnector {
 
     /**
      * The response of a search request with a list of tracks.
-     *
-     * @author JeremybellEU
      */
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -63,6 +59,10 @@ public class SoundCloudSearch extends SoundCloudAPIConnector {
 
         /**
          * A list of tracks that were supplied by SoundCloud for the search request.
+         *
+         * @param tracks
+         *            The list of tracks to set.
+         * @return The list of tracks that were supplied by SoundCloud.
          */
         @JsonProperty("collection")
         private List<SoundCloudTrack> tracks;

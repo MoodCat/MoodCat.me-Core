@@ -6,8 +6,6 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 /**
  * Connects to the SoundCloud API using its {@link #createClient()}.
- *
- * @author JeremyBellEU
  */
 public abstract class SoundCloudAPIConnector {
 

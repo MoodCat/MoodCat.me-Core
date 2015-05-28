@@ -13,8 +13,6 @@ import com.google.inject.persist.Transactional;
 
 /**
  * Used to retrieve songs from the database.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 public class SongDAO extends AbstractDAO<Song> {
 
@@ -64,7 +62,7 @@ public class SongDAO extends AbstractDAO<Song> {
 
     /**
      * Get a song by SoundCloud id.
-     * 
+     *
      * @param id
      *            The SoundCloud id of the song.
      * @return The song, if found.

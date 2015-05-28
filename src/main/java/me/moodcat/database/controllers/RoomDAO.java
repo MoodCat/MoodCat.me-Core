@@ -15,8 +15,6 @@ import com.google.inject.Inject;
 
 /**
  * The DAO for rooms.
- *
- * @author Jaap Heijligers
  */
 public class RoomDAO extends AbstractDAO<Room> {
 

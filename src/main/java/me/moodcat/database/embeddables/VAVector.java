@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * Valence/Arousal vector class.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 @Data
 @Embeddable
@@ -21,13 +19,21 @@ import lombok.NoArgsConstructor;
 public class VAVector {
 
     /**
-     * The valence in the range of [-1, 1].
+     * The valence in the range of [-1, 1]. It is the first dimension of this vector.
+     *
+     * @param valence
+     *            The new valence to set.
+     * @return The (first-dimension) valence of this vector
      */
     @Column(name = "valence")
     private double valence;
 
     /**
-     * The arousal of the song in the range of [-1, 1].
+     * The arousal of the song in the range of [-1, 1]. It is the second dimension of this vector.
+     *
+     * @param arousal
+     *            The new arousal to set.
+     * @return The (second-dimension) arousal of this vector.
      */
     @Column(name = "arousal")
     private double arousal;
@@ -149,8 +155,6 @@ public class VAVector {
 
     /**
      * Helper class in order to reduce more easily in {@link VAVector#average(List)}.
-     *
-     * @author JeremybellEU
      */
     private static final class Counter {
 
