@@ -1,8 +1,6 @@
 package me.moodcat.soundcloud;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import lombok.SneakyThrows;
 import me.moodcat.soundcloud.SoundCloudExtract.HttpClientInvoker;
 
 import org.junit.Before;
@@ -41,28 +39,26 @@ public class SoundCloudExtractTest {
 
     /**
      * Setup {@link #extract}.
+     *
+     * @throws SoundCloudException
      */
     @Before
-    public void setup() {
+    public void setup() throws SoundCloudException {
         this.extract = new SoundCloudExtract();
         this.extract.setUrlFactory(this.factory);
 
-        try {
-            Mockito.when(
-                    this.factory.resolve(Matchers.anyString(),
-                            Matchers.<Class<SoundCloudTrack>> any()))
-                    .thenReturn(this.track);
-        } catch (final SoundCloudException e) {
-            fail();
-        }
+        Mockito.when(this.factory.resolve(Matchers.anyString(),
+                Matchers.<Class<SoundCloudTrack>> any()))
+                .thenReturn(this.track);
     }
 
     /**
      * Extract a song and verify it is the track we want to retrieve.
+     *
+     * @throws SoundCloudException
      */
     @Test
-    @SneakyThrows
-    public void testRetrieveSong() {
+    public void testRetrieveSong() throws SoundCloudException {
         final SoundCloudTrack song = this.extract.extract(COOL_SONG);
 
         assertEquals(this.track, song);
@@ -71,15 +67,12 @@ public class SoundCloudExtractTest {
     /**
      * Verify that if the url is not a correct soundcloud api call, a {@link SoundCloudException} is
      * thrown.
+     *
+     * @throws SoundCloudException
      */
-    @Test
-    public void testExtractInvalidUrl() {
-        try {
-            this.extract.extract("bogus");
-            fail();
-        } catch (final SoundCloudException ignored) {
-            // Expected exception.
-        }
+    @Test(expected = SoundCloudException.class)
+    public void testExtractInvalidUrl() throws SoundCloudException {
+        this.extract.extract("bogus");
     }
 
 }

@@ -1,40 +1,57 @@
 package me.moodcat.database.entities;
 
-import com.google.common.collect.Lists;
-import org.junit.Test;
-
 import java.util.List;
 
-import static org.junit.Assert.*;
+import junitx.extensions.EqualsHashCodeTestCase;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Jaap Heijligers
  */
-public class RoomTest {
+public class RoomTest extends EqualsHashCodeTestCase {
 
-    @Test
-    public void testRoom() {
-        Room room1 = createDefaultRoom();
-        Room room2 = createDefaultRoom();
-        assertEquals(room1, room2);
+    public RoomTest(final String name) {
+        super(name);
     }
 
-    private Room createDefaultRoom() {
-        Room room = new Room();
+    @Override
+    protected Object createInstance() throws Exception {
+        final Room room = new Room();
         room.setName("Stub room");
         room.setTime(343);
-        ChatMessage message = new ChatMessage();
+        final ChatMessage message = new ChatMessage();
         message.setMessage("Message");
-        List<ChatMessage> messageList = Lists.newArrayList(message);
+        final List<ChatMessage> messageList = Lists.newArrayList(message);
         room.setChatMessages(messageList);
         room.setId(343233);
 
-        Song song = new Song();
+        final Song song = new Song();
         song.setName("Stub song");
         room.setSong(song);
         room.setPosition(43);
         room.setValence(0.3);
         room.setArousal(-0.5);
+        return room;
+    }
+
+    @Override
+    protected Object createNotEqualInstance() throws Exception {
+        final Room room = new Room();
+        room.setName("Stub room");
+        room.setTime(343);
+        final ChatMessage message = new ChatMessage();
+        message.setMessage("Message");
+        final List<ChatMessage> messageList = Lists.newArrayList(message);
+        room.setChatMessages(messageList);
+        room.setId(34323);
+
+        final Song song = new Song();
+        song.setName("Stub song");
+        room.setSong(song);
+        room.setPosition(43);
+        room.setValence(0.3);
+        room.setArousal(0.5);
         return room;
     }
 
