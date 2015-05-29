@@ -1,5 +1,9 @@
 package me.moodcat.database.entities;
 
+import com.google.common.collect.Lists;
+import me.moodcat.mood.Mood;
+import org.junit.Test;
+
 import java.util.List;
 
 import junitx.extensions.EqualsHashCodeTestCase;
@@ -28,10 +32,8 @@ public class RoomTest extends EqualsHashCodeTestCase {
 
         final Song song = new Song();
         song.setName("Stub song");
-        room.setSong(song);
-        room.setPosition(43);
-        room.setValence(0.3);
-        room.setArousal(-0.5);
+        room.setCurrentSong(song);
+        room.setVaVector(Mood.HAPPY.getVector());
         return room;
     }
 
