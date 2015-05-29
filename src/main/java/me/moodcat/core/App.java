@@ -1,23 +1,17 @@
 package me.moodcat.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContext;
-import javax.ws.rs.Path;
-import javax.ws.rs.ext.Provider;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.name.Names;
+import com.google.inject.persist.PersistFilter;
+import com.google.inject.servlet.GuiceFilter;
+import com.google.inject.servlet.ServletModule;
+import com.google.inject.util.Modules;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.DbModule;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -32,15 +26,17 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.reflections.Reflections;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
-import com.google.inject.persist.PersistFilter;
-import com.google.inject.servlet.GuiceFilter;
-import com.google.inject.servlet.ServletModule;
-import com.google.inject.util.Modules;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
+import javax.ws.rs.Path;
+import javax.ws.rs.ext.Provider;
+import java.io.File;
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Main entry-point for the backend server. Initializes all {@link me.moodcat.api APIs}, starts the
@@ -76,8 +72,7 @@ public class App {
      *             If the statics folder threw an IOException.
      */
     public App() throws IOException {
-        final File staticsFolder = new File(Paths.get(".").toAbsolutePath().toString()
-                + "/src/main/resources/static/app");
+        final File staticsFolder = new File("src/main/resources/static/app");
 
         // Make sure the folder is available, else we can't start the server.
         if (!staticsFolder.exists() && !staticsFolder.mkdir()) {

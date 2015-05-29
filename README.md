@@ -36,3 +36,7 @@ java -jar target/moodcat-core-distribution/moodcat-core/moodcat-core.jar
 
 The frontend files should be provided either using a proxy server (`grunt serve`) or by placing the frontend sources under the `static/app` folder.
 
+# Delomboked sources
+We use [Lombok](https://projectlombok.org) for code generation.
+Delombokked sources are generated using the `mvn  lombok:delombok` under `target/generated-sources/delombok`.
+These sources can be used for static analysis and Javadoc generation.
