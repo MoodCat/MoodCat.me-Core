@@ -19,7 +19,7 @@ public class DbModule extends AbstractModule {
     /**
      * The name of the environment variable to set when running in production.
      */
-    private static final String ENVIRONMENT_DATABASE_VARIABLE_NAME = "database-password";
+    private static final String ENVIRONMENT_DATABASE_VARIABLE_NAME = "Database_Password";
 
     /**
      * The name of the property to set when running tests/locally.
