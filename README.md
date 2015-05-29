@@ -26,3 +26,13 @@ As name set `database-password` and as value the database password.
 Contact MoodCat if you want to get access to the database.
 
 If you don't have the password, you can always run the `src/test/java/TestPackageAppRunner` which will use a dummy (embedded H2) database.
+
+# Building and running the server
+```sh
+mvn package -DskipTests
+export Database_Password=#yourdatabasepassword
+java -jar target/moodcat-core-distribution/moodcat-core/moodcat-core.jar
+```
+
+The frontend files should be provided either using a proxy server (`grunt serve`) or by placing the frontend sources under the `static/app` folder.
+
