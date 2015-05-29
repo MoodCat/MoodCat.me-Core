@@ -15,6 +15,7 @@ import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -180,6 +181,7 @@ public class Bootstrapper {
         song.setDuration(600);
         song.setSoundCloudId(bSong.getSoundCloudId());
         song.setArtist(artist);
+        song.setValenceArousal(new VAVector(0,0));
         song = songDAO.merge(song);
         persistedSongs.put(bSong.getId(), song);
         return song;
