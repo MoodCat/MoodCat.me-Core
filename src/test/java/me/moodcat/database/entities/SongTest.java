@@ -29,9 +29,6 @@ public class SongTest {
         song.setDuration(3423);
         song.setNumberOfPositiveVotes(5);
 
-        VAVector expectedVa = new VAVector(0.7, 0.2);
-        song.setExpectedValenceArousal(expectedVa);
-
         return song;
     }
 

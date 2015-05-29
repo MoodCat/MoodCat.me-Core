@@ -39,12 +39,6 @@ public class Room {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-//    /**
-//     * The name of the room.
-//     */
-//    @Column(name = "name")
-//    private String roomName;
-
     @Embedded
     @JsonIgnore
     private VAVector vaVector;
