@@ -152,10 +152,8 @@ public class Bootstrapper {
         Room room = new Room();
         room.setId(bRoom.getId());
         room.setName(bRoom.getName());
-        room.setTime(bRoom.getTime());
-        room.setPosition(bRoom.getPosition());
         room.setChatMessages(Collections.<ChatMessage> emptyList());
-        room.setSong(persistedSongs.get(bRoom.getSongId()));
+        room.setCurrentSong(persistedSongs.get(bRoom.getSongId()));
         Room persistedRoom = roomDAO.merge(room);
         bRoom.getMessages().forEach(bSong -> createChatMessage(bSong, persistedRoom));
         persistedRooms.put(bRoom.getId(), persistedRoom);

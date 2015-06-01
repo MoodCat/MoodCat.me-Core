@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import me.moodcat.backend.chat.ChatBackend;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
@@ -27,10 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class RoomAPITest {
 
     @Mock
-    private RoomDAO roomDAO;
-
-    @Mock
-    private ChatDAO chatDAO;
+    private ChatBackend chatBackend;
 
     @InjectMocks
     private RoomAPI roomAPI;
@@ -39,6 +37,9 @@ public class RoomAPITest {
 
     @Mock
     private Room oneRoom;
+
+    @Mock
+    private ChatBackend.ChatRoomInstance oneRoomInstance;
 
     @Mock
     private Room otherRoom;
@@ -57,18 +58,18 @@ public class RoomAPITest {
         messagesList = new ArrayList<ChatMessage>();
         messagesList.add(message);
 
-        when(roomDAO.listRooms()).thenReturn(roomList);
-        when(roomDAO.listMessages(1)).thenReturn(messagesList);
+        when(chatBackend.listAllRooms()).thenReturn(roomList);
+        when(oneRoomInstance.getRoom()).thenReturn(oneRoom);
+        when(chatBackend.getRoomInstance(1)).thenReturn(oneRoomInstance);
 
-        when(oneRoom.getArousal()).thenReturn(Mood.HAPPY.getVector().getArousal());
-        when(oneRoom.getValence()).thenReturn(Mood.HAPPY.getVector().getValence());
+        when(oneRoom.getVaVector()).thenReturn(Mood.HAPPY.getVector());
         when(oneRoom.getId()).thenReturn(1);
-        when(roomDAO.findById(1)).thenReturn(oneRoom);
+        when(chatBackend.getRoom(1)).thenReturn(oneRoom);
+        when(oneRoom.getChatMessages()).thenReturn(messagesList);
 
-        when(otherRoom.getArousal()).thenReturn(Mood.ANGRY.getVector().getArousal());
-        when(otherRoom.getValence()).thenReturn(Mood.ANGRY.getVector().getValence());
+        when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
         when(otherRoom.getId()).thenReturn(2);
-        when(roomDAO.findById(2)).thenReturn(otherRoom);
+        when(chatBackend.getRoom(2)).thenReturn(otherRoom);
     }
 
     @Test
@@ -105,7 +106,7 @@ public class RoomAPITest {
     public void storeMessagePersistsDatabase() {
         this.roomAPI.postChatMessage(message, 1);
 
-        verify(chatDAO).persist(message);
+        verify(chatBackend.getRoomInstance(1)).sendMessage(message);
         assertEquals(oneRoom, message.getRoom());
     }
 }
