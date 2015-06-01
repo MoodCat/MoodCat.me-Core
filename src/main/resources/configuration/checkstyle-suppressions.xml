@@ -6,4 +6,5 @@
 
 <suppressions>
     <suppress files="test[/\\]" checks=".*"/>
+    <suppress files="[\\/]dev[\\/]" checks=".*"/>
 </suppressions>
