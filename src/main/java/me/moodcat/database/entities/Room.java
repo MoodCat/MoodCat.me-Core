@@ -50,6 +50,9 @@ public class Room {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    /**
+     * The {@link VAVector} of the room.
+     */
     @Embedded
     @JsonIgnore
     private VAVector vaVector;

@@ -1,24 +1,33 @@
 package me.moodcat.util;
 
-import java.util.concurrent.Callable;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.UnitOfWork;
+
+import java.util.concurrent.Callable;
 
 /**
  * A Callable that is ran in a {@link UnitOfWork}. Used for database interaction in threads outside
  * the servlet and thus not filtered by the {@code PersistFilter}. Assumes the PersistService to
  * be started.
+ *
+ * @param <V> return type of the unit of work.
  */
 public class CallableInUnitOfWork<V> implements Callable<V> {
 
+    /**
+     * The work provider of which the unit of work is done.
+     */
     private final Provider<UnitOfWork> workProvider;
 
+    /**
+     * The callable which is executed when the work has been finished.
+     */
     private final Callable<V> callable;
 
     @Inject
-    public CallableInUnitOfWork(final Provider<UnitOfWork> workProvider, final Callable<V> callable) {
+    public CallableInUnitOfWork(final Provider<UnitOfWork> workProvider,
+                                final Callable<V> callable) {
         this.workProvider = workProvider;
         this.callable = callable;
     }
@@ -39,6 +48,9 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
      */
     public static class CallableInUnitOfWorkFactory {
 
+        /**
+         * The provider of the work.
+         */
         private final Provider<UnitOfWork> workProvider;
 
         @Inject
@@ -49,10 +61,8 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         /**
          * Create a {@link Callable} in {@link UnitOfWork}.
          *
-         * @param callable
-         *            {@code Callable} to run in {@code UnitOfWork}
-         * @param <T>
-         *            Type of {@code Callable}
+         * @param callable {@code Callable} to run in {@code UnitOfWork}
+         * @param <T>      Type of {@code Callable}
          * @return the {@code CallableInUnitOfWork}
          */
         public <T> CallableInUnitOfWork<T> create(final Callable<T> callable) {
