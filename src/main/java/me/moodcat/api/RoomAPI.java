@@ -30,8 +30,6 @@ import org.hibernate.Hibernate;
 
 /**
  * The API for the room.
- *
- * @author Jaap Heijligers
  */
 @Path("/api/rooms/")
 @Produces(MediaType.APPLICATION_JSON)

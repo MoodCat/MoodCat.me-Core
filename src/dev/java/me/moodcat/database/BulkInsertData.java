@@ -3,7 +3,6 @@ package me.moodcat.database;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +27,6 @@ import com.google.inject.persist.Transactional;
 
 /**
  * MockData inserts initial data in to a clean database.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 @Singleton
 @Slf4j
@@ -165,7 +162,7 @@ public class BulkInsertData {
             room.setPlayQueue(getRandomSongList(songs));
             room.setCurrentSong(songs.get(random.nextInt(songs.size())));
             room.setName("ROOM_STUB #" + i);
-            room.setVaVector(Mood.HAPPY.getVector());
+            room.setVaVector(Mood.createRandomVector());
             room.setChatMessages(Collections.<ChatMessage> emptyList());
             room.setRepeat(true);
             roomDAO.persist(room);

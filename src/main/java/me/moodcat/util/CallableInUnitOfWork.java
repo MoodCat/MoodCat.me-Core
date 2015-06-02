@@ -10,8 +10,6 @@ import java.util.concurrent.Callable;
  * A Callable that is ran in a {@link UnitOfWork}. Used for database interaction in threads outside
  * the servlet and thus not filtered by the {@code PersistFilter}. Assumes the PersistService to
  * be started.
- *
- * @author Jan-Willem Gmelig Meyling
  */
 public class CallableInUnitOfWork<V> implements Callable<V> {
 

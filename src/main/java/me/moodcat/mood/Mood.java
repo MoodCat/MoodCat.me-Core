@@ -3,6 +3,7 @@ package me.moodcat.mood;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -99,6 +100,16 @@ public enum Mood {
                 .collect(Collectors.toList());
 
         return VAVector.average(actualMoods);
+    }
+
+    /**
+     * Create a {@link VAVector} with random valence and arousal values.
+     *
+     * @return the random vector.
+     */
+    public static VAVector createRandomVector() {
+        Random random = new Random();
+        return new VAVector(random.nextDouble(), random.nextDouble());
     }
 
     private static boolean nameRepresentsMood(final String mood) {

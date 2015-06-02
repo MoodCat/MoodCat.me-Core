@@ -18,8 +18,6 @@ import static javax.persistence.FetchType.LAZY;
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
  * of the room and then position of the room.
- *
- * @author Jaap Heijligers
  */
 @Data
 @Entity
@@ -95,8 +93,6 @@ public class Room {
     /**
      * DistanceMetric to determine the distance between 2 rooms. Will take {@link Room#vaVector} and
      * to create vectors.
-     *
-     * @author Gijs Weterings
      */
     public static final class RoomDistanceMetric implements DistanceMetric<Room> {
 

@@ -29,7 +29,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
- * @author Jan-Willem Gmelig Meyling
+ * The backend of rooms, initializes room instances and keeps track of time and messages.
  */
 @Slf4j
 @Singleton

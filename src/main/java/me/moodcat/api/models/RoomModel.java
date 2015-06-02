@@ -1,8 +1,8 @@
 package me.moodcat.api.models;
 
 /**
- * @author Jan-Willem Gmelig Meyling
+ * The model of the room.
  */
-public class RoomModel {
+public class RoomModel { //TODO implement and use the model.
 
 }

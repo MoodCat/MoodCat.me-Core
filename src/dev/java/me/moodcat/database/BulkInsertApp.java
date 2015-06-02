@@ -14,8 +14,6 @@ import com.google.inject.servlet.ServletModule;
 /**
  * This app is a server that will use {@link BulkInsertData} to insert data from a given list of
  * SoundCloud ids into the database.
- * 
- * @author Jaap Heijligers
  */
 @Slf4j
 public class BulkInsertApp {
