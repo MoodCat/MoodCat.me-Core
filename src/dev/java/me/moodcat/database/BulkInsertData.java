@@ -3,6 +3,12 @@ package me.moodcat.database;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +85,7 @@ public class BulkInsertData {
 
     /**
      * Object to bulk insert a list of given songs into the databse.
-     * 
+     *
      * @param artistDAOProvider
      *            the artist provider.
      * @param songDAOProvider
@@ -100,7 +106,7 @@ public class BulkInsertData {
 
     /**
      * Retrieve songs from the API and put the in the database.
-     * 
+     *
      * @throws IOException
      *             when the file with song ids could not be parsed.
      * @throws SoundCloudException
@@ -109,16 +115,16 @@ public class BulkInsertData {
     @Transactional
     public void insertData() throws IOException, SoundCloudException {
         final SongDAO songDAO = songDAOProvider.get();
-        Map<String, Artist> artistMap = new HashMap<>();
+        final Map<String, Artist> artistMap = new HashMap<>();
 
-        List<Integer> soundCloudIds = readSoundCloudIds();
-        for (Integer id : soundCloudIds) {
+        final List<Integer> soundCloudIds = readSoundCloudIds();
+        for (final Integer id : soundCloudIds) {
             try {
-                SoundCloudTrack track = soundCloudExtract.extract(id);
-                Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
-                Song song = songToTrack(track, id, artist, DEFAULT_VECTOR);
+                final SoundCloudTrack track = soundCloudExtract.extract(id);
+                final Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
+                final Song song = songToTrack(track, id, artist, DEFAULT_VECTOR);
                 songDAO.persist(song);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.warn("Track " + id + " could not be persisted.");
             }
         }
@@ -126,13 +132,13 @@ public class BulkInsertData {
 
     /**
      * Persist an artist in a database given a username.
-     * 
+     *
      * @param username
      *            the username of the artist.
      * @param artistMap
      *            the map with already persisted arists.
      */
-    private Artist getOrPersistArtist(String username, Map<String, Artist> artistMap) {
+    private Artist getOrPersistArtist(final String username, final Map<String, Artist> artistMap) {
         final ArtistDAO artistDAO = artistDAOProvider.get();
         Artist artist;
         if (artistMap.containsKey(username)) {
@@ -148,16 +154,16 @@ public class BulkInsertData {
     /**
      * Insert a given amount of random generated rooms into the database. This is used for testing
      * purposes.
-     * 
+     *
      * @param numberOfRooms
      *            the amount of rooms to generate.
      */
-    public void insertRandomRooms(int numberOfRooms) {
+    public void insertRandomRooms(final int numberOfRooms) {
         final RoomDAO roomDAO = roomDAOProvider.get();
         final SongDAO songDAO = songDAOProvider.get();
-        List<Song> songs = songDAO.listSongs();
+        final List<Song> songs = songDAO.listSongs();
         for (int i = 0; i < numberOfRooms; i++) {
-            Room room = new Room();
+            final Room room = new Room();
             room.setPlayHistory(getRandomSongList(songs));
             room.setPlayQueue(getRandomSongList(songs));
             room.setCurrentSong(songs.get(random.nextInt(songs.size())));
@@ -172,14 +178,15 @@ public class BulkInsertData {
     /**
      * Generate a random list of random length of songs. The bounds of the length of the list are
      * {@link BulkInsertData#MIN_QUEUE_LENGTH} and {@link BulkInsertData#MAX_QUEUE_LENGTH}.
-     * 
+     *
      * @param allSongs
      *            a list of all songs.
      * @return the generated list.
      */
-    private List<Song> getRandomSongList(List<Song> allSongs) {
-        int queueSize = MIN_QUEUE_LENGTH + random.nextInt(MAX_QUEUE_LENGTH - MIN_QUEUE_LENGTH);
-        List<Song> songs = Lists.newArrayList();
+    private List<Song> getRandomSongList(final List<Song> allSongs) {
+        final int queueSize = MIN_QUEUE_LENGTH
+                + random.nextInt(MAX_QUEUE_LENGTH - MIN_QUEUE_LENGTH);
+        final List<Song> songs = Lists.newArrayList();
         for (int i = 0; i < queueSize; i++) {
             songs.add(getRandomSong(allSongs));
         }
@@ -188,19 +195,19 @@ public class BulkInsertData {
 
     /**
      * Get a single random song from the given list of songs.
-     * 
+     *
      * @param allSongs
      *            the list of all songs.
      * @return the random song.
      */
-    private Song getRandomSong(List<Song> allSongs) {
+    private Song getRandomSong(final List<Song> allSongs) {
         return allSongs.get(random.nextInt(allSongs.size()));
     }
 
     /**
      * Helper method to create a {@link Song} given a {@link SoundCloudTrack} and an id,
      * {@link Artist} and {@link VAVector}.
-     * 
+     *
      * @param track
      *            the given track.
      * @param id
@@ -211,8 +218,9 @@ public class BulkInsertData {
      *            the given {@link VAVector}
      * @return the resulting song.
      */
-    private Song songToTrack(SoundCloudTrack track, int id, Artist artist, VAVector vector) {
-        Song song = new Song();
+    private Song songToTrack(final SoundCloudTrack track, final int id, final Artist artist,
+            final VAVector vector) {
+        final Song song = new Song();
         song.setName(track.getTitle());
         song.setSoundCloudId(id);
         song.setDuration(track.getDuration());
@@ -224,13 +232,13 @@ public class BulkInsertData {
 
     /**
      * Read and parse the file specified in SOUNDCLOUD_ID_FILE_PATH and return an int array.
-     * 
+     *
      * @return the parsed int array.
      * @throws IOException
      *             when the file is not found or can not be read.
      */
     private List<Integer> readSoundCloudIds() throws IOException {
-        String soundCloudIdString = new String(Files.readAllBytes(Paths
+        final String soundCloudIdString = new String(Files.readAllBytes(Paths
                 .get(SOUNDCLOUD_ID_FILE_PATH)));
         return Arrays.asList(soundCloudIdString.split("\n")).stream()
                 .map(Integer::valueOf).collect(Collectors.toList());

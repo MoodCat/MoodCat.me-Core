@@ -3,8 +3,6 @@ package me.moodcat.database;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import lombok.extern.slf4j.Slf4j;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistFilter;
@@ -15,7 +13,6 @@ import com.google.inject.servlet.ServletModule;
  * This app is a server that will use {@link BulkInsertData} to insert data from a given list of
  * SoundCloud ids into the database.
  */
-@Slf4j
 public class BulkInsertApp {
 
     /**
@@ -25,7 +22,7 @@ public class BulkInsertApp {
 
     /**
      * The main method, will clear and fill the database.
-     * 
+     *
      * @param args
      *            None.
      * @throws Exception
@@ -42,10 +39,10 @@ public class BulkInsertApp {
      *             when the bulkinsertion has failed.
      */
     public void run() throws Exception {
-        Injector injector = Guice.createInjector(new BulkInsertServletModule());
-        PersistService persistService = injector.getInstance(PersistService.class);
+        final Injector injector = Guice.createInjector(new BulkInsertServletModule());
+        final PersistService persistService = injector.getInstance(PersistService.class);
         persistService.start();
-        BulkInsertData bulkInsertData = injector.getInstance(BulkInsertData.class);
+        final BulkInsertData bulkInsertData = injector.getInstance(BulkInsertData.class);
         bulkInsertData.clear();
         bulkInsertData.insertData();
         bulkInsertData.insertRandomRooms(NUMBER_OF_ROOMS);

@@ -1,10 +1,10 @@
 package me.moodcat.util;
 
+import java.util.concurrent.Callable;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.UnitOfWork;
-
-import java.util.concurrent.Callable;
 
 /**
  * A Callable that is ran in a {@link UnitOfWork}. Used for database interaction in threads outside
@@ -14,22 +14,22 @@ import java.util.concurrent.Callable;
 public class CallableInUnitOfWork<V> implements Callable<V> {
 
     private final Provider<UnitOfWork> workProvider;
+
     private final Callable<V> callable;
 
     @Inject
-    public CallableInUnitOfWork(Provider<UnitOfWork> workProvider, Callable<V> callable) {
+    public CallableInUnitOfWork(final Provider<UnitOfWork> workProvider, final Callable<V> callable) {
         this.workProvider = workProvider;
         this.callable = callable;
     }
 
     @Override
     public V call() throws Exception {
-        UnitOfWork work = workProvider.get();
+        final UnitOfWork work = workProvider.get();
         try {
             work.begin();
             return callable.call();
-        }
-        finally {
+        } finally {
             work.end();
         }
     }
@@ -42,18 +42,20 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         private final Provider<UnitOfWork> workProvider;
 
         @Inject
-        public CallableInUnitOfWorkFactory(Provider<UnitOfWork> workProvider) {
+        public CallableInUnitOfWorkFactory(final Provider<UnitOfWork> workProvider) {
             this.workProvider = workProvider;
         }
 
         /**
-         * Create a  {@link Callable} in {@link UnitOfWork}.
+         * Create a {@link Callable} in {@link UnitOfWork}.
          *
-         * @param callable {@code Callable} to run in {@code UnitOfWork}
-         * @param <T> Type of {@code Callable}
+         * @param callable
+         *            {@code Callable} to run in {@code UnitOfWork}
+         * @param <T>
+         *            Type of {@code Callable}
          * @return the {@code CallableInUnitOfWork}
          */
-        public <T> CallableInUnitOfWork<T> create(Callable<T> callable) {
+        public <T> CallableInUnitOfWork<T> create(final Callable<T> callable) {
             return new CallableInUnitOfWork<>(workProvider, callable);
         }
 

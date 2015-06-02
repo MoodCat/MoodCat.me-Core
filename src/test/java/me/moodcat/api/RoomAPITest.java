@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.moodcat.backend.chat.ChatBackend;
-import me.moodcat.database.controllers.ChatDAO;
-import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.mood.Mood;

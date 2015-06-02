@@ -1,19 +1,33 @@
 package me.moodcat.database.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import distanceMetric.DistanceMetric;
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.EAGER;
+import static javax.persistence.FetchType.LAZY;
+
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import me.moodcat.database.embeddables.VAVector;
 
-import javax.persistence.*;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.EAGER;
-import static javax.persistence.FetchType.LAZY;
+import distanceMetric.DistanceMetric;
 
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
@@ -66,7 +80,7 @@ public class Room {
     private String name;
 
     /**
-     * The songs recently played in the roomProvider<ChatDAO> chatDAOProvider.
+     * The songs recently played in the roomProvider&lt;ChatDAO&gt; chatDAOProvider.
      */
     @ManyToMany(fetch = LAZY)
     @JsonIgnore
