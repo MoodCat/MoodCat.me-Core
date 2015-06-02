@@ -1,5 +1,6 @@
 package me.moodcat.backend.chat;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -53,6 +54,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
         this.roomDAOProvider = roomDAOProvider;
         this.callableInUnitOfWorkFactory = callableInUnitOfWorkFactory;
         this.chatDAOProvider = chatDAOProvider;
+        initializeInitialRooms();
     }
 
     public void initializeInitialRooms() {
@@ -61,6 +63,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
             roomDAO.listRooms().stream()
                     .map(ChatRoomInstance::new)
                     .forEach(room -> roomInstances.put(room.getRoom().getId(), room));
+            List<ChatMessage> msgs = roomDAO.listRooms().get(0).getChatMessages();
             return null;
         });
     }
@@ -73,6 +76,15 @@ public class ChatBackend extends AbstractLifeCycleListener {
     public List<Room> listAllRooms() {
         return Lists.newArrayList(roomInstances.values().stream().map(ChatRoomInstance::getRoom)
                 .collect(Collectors.toList()));
+    }
+
+    /**
+     * Get a list of all rooms instances.
+     *
+     * @return a list of all rooms instances.
+     */
+    public Collection<ChatRoomInstance> listAllRoomsInstances() {
+        return roomInstances.values();
     }
 
     /**
@@ -118,7 +130,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
         public ChatRoomInstance(final Room room) {
             this.room = room;
             this.currentTime = new AtomicInteger(0);
-            ChatBackend.this.executorService.schedule(this::incrementTime, 1, TimeUnit.SECONDS);
+            ChatBackend.this.executorService.scheduleAtFixedRate(this::incrementTime, 0, 1, TimeUnit.SECONDS);
             log.info("Created room {}", this);
         }
 
@@ -168,7 +180,9 @@ public class ChatBackend extends AbstractLifeCycleListener {
         }
 
         protected void incrementTime() {
+            System.out.println("Time incremented");
             final int currentTime = this.currentTime.incrementAndGet();
+            System.out.println("Time: " + currentTime);
             final int duration = this.getCurrentSong().getDuration();
             if (currentTime > duration) {
                 playNext();

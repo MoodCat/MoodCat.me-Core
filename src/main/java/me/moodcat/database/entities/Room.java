@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
 
 /**
@@ -52,7 +53,7 @@ public class Room {
     /**
      * Songs to be played.
      */
-    @ManyToMany
+    @ManyToMany(fetch = EAGER)
     @JoinTable(name = "room_play_queue", joinColumns = {
             @JoinColumn(name = "room_id", referencedColumnName = "id")
     }, inverseJoinColumns = {
@@ -69,7 +70,7 @@ public class Room {
     /**
      * The songs recently played in the roomProvider<ChatDAO> chatDAOProvider.
      */
-    @ManyToMany
+    @ManyToMany(fetch = LAZY)
     @JsonIgnore
     @JoinTable(name = "room_play_history", joinColumns = {
             @JoinColumn(name = "room_id", referencedColumnName = "id")
@@ -88,7 +89,7 @@ public class Room {
      * The chat messages in the room.
      */
     @JsonIgnore
-    @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
+    @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
 
     /**

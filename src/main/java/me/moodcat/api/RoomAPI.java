@@ -26,6 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import datastructures.dataholders.Pair;
+import org.hibernate.Hibernate;
 
 /**
  * The API for the room.
@@ -109,7 +110,9 @@ public class RoomAPI {
     @Path("{id}/messages")
     @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
-        return backend.getRoom(roomId).getChatMessages();
+        List<ChatMessage> messages = getRoom(roomId).getChatMessages();
+        Hibernate.initialize(messages);
+        return messages;
     }
 
     /**
@@ -133,6 +136,13 @@ public class RoomAPI {
 
         roomInstance.sendMessage(msg);
         return msg;
+    }
+
+    @GET
+    @Path("{id}/time")
+    @Transactional
+    public int getCurrentTime(@PathParam("id") final int roomId) {
+        return backend.getRoomInstance(roomId).getCurrentTime();
     }
 
 }
