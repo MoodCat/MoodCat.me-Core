@@ -43,7 +43,7 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
     /**
      * The response to the frontend.
      */
-    protected static class ExceptionResponse {
+    public static class ExceptionResponse {
 
         /**
          * The unique id for the exception.
