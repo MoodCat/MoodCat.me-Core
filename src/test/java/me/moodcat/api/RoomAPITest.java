@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import me.moodcat.api.models.RoomModel;
 import me.moodcat.backend.chat.ChatBackend;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -74,25 +75,25 @@ public class RoomAPITest {
     public void retrieveNearestRoomsContainsOneRoom() {
         final List<String> moods = Arrays.asList("Happy");
 
-        final List<Room> result = this.roomAPI.getRooms(moods, 1);
+        final List<RoomModel> result = this.roomAPI.getRooms(moods, 1);
 
         assertEquals(1, result.size());
-        assertTrue(result.contains(oneRoom));
+        assertTrue(result.contains(new RoomModel(oneRoom)));
     }
 
     @Test
     public void retrieveNearestRoomsIsSorted() {
         final List<String> moods = Arrays.asList("Exciting");
 
-        final List<Room> result = this.roomAPI.getRooms(moods, 2);
+        final List<RoomModel> result = this.roomAPI.getRooms(moods, 2);
 
-        assertEquals(oneRoom, result.get(0));
-        assertEquals(otherRoom, result.get(1));
+        assertEquals(new RoomModel(oneRoom), result.get(0));
+        assertEquals(new RoomModel(otherRoom), result.get(1));
     }
 
     @Test
     public void retrieveCorrectRoom() {
-        assertEquals(oneRoom, this.roomAPI.getRoom(1));
+        assertEquals(new RoomModel(oneRoom), this.roomAPI.getRoom(1));
     }
 
     @Test

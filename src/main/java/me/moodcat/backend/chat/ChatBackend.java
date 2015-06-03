@@ -239,9 +239,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
          * Method used to increment the time of the current song by one second.
          */
         protected void incrementTime() {
-            System.out.println("Time incremented");
             final int time = this.currentTime.incrementAndGet();
-            System.out.println("Time: " + time);
             final int duration = this.getCurrentSong().getDuration();
             if (time > duration) {
                 playNext();

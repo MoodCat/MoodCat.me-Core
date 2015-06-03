@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import me.moodcat.api.models.RoomModel;
 import me.moodcat.backend.chat.ChatBackend;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
@@ -62,7 +63,7 @@ public class RoomAPI {
      */
     @GET
     @Transactional
-    public List<Room> getRooms(@QueryParam("mood") final List<String> moods,
+    public List<RoomModel> getRooms(@QueryParam("mood") final List<String> moods,
             @QueryParam("limit") @DefaultValue("25") final int limit) {
         final VAVector targetVector = Mood.createTargetVector(moods);
 
@@ -78,6 +79,7 @@ public class RoomAPI {
 
         return knearestResult.stream()
                 .map(Pair::getRight)
+                .map(RoomModel::new)
                 .collect(Collectors.toList());
     }
 
@@ -93,8 +95,8 @@ public class RoomAPI {
     @GET
     @Path("{id}")
     @Transactional
-    public Room getRoom(@PathParam("id") final int roomId) {
-        return backend.getRoom(roomId);
+    public RoomModel getRoom(@PathParam("id") final int roomId) {
+        return new RoomModel(backend.getRoom(roomId));
     }
 
     /**
@@ -108,7 +110,7 @@ public class RoomAPI {
     @Path("{id}/messages")
     @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
-        List<ChatMessage> messages = getRoom(roomId).getChatMessages();
+        List<ChatMessage> messages = backend.getRoom(roomId).getChatMessages();
         Hibernate.initialize(messages);
         return messages;
     }
