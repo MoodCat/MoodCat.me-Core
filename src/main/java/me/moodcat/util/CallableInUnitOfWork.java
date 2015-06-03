@@ -65,7 +65,7 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
          * @param <T>      Type of {@code Callable}
          * @return the {@code CallableInUnitOfWork}
          */
-        public <T> CallableInUnitOfWork<T> create(final Callable<T> callable) {
+        public <T> Callable<T> create(final Callable<T> callable) {
             return new CallableInUnitOfWork<>(workProvider, callable);
         }
 

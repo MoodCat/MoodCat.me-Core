@@ -1,15 +1,9 @@
 package me.moodcat.backend;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +13,18 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
-
 import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
 import org.eclipse.jetty.util.component.LifeCycle;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * The backend of rooms, initializes room instances and keeps track of time and messages.
@@ -79,45 +76,21 @@ public class RoomBackend extends AbstractLifeCycleListener {
             final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
             final Provider<ChatDAO> chatDAOProvider) {
         this.executorService = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
-        this.roomInstances = Maps.newHashMap();
         this.roomDAOProvider = roomDAOProvider;
         this.chatDAOProvider = chatDAOProvider;
         this.callableInUnitOfWorkFactory = callableInUnitOfWorkFactory;
-        initializeInitialRooms();
+        this.roomInstances = initializeInitialRooms();
     }
 
     /**
      * Initialize room instances for every room in the database.
      */
-    public final void initializeInitialRooms() {
-        performInUnitOfWork(() -> {
+    protected Map<Integer, RoomInstance> initializeInitialRooms() {
+        return performInUnitOfWork(() -> {
             final RoomDAO roomDAO = roomDAOProvider.get();
-            roomDAO.listRooms().stream()
-                    .map(RoomInstance::new)
-                    .forEach(room -> roomInstances.put(room.getRoom().getId(), room));
-            return null;
+            return roomDAO.listRooms().stream()
+                .collect(Collectors.toMap(Room::getId, RoomInstance::new));
         });
-    }
-
-    /**
-     * Get a list of all rooms.
-     *
-     * @return a list of all rooms.
-     */
-    public List<Room> listAllRooms() {
-        return Lists.newArrayList(roomInstances.values().stream().map(RoomInstance::getRoom)
-                .collect(Collectors.toList()));
-    }
-
-    /**
-     * Get a room by its id.
-     *
-     * @param id
-     *            the room's id
-     * @return the room
-     */
-    public Room getRoom(final int id) {
-        return getRoomInstance(id).getRoom();
     }
 
     /**
@@ -181,12 +154,29 @@ public class RoomBackend extends AbstractLifeCycleListener {
         public RoomInstance(final Room room) {
             this.room = room;
             this.currentTime = new AtomicInteger(0);
-            this.messages = new LinkedList<ChatMessage>(RoomBackend.this.chatDAOProvider.get()
+            this.messages = new LinkedList(RoomBackend.this.chatDAOProvider.get()
                     .listByRoom(room));
 
+            scheduleSongTimer();
+            scheduleSyncTimer();
+            log.info("Created room {}", this);
+        }
+
+        /**
+         * Sync room messages to the database.
+         */
+        private void scheduleSyncTimer() {
+            this.room.setChatMessages(Lists.newArrayList(messages));
+            RoomBackend.this.executorService.scheduleAtFixedRate(this::merge,
+                    0, 1, TimeUnit.MINUTES);
+        }
+
+        /**
+         * Schedule song timer.
+         */
+        private void scheduleSongTimer() {
             RoomBackend.this.executorService.scheduleAtFixedRate(this::incrementTime,
                     0, 1, TimeUnit.SECONDS);
-            log.info("Created room {}", this);
         }
 
         /**
@@ -205,9 +195,6 @@ public class RoomBackend extends AbstractLifeCycleListener {
                 messages.removeFirst();
             }
 
-            room.getChatMessages().add(chatMessage);
-
-            merge();
             log.info("Sending message {} in room {}", chatMessage, this);
         }
 
@@ -244,6 +231,15 @@ public class RoomBackend extends AbstractLifeCycleListener {
          */
         public int getCurrentTime() {
             return this.currentTime.get();
+        }
+
+        /**
+         * Get the room name.
+         *
+         * @return the name of the room
+         */
+        public String getName() {
+            return this.room.getName();
         }
 
         /**

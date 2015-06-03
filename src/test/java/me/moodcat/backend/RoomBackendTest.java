@@ -1,17 +1,7 @@
 package me.moodcat.backend;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
 import me.moodcat.backend.RoomBackend.RoomInstance;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -20,7 +10,6 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.util.CallableInUnitOfWork;
 import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,14 +17,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomBackendTest {
@@ -108,29 +102,8 @@ public class RoomBackendTest {
 
         when(roomDAO.listRooms()).thenReturn(rooms);
 
-        when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(
-                new Answer<CallableInUnitOfWork<Object>>() {
-
-                    @Override
-                    public CallableInUnitOfWork<Object> answer(final InvocationOnMock invocation)
-                            throws Throwable {
-                        final CallableInUnitOfWork<Object> callable = Mockito
-                                .mock(CallableInUnitOfWork.class);
-
-                        final Callable<Object> realCall = invocation.getArgumentAt(0,
-                                Callable.class);
-                        when(callable.call()).thenAnswer(new Answer<Object>() {
-
-                            @Override
-                            public Object answer(final InvocationOnMock invocation)
-                                    throws Throwable {
-                                return realCall.call();
-                            }
-                        });
-                        return callable;
-                    }
-
-                });
+        when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(invocationOnMock ->
+                invocationOnMock.getArgumentAt(1, Callable.class));
 
         roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory, chatDAOProvider);
     }
@@ -138,16 +111,6 @@ public class RoomBackendTest {
     @Test
     public void canSuccesfullyInstantiateRoomInstances() {
         assertNotNull(roomBackend);
-    }
-
-    @Test
-    public void listAllRooms() {
-        assertEquals(rooms, roomBackend.listAllRooms());
-    }
-
-    @Test
-    public void getCorrectRoom() {
-        assertEquals(room, roomBackend.getRoom(1));
     }
 
     @Test

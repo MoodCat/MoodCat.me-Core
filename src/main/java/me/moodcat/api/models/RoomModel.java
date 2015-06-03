@@ -1,8 +1,6 @@
 package me.moodcat.api.models;
 
 import lombok.Data;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Song;
 
 /**
  * The model of the room.
@@ -11,24 +9,32 @@ import me.moodcat.database.entities.Song;
 public class RoomModel {
 
     /**
-     * The current song of the room model.
+     * The unique identifier for the room.
      */
-    private Song currentSong;
+    private Integer id;
+
+    /**
+     * The current song of the room model.
+     *
+     * @param song Song for this room
+     * @return Song for this room
+     */
+    private SongModel song;
 
     /**
      * The name of the room model.
+     *
+     * @param name name for this room
+     * @return name for this room
      */
     private String name;
 
     /**
-     * The constructor is used to create a room model given a {@link Room}.
+     * Song time.
      *
-     * @param room
-     *            the room to create the room model of.
+     * @param time time for this room
+     * @return time for this room
      */
-    public RoomModel(final Room room) {
-        this.currentSong = room.getCurrentSong();
-        this.name = room.getName();
-    }
+    private Integer time;
 
 }

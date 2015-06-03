@@ -54,7 +54,6 @@ public class Room {
      * The {@link VAVector} of the room.
      */
     @Embedded
-    @JsonIgnore
     private VAVector vaVector;
 
     /**
@@ -62,7 +61,6 @@ public class Room {
      */
     @ManyToOne
     @JoinColumn(name = "currentSong")
-    @JsonProperty("song")
     private Song currentSong;
 
     /**
@@ -86,7 +84,6 @@ public class Room {
      * The songs recently played in the roomProvider&lt;ChatDAO&gt; chatDAOProvider.
      */
     @ManyToMany(fetch = LAZY)
-    @JsonIgnore
     @JoinTable(name = "room_play_history", joinColumns = {
             @JoinColumn(name = "room_id", referencedColumnName = "id")
     }, inverseJoinColumns = {
@@ -103,7 +100,6 @@ public class Room {
     /**
      * The chat messages in the room.
      */
-    @JsonIgnore
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
 

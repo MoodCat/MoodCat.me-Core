@@ -1,8 +1,20 @@
 package me.moodcat.api;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import algorithms.KNearestNeighbours;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+import datastructures.dataholders.Pair;
+import me.moodcat.api.models.RoomModel;
+import me.moodcat.api.models.SongModel;
+import me.moodcat.backend.RoomBackend;
+import me.moodcat.backend.RoomBackend.RoomInstance;
+import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Room.RoomDistanceMetric;
+import me.moodcat.mood.Mood;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -13,21 +25,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
-import me.moodcat.api.models.RoomModel;
-import me.moodcat.backend.RoomBackend;
-import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Room.RoomDistanceMetric;
-import me.moodcat.mood.Mood;
-import algorithms.KNearestNeighbours;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-
-import datastructures.dataholders.Pair;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The API for the room.
@@ -46,10 +46,16 @@ public class RoomAPI {
      */
     private final RoomBackend backend;
 
+    /**
+     * The database access object for the rooms.
+     */
+    private final RoomDAO roomDAO;
+
     @Inject
     @VisibleForTesting
-    public RoomAPI(final RoomBackend backend) {
+    public RoomAPI(final RoomBackend backend, final RoomDAO roomDAO) {
         this.backend = backend;
+        this.roomDAO = roomDAO;
     }
 
     /**
@@ -70,7 +76,7 @@ public class RoomAPI {
         final Room idealroom = new Room();
         idealroom.setVaVector(targetVector);
 
-        final List<Room> allRooms = backend.listAllRooms();
+        final List<Room> allRooms = roomDAO.listRooms();
 
         final KNearestNeighbours<Room> knearest = new KNearestNeighbours<Room>(allRooms,
                 new RoomDistanceMetric());
@@ -79,8 +85,27 @@ public class RoomAPI {
 
         return knearestResult.stream()
                 .map(Pair::getRight)
-                .map(RoomModel::new)
+                .map(this::resolveRoomInstance)
+                .map(RoomAPI::transform)
                 .collect(Collectors.toList());
+    }
+
+    private RoomBackend.RoomInstance resolveRoomInstance(Room room) {
+        return backend.getRoomInstance(room.getId());
+    }
+
+    /**
+     * Transform a {@link RoomInstance} into a
+     * @param roomInstance
+     * @return
+     */
+    public static RoomModel transform(RoomBackend.RoomInstance roomInstance) {
+        final RoomModel roomModel = new RoomModel();
+	    roomModel.setId(roomInstance.getRoom().getId());
+        roomModel.setName(roomInstance.getName());
+        roomModel.setSong(SongModel.transform(roomInstance.getCurrentSong()));
+        roomModel.setTime(roomInstance.getCurrentTime());
+        return roomModel;
     }
 
     /**
@@ -96,7 +121,7 @@ public class RoomAPI {
     @Path("{id}")
     @Transactional
     public RoomModel getRoom(@PathParam("id") final int roomId) {
-        return new RoomModel(backend.getRoom(roomId));
+        return transform(backend.getRoomInstance(roomId));
     }
 
     /**

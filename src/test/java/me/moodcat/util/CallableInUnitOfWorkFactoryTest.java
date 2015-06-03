@@ -37,7 +37,7 @@ public class CallableInUnitOfWorkFactoryTest {
 
         final String message = "Message";
 
-        CallableInUnitOfWork<String> callable = factory.create(new Callable<String>() {
+        Callable<String> callable = factory.create(new Callable<String>() {
 
             @Override
             public String call() throws Exception {

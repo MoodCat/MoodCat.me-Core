@@ -1,8 +1,6 @@
 package me.moodcat.api.models;
 
 import junitx.extensions.EqualsHashCodeTestCase;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Song;
 
 /**
  * @author Jaap Heijligers
@@ -13,25 +11,23 @@ public class RoomModelTest extends EqualsHashCodeTestCase {
         super(name);
     }
 
+    private SongModel song = new SongModel();
+
     @Override
-    protected Object createInstance() throws Exception {
-        Room room = new Room();
-        Song song = new Song();
-        song.setName("Song");
-        room.setCurrentSong(song);
-        room.setName("First room");
-        RoomModel model = new RoomModel(room);
+    protected RoomModel createInstance() throws Exception {
+        RoomModel model = new RoomModel();
+        model.setTime(0);
+        model.setSong(song);
+        model.setName("First room");
         return model;
     }
 
     @Override
     protected Object createNotEqualInstance() throws Exception {
-        Room room = new Room();
-        Song song = new Song();
-        song.setName("Song");
-        room.setCurrentSong(song);
-        room.setName("Second room");
-        RoomModel model = new RoomModel(room);
+        RoomModel model = new RoomModel();
+        model.setTime(0);
+        model.setSong(song);
+        model.setName("Second room");
         return model;
     }
 }
