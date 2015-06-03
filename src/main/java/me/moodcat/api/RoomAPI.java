@@ -1,8 +1,17 @@
 package me.moodcat.api;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import algorithms.KNearestNeighbours;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+import datastructures.dataholders.Pair;
+import me.moodcat.database.controllers.ChatDAO;
+import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Room.RoomDistanceMetric;
+import me.moodcat.mood.Mood;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -13,21 +22,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
-import me.moodcat.database.controllers.ChatDAO;
-import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Room.RoomDistanceMetric;
-import me.moodcat.mood.Mood;
-import algorithms.KNearestNeighbours;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-
-import datastructures.dataholders.Pair;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The API for the room.

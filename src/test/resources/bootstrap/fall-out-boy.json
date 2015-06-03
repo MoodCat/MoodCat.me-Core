@@ -1,4 +1,10 @@
 {
+	"users":[
+		{
+			"id": 1,
+			"username": "System"
+		}
+	],
 	"artists":[
 		{
 			"id": 1,
@@ -23,7 +29,7 @@
 			"songId" : 1,
 			"messages": [
 				{
-					"author": "System",
+					"userId": 1,
 					"message": "Welcome to Moodcat!",
 					"time": 1432799172510
 				}

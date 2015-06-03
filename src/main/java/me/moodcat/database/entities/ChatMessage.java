@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "chatmessage")
 @ToString(of = {
-        "room", "message", "author"
+        "room", "message", "user"
 })
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor()
@@ -60,9 +60,9 @@ public class ChatMessage {
      *            The author to set.
      * @return The author that made this chatmessage
      */
-    @Column(name = "author", nullable = false)
-    @NonNull
-    private String author;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     /**
      * The room the message was for.

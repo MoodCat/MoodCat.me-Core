@@ -1,10 +1,5 @@
 package me.moodcat.database.bootstrapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -15,12 +10,18 @@ import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +35,7 @@ public class Bootstrapper {
     private final Map<Integer, Artist> persistedArtists;
     private final Map<Integer, Song> persistedSongs;
     private final Map<Integer, Room> persistedRooms;
+    private final Map<Integer, User> persistedUsers;
 
     /**
      * ObjectMapper used for the bootstrapper.
@@ -51,17 +53,22 @@ public class Bootstrapper {
 
     private final ChatDAO chatDAO;
 
+    private final UserDAO userDAO;
+
     @Inject
     public Bootstrapper(final ObjectMapper objectMapper, final ArtistDAO artistDAO,
-                        final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO) {
+                        final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO,
+                        final UserDAO userDAO) {
         this.objectMapper = objectMapper;
         this.artistDAO = artistDAO;
         this.roomDAO = roomDAO;
         this.songDAO = songDAO;
         this.chatDAO = chatDAO;
+        this.userDAO = userDAO;
         this.persistedArtists = Maps.newHashMap();
         this.persistedSongs = Maps.newHashMap();
         this.persistedRooms = Maps.newHashMap();
+        this.persistedUsers = Maps.newHashMap();
     }
 
     /**
@@ -70,9 +77,20 @@ public class Bootstrapper {
     @Data
     private static class BEnvironment {
 
+        private List<BUser> users;
+
         private List<BArtist> artists;
 
         private List<BRoom> rooms;
+    }
+
+    @Data
+    private static class BUser {
+
+        private int id;
+
+        private String username;
+
     }
 
     /**
@@ -124,7 +142,7 @@ public class Bootstrapper {
     @Data
     private static class BMessage {
 
-        private String author;
+        private Integer userId;
 
         private String message;
 
@@ -142,9 +160,20 @@ public class Bootstrapper {
     public void parseFromResource(final String path) throws IOException {
         try (InputStream in = Bootstrapper.class.getResourceAsStream(path)) {
             final BEnvironment environment = objectMapper.readValue(in, BEnvironment.class);
+            environment.getUsers().forEach(this::createUser);
             environment.getArtists().forEach(this::createArtist);
             environment.getRooms().forEach(this::createRoom);
         }
+    }
+
+    @Transactional
+    protected void createUser(BUser bUser) {
+        final User user = new User();
+        user.setId(bUser.getId());
+        user.setName(bUser.getUsername());
+        User persistedUser = userDAO.merge(user);
+        persistedUsers.put(persistedUser.getId(), persistedUser);
+        log.info("Bootstrapper created user {}", persistedUser);
     }
 
     @Transactional
@@ -165,7 +194,7 @@ public class Bootstrapper {
     @Transactional
     protected ChatMessage createChatMessage(BMessage bMessage, Room room) {
         ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setAuthor(bMessage.getAuthor());
+        chatMessage.setUser(persistedUsers.get(bMessage.getUserId()));
         chatMessage.setMessage(bMessage.getMessage());
         chatMessage.setTimestamp(bMessage.getTime());
         chatMessage.setRoom(room);

@@ -15,7 +15,6 @@ public class ChatMessageTest extends EqualsHashCodeTestCase {
     protected Object createInstance() throws Exception {
         final ChatMessage chatMessage = new ChatMessage();
         chatMessage.setId(3);
-        chatMessage.setAuthor("Henk");
         chatMessage.setMessage("Hello");
         final Room room = new Room();
         room.setName("Stub ROom");
@@ -29,7 +28,6 @@ public class ChatMessageTest extends EqualsHashCodeTestCase {
     protected Object createNotEqualInstance() throws Exception {
         final ChatMessage chatMessage = new ChatMessage();
         chatMessage.setId(4);
-        chatMessage.setAuthor("Henk");
         chatMessage.setMessage("Hello");
         final Room room = new Room();
         room.setName("Stub Room 2");
