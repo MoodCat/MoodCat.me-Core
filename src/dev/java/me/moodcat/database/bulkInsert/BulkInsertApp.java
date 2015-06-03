@@ -1,7 +1,9 @@
-package me.moodcat.database;
+package me.moodcat.database.bulkInsert;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+
+import me.moodcat.database.DbModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

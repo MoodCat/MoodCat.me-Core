@@ -15,15 +15,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import me.moodcat.api.models.RoomModel;
-import me.moodcat.backend.chat.RoomBackend;
+import me.moodcat.backend.RoomBackend;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Room.RoomDistanceMetric;
 import me.moodcat.mood.Mood;
-
-import org.hibernate.Hibernate;
-
 import algorithms.KNearestNeighbours;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -113,9 +110,7 @@ public class RoomAPI {
     @Path("{id}/messages")
     @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
-        final List<ChatMessage> messages = backend.getRoom(roomId).getChatMessages();
-        Hibernate.initialize(messages);
-        return messages;
+        return backend.getRoomInstance(roomId).getMessages();
     }
 
     /**

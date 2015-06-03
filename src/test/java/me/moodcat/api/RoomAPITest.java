@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.moodcat.api.models.RoomModel;
-import me.moodcat.backend.chat.RoomBackend;
+import me.moodcat.backend.RoomBackend;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.mood.Mood;
@@ -64,7 +64,7 @@ public class RoomAPITest {
         when(oneRoom.getVaVector()).thenReturn(Mood.HAPPY.getVector());
         when(oneRoom.getId()).thenReturn(1);
         when(chatBackend.getRoom(1)).thenReturn(oneRoom);
-        when(oneRoom.getChatMessages()).thenReturn(messagesList);
+        when(oneRoomInstance.getMessages()).thenReturn(messagesList);
 
         when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
         when(otherRoom.getId()).thenReturn(2);

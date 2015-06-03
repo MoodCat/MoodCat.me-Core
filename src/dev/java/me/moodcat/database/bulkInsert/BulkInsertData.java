@@ -1,4 +1,4 @@
-package me.moodcat.database;
+package me.moodcat.database.bulkInsert;
 
 import java.io.IOException;
 import java.nio.file.Files;
