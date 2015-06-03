@@ -160,10 +160,10 @@ public class VAVector {
      * @return the random vector.
      */
     public static VAVector createRandomVector() {
-        final Random random = new Random();
-
-        return new VAVector(random.nextDouble() * 2 - 1,
-                random.nextDouble() * 2 - 1);
+        Random random = new Random();
+        double valence = 2 * random.nextDouble() - 1d;
+        double arousal = 2 * random.nextDouble() - 1d;
+        return new VAVector(valence, arousal);
     }
 
     /**
