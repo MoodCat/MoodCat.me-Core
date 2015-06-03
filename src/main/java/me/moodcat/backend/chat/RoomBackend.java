@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.RoomDAO;
@@ -31,7 +32,7 @@ import com.google.inject.Singleton;
  */
 @Slf4j
 @Singleton
-public class ChatBackend extends AbstractLifeCycleListener {
+public class RoomBackend extends AbstractLifeCycleListener {
 
     /**
      * The size of executorService's thread pool.
@@ -46,7 +47,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
     /**
      * A map of room instances.
      */
-    private final Map<Integer, ChatRoomInstance> roomInstances;
+    private final Map<Integer, RoomInstance> roomInstances;
 
     /**
      * The room DAO provider.
@@ -67,7 +68,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
      *            the callableInUnitOfWorkFactory
      */
     @Inject
-    public ChatBackend(final Provider<RoomDAO> roomDAOProvider,
+    public RoomBackend(final Provider<RoomDAO> roomDAOProvider,
             final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory) {
         this.executorService = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
         this.roomInstances = Maps.newHashMap();
@@ -83,7 +84,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
         performInUnitOfWork(() -> {
             final RoomDAO roomDAO = roomDAOProvider.get();
             roomDAO.listRooms().stream()
-                    .map(ChatRoomInstance::new)
+                    .map(RoomInstance::new)
                     .forEach(room -> roomInstances.put(room.getRoom().getId(), room));
             return null;
         });
@@ -95,7 +96,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
      * @return a list of all rooms.
      */
     public List<Room> listAllRooms() {
-        return Lists.newArrayList(roomInstances.values().stream().map(ChatRoomInstance::getRoom)
+        return Lists.newArrayList(roomInstances.values().stream().map(RoomInstance::getRoom)
                 .collect(Collectors.toList()));
     }
 
@@ -117,7 +118,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
      *            the room's id
      * @return the room
      */
-    public ChatRoomInstance getRoomInstance(final int id) {
+    public RoomInstance getRoomInstance(final int id) {
         return roomInstances.get(id);
     }
 
@@ -136,11 +137,14 @@ public class ChatBackend extends AbstractLifeCycleListener {
     /**
      * The instance object of the rooms.
      */
-    public class ChatRoomInstance {
+    public class RoomInstance {
 
         /**
          * The roomInstance's room.
+         *
+         * @return the room.
          */
+        @Getter
         private final Room room;
 
         /**
@@ -155,10 +159,11 @@ public class ChatBackend extends AbstractLifeCycleListener {
          * @param room
          *            the room used to create the roomInstance.
          */
-        public ChatRoomInstance(final Room room) {
+        public RoomInstance(final Room room) {
             this.room = room;
             this.currentTime = new AtomicInteger(0);
-            ChatBackend.this.executorService.scheduleAtFixedRate(this::incrementTime,
+
+            RoomBackend.this.executorService.scheduleAtFixedRate(this::incrementTime,
                     0, 1, TimeUnit.SECONDS);
             log.info("Created room {}", this);
         }
@@ -173,6 +178,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
             chatMessage.setRoom(room);
             chatMessage.setTimestamp(System.currentTimeMillis());
             room.getChatMessages().add(chatMessage);
+
             merge();
             log.info("Sending message {} in room {}", chatMessage, this);
         }
@@ -183,15 +189,6 @@ public class ChatBackend extends AbstractLifeCycleListener {
         protected void merge() {
             log.info("Merging changes in room {}", this);
             performInUnitOfWork(() -> roomDAOProvider.get().merge(room));
-        }
-
-        /**
-         * Get the instance's room.
-         *
-         * @return the room.
-         */
-        public Room getRoom() {
-            return room;
         }
 
         /**
@@ -218,20 +215,19 @@ public class ChatBackend extends AbstractLifeCycleListener {
         public void playNext() {
             final List<Song> playHistory = room.getPlayHistory();
             playHistory.add(room.getCurrentSong());
-            Song currentSong = null;
-
             List<Song> playQueue = getRoom().getPlayQueue();
+
             if (playQueue.isEmpty() && room.isRepeat()) {
                 playQueue = Lists.newArrayList(playHistory);
             }
 
             if (!playQueue.isEmpty()) {
-                currentSong = playQueue.remove(0);
+                final Song currentSong = playQueue.remove(0);
+                log.info("Playing song {} in room {}", currentSong, this);
+                room.setCurrentSong(currentSong);
+                merge();
             }
 
-            log.info("Playing song {} in room {}", currentSong, this);
-            room.setCurrentSong(currentSong);
-            merge();
             resetTime();
         }
 
@@ -241,6 +237,7 @@ public class ChatBackend extends AbstractLifeCycleListener {
         protected void incrementTime() {
             final int time = this.currentTime.incrementAndGet();
             final int duration = this.getCurrentSong().getDuration();
+
             if (time > duration) {
                 playNext();
             }

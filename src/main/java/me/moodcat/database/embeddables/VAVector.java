@@ -1,6 +1,7 @@
 package me.moodcat.database.embeddables;
 
 import java.util.List;
+import java.util.Random;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -151,6 +152,18 @@ public class VAVector {
                 });
 
         return counter.average(average);
+    }
+
+    /**
+     * Create a {@link VAVector} with random valence and arousal values.
+     *
+     * @return the random vector.
+     */
+    public static VAVector createRandomVector() {
+        final Random random = new Random();
+
+        return new VAVector(random.nextDouble() * 2 - 1,
+                random.nextDouble() * 2 - 1);
     }
 
     /**

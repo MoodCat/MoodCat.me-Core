@@ -104,7 +104,7 @@ public class Room {
      * The chat messages in the room.
      */
     @JsonIgnore
-    @OneToMany(fetch = EAGER, cascade = ALL, mappedBy = "room")
+    @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
 
     /**

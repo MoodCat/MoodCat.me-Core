@@ -20,7 +20,6 @@ import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.mood.Mood;
 import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudExtract;
 import me.moodcat.soundcloud.SoundCloudTrack;
@@ -168,7 +167,7 @@ public class BulkInsertData {
             room.setPlayQueue(getRandomSongList(songs));
             room.setCurrentSong(songs.get(random.nextInt(songs.size())));
             room.setName("ROOM_STUB #" + i);
-            room.setVaVector(Mood.createRandomVector());
+            room.setVaVector(VAVector.createRandomVector());
             room.setChatMessages(Collections.<ChatMessage> emptyList());
             room.setRepeat(true);
             roomDAO.persist(room);

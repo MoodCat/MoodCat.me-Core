@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.moodcat.api.models.RoomModel;
-import me.moodcat.backend.chat.ChatBackend;
+import me.moodcat.backend.chat.RoomBackend;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.mood.Mood;
@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class RoomAPITest {
 
     @Mock
-    private ChatBackend chatBackend;
+    private RoomBackend chatBackend;
 
     @InjectMocks
     private RoomAPI roomAPI;
@@ -38,7 +38,7 @@ public class RoomAPITest {
     private Room oneRoom;
 
     @Mock
-    private ChatBackend.ChatRoomInstance oneRoomInstance;
+    private RoomBackend.RoomInstance oneRoomInstance;
 
     @Mock
     private Room otherRoom;

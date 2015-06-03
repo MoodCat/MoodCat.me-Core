@@ -15,19 +15,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import me.moodcat.api.models.RoomModel;
-import me.moodcat.backend.chat.ChatBackend;
+import me.moodcat.backend.chat.RoomBackend;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Room.RoomDistanceMetric;
 import me.moodcat.mood.Mood;
+
+import org.hibernate.Hibernate;
+
 import algorithms.KNearestNeighbours;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+
 import datastructures.dataholders.Pair;
-import org.hibernate.Hibernate;
 
 /**
  * The API for the room.
@@ -44,11 +47,11 @@ public class RoomAPI {
     /**
      * The backend of the room.
      */
-    ChatBackend backend;
+    private final RoomBackend backend;
 
     @Inject
     @VisibleForTesting
-    public RoomAPI(final ChatBackend backend) {
+    public RoomAPI(final RoomBackend backend) {
         this.backend = backend;
     }
 
@@ -110,7 +113,7 @@ public class RoomAPI {
     @Path("{id}/messages")
     @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
-        List<ChatMessage> messages = backend.getRoom(roomId).getChatMessages();
+        final List<ChatMessage> messages = backend.getRoom(roomId).getChatMessages();
         Hibernate.initialize(messages);
         return messages;
     }
@@ -130,7 +133,7 @@ public class RoomAPI {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int roomId) {
-        ChatBackend.ChatRoomInstance roomInstance = backend.getRoomInstance(roomId);
+        final RoomBackend.RoomInstance roomInstance = backend.getRoomInstance(roomId);
         msg.setRoom(roomInstance.getRoom());
         msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
 
