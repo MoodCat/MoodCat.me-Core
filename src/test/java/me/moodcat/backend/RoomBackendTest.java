@@ -103,7 +103,7 @@ public class RoomBackendTest {
         when(roomDAO.listRooms()).thenReturn(rooms);
 
         when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(invocationOnMock ->
-                invocationOnMock.getArgumentAt(1, Callable.class));
+                invocationOnMock.getArgumentAt(0, Callable.class));
 
         roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory, chatDAOProvider);
     }
@@ -134,7 +134,6 @@ public class RoomBackendTest {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
 
         final Song song = room.getCurrentSong();
-
         instance.playNext();
 
         assertNotEquals(song, room.getCurrentSong());
