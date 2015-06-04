@@ -1,7 +1,16 @@
 package me.moodcat.backend;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Provider;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
 import me.moodcat.backend.RoomBackend.RoomInstance;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -10,6 +19,7 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.util.CallableInUnitOfWork;
 import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,16 +30,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomBackendTest {
@@ -77,7 +79,6 @@ public class RoomBackendTest {
     @Mock
     private Song song2;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         rooms = Lists.newArrayList();
@@ -115,9 +116,10 @@ public class RoomBackendTest {
 
     @Test
     public void canSendMessage() {
-        roomBackend.getRoomInstance(1).sendMessage(chatMessage);
+        final RoomInstance roomInstance = roomBackend.getRoomInstance(1);
+        roomInstance.sendMessage(chatMessage);
 
-        assertTrue(messages.contains(chatMessage));
+        assertTrue(roomInstance.getMessages().contains(chatMessage));
         verify(roomDAO, atLeastOnce()).merge(room);
     }
 

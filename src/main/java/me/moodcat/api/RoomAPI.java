@@ -1,20 +1,8 @@
 package me.moodcat.api;
 
-import algorithms.KNearestNeighbours;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-import datastructures.dataholders.Pair;
-import me.moodcat.api.models.RoomModel;
-import me.moodcat.api.models.SongModel;
-import me.moodcat.backend.RoomBackend;
-import me.moodcat.backend.RoomBackend.RoomInstance;
-import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Room.RoomDistanceMetric;
-import me.moodcat.mood.Mood;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -25,9 +13,24 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import me.moodcat.api.models.RoomModel;
+import me.moodcat.api.models.SongModel;
+import me.moodcat.backend.RoomBackend;
+import me.moodcat.backend.RoomBackend.RoomInstance;
+import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Room.RoomDistanceMetric;
+import me.moodcat.mood.Mood;
+import algorithms.KNearestNeighbours;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+
+import datastructures.dataholders.Pair;
 
 /**
  * The API for the room.
@@ -90,18 +93,20 @@ public class RoomAPI {
                 .collect(Collectors.toList());
     }
 
-    private RoomBackend.RoomInstance resolveRoomInstance(Room room) {
+    private RoomBackend.RoomInstance resolveRoomInstance(final Room room) {
         return backend.getRoomInstance(room.getId());
     }
 
     /**
-     * Transform a {@link RoomInstance} into a
+     * Transform a {@link RoomInstance} into a roommodel.
+     * 
      * @param roomInstance
-     * @return
+     *            The instance to create a roommodel from.
+     * @return The roommodel that represents the roominstance.
      */
-    public static RoomModel transform(RoomBackend.RoomInstance roomInstance) {
+    public static RoomModel transform(final RoomBackend.RoomInstance roomInstance) {
         final RoomModel roomModel = new RoomModel();
-	    roomModel.setId(roomInstance.getRoom().getId());
+        roomModel.setId(roomInstance.getRoom().getId());
         roomModel.setName(roomInstance.getName());
         roomModel.setSong(SongModel.transform(roomInstance.getCurrentSong()));
         roomModel.setTime(roomInstance.getCurrentTime());

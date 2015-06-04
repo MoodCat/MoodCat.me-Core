@@ -1,21 +1,5 @@
 package me.moodcat.backend;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import me.moodcat.database.controllers.ChatDAO;
-import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.entities.ChatMessage;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Song;
-import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
-import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
-import org.eclipse.jetty.util.component.LifeCycle;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +9,24 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import me.moodcat.database.controllers.ChatDAO;
+import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Song;
+import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
+
+import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
+import org.eclipse.jetty.util.component.LifeCycle;
+
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * The backend of rooms, initializes room instances and keeps track of time and messages.
@@ -89,7 +91,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
         return performInUnitOfWork(() -> {
             final RoomDAO roomDAO = roomDAOProvider.get();
             return roomDAO.listRooms().stream()
-                .collect(Collectors.toMap(Room::getId, RoomInstance::new));
+                    .collect(Collectors.toMap(Room::getId, RoomInstance::new));
         });
     }
 
@@ -154,7 +156,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
         public RoomInstance(final Room room) {
             this.room = room;
             this.currentTime = new AtomicInteger(0);
-            this.messages = new LinkedList(RoomBackend.this.chatDAOProvider.get()
+            this.messages = new LinkedList<ChatMessage>(RoomBackend.this.chatDAOProvider.get()
                     .listByRoom(room));
 
             scheduleSongTimer();
