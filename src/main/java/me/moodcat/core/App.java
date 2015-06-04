@@ -138,6 +138,10 @@ public class App {
 
     /**
      * Joins the {@link App} server.
+     * 
+     * @throws InterruptedException
+     *             if the joined thread is interrupted
+     *             before or during the merging.
      */
     public void joinThread() throws InterruptedException {
         this.server.join();
