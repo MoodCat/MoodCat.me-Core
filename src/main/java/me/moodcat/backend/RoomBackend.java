@@ -295,7 +295,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
             final int time = this.currentTime.incrementAndGet();
             final int duration = this.getCurrentSong().getDuration();
 
-            if (time > duration) {
+            if (duration / 1000 - time < 5) {
                 playNext();
             }
         }
