@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
 
 import com.google.inject.Inject;
@@ -30,6 +31,17 @@ public class SongDAO extends AbstractDAO<Song> {
     public List<Song> listSongs() {
         return this.query().from(song)
                 .list(song);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Transactional
+    public List<Song> listRandomsongs(int limit) {
+        return this
+                .getManager()
+                .createNativeQuery(
+                        "SELECT * FROM song WHERE arousal = 0"
+                                + " AND valence = 0 ORDER BY RANDOM() LIMIT " + limit, Song.class)
+                .getResultList();
     }
 
     /**

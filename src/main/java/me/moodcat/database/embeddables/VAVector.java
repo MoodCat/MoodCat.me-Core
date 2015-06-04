@@ -19,6 +19,11 @@ import lombok.NoArgsConstructor;
 public class VAVector {
 
     /**
+     * The zero vector.
+     */
+    public static final VAVector ZERO = new VAVector(0.0, 0.0);
+
+    /**
      * The valence in the range of [-1, 1]. It is the first dimension of this vector.
      *
      * @param valence
@@ -131,7 +136,7 @@ public class VAVector {
      * @return The length of this vector.
      */
     public double length() {
-        return this.distance(new VAVector(0.0, 0.0));
+        return this.distance(ZERO);
     }
 
     /**
@@ -145,7 +150,7 @@ public class VAVector {
         final Counter counter = new Counter();
 
         final VAVector average = vectors.stream()
-                .reduce(new VAVector(0.0, 0.0), (one, other) -> {
+                .reduce(ZERO, (one, other) -> {
                     counter.increment();
                     return one.add(other);
                 });
@@ -176,7 +181,7 @@ public class VAVector {
                 return vector.multiply(1.0 / counter);
             }
 
-            return new VAVector(0.0, 0.0);
+            return ZERO;
         }
     }
 }

@@ -74,7 +74,7 @@ public class SongAPI {
     @Path("toclassify")
     @Transactional
     public List<Song> toClassify() {
-        return songDAO.listSongs();
+        return songDAO.listRandomsongs(5);
     }
 
     /**
