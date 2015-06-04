@@ -1,10 +1,5 @@
 package me.moodcat.database.bootstrapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -21,6 +16,10 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -152,10 +151,9 @@ public class Bootstrapper {
         Room room = new Room();
         room.setId(bRoom.getId());
         room.setName(bRoom.getName());
-        room.setTime(bRoom.getTime());
-        room.setPosition(bRoom.getPosition());
         room.setChatMessages(Collections.<ChatMessage> emptyList());
-        room.setSong(persistedSongs.get(bRoom.getSongId()));
+        room.setCurrentSong(persistedSongs.get(bRoom.getSongId()));
+        room.setVaVector(room.getCurrentSong().getValenceArousal());
         Room persistedRoom = roomDAO.merge(room);
         bRoom.getMessages().forEach(bSong -> createChatMessage(bSong, persistedRoom));
         persistedRooms.put(bRoom.getId(), persistedRoom);

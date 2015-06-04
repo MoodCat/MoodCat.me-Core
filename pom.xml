@@ -358,6 +358,13 @@
 						<version>5.0.3</version>
 					</dependency>
 				</dependencies>
+				<configuration>
+					<instrumentation>
+						<excludes>
+							<exclude>me/moodcat/database/bulkInsert/*.class</exclude>
+						</excludes>
+					</instrumentation>
+				</configuration>
 			</plugin>
 
 			<!-- The Lombok plugin compiles lombok annotations to the target/generated-sources 
@@ -484,6 +491,13 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
 				<version>${cobertura.version}</version>
+				<configuration>
+					<instrumentation>
+						<excludes>
+							<exclude>me/moodcat/database/bulkInsert/*.class</exclude>
+						</excludes>
+					</instrumentation>
+				</configuration>
 			</plugin>
 
 			<plugin>
