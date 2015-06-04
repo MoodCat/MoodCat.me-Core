@@ -70,6 +70,13 @@ public class SongAPI {
         return songDAO.findById(id);
     }
 
+    @GET
+    @Path("toclassify")
+    @Transactional
+    public List<Song> toClassify() {
+        return songDAO.listRandomsongs(5);
+    }
+
     /**
      * Process a user classification for the given songId.
      *

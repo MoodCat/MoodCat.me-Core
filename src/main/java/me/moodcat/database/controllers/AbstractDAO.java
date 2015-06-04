@@ -26,6 +26,10 @@ public abstract class AbstractDAO<T> {
         this.entityManager = entityManager;
     }
 
+    protected EntityManager getManager() {
+        return entityManager;
+    }
+
     /**
      * Query the database.
      *

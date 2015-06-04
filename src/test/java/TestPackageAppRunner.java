@@ -1,5 +1,6 @@
 import me.moodcat.core.App;
 import me.moodcat.database.bootstrapper.Bootstrapper;
+
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
@@ -11,7 +12,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
  */
 public class TestPackageAppRunner {
 
-    public static void main(String... args) throws Exception {
+    public static void main(final String... args) throws Exception {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
