@@ -38,7 +38,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
     /**
      * The size of executorService's thread pool.
      */
-    private static final int THREAD_POOL_SIZE = 1;
+    private static final int THREAD_POOL_SIZE = 4;
 
     /**
      * The service to increment the room's song time.
@@ -131,7 +131,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
     @Override
     public void lifeCycleStopping(final LifeCycle event) {
         log.info("Shutting down executor for {}", this);
-        executorService.shutdownNow();
+        executorService.shutdown();
     }
 
     @SneakyThrows
