@@ -38,7 +38,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
     /**
      * The size of executorService's thread pool.
      */
-    private static final int THREAD_POOL_SIZE = 4;
+    private static final int THREAD_POOL_SIZE = 1;
 
     /**
      * The service to increment the room's song time.
@@ -69,15 +69,37 @@ public class RoomBackend extends AbstractLifeCycleListener {
      * The constructor of the chat's backend, initializes fields and rooms.
      *
      * @param roomDAOProvider
-     *            the roomDAOProvider
+     *            The provider for the RoomDAO.
      * @param callableInUnitOfWorkFactory
-     *            the callableInUnitOfWorkFactory
+     *            The factory that can create UnitOfWorks.
+     * @param chatDAOProvider
+     *            The provider for the ChatDAO.
      */
     @Inject
     public RoomBackend(final Provider<RoomDAO> roomDAOProvider,
             final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
             final Provider<ChatDAO> chatDAOProvider) {
-        this.executorService = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
+        this(roomDAOProvider, callableInUnitOfWorkFactory, Executors
+                .newScheduledThreadPool(THREAD_POOL_SIZE), chatDAOProvider);
+    }
+
+    /**
+     * The constructor of the chat's backend, initializes fields and rooms.
+     *
+     * @param roomDAOProvider
+     *            The provider for the RoomDAO.
+     * @param callableInUnitOfWorkFactory
+     *            The factory that can create UnitOfWorks.
+     * @param executorService
+     *            The executor service to run multi-threaded.
+     * @param chatDAOProvider
+     *            The provider for the ChatDAO.
+     */
+    protected RoomBackend(final Provider<RoomDAO> roomDAOProvider,
+            final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
+            final ScheduledExecutorService executorService,
+            final Provider<ChatDAO> chatDAOProvider) {
+        this.executorService = executorService;
         this.roomDAOProvider = roomDAOProvider;
         this.chatDAOProvider = chatDAOProvider;
         this.callableInUnitOfWorkFactory = callableInUnitOfWorkFactory;
@@ -109,7 +131,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
     @Override
     public void lifeCycleStopping(final LifeCycle event) {
         log.info("Shutting down executor for {}", this);
-        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     @SneakyThrows

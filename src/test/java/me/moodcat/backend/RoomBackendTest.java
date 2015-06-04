@@ -2,14 +2,16 @@ package me.moodcat.backend;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import me.moodcat.backend.RoomBackend.RoomInstance;
 import me.moodcat.database.controllers.ChatDAO;
@@ -93,6 +95,8 @@ public class RoomBackendTest {
         songFuture = Lists.newArrayList();
         songFuture.add(song2);
 
+        when(song1.getDuration()).thenReturn(1000);
+
         when(room.getId()).thenReturn(1);
         when(room.getChatMessages()).thenReturn(messages);
         when(room.getPlayHistory()).thenReturn(songHistory);
@@ -106,7 +110,8 @@ public class RoomBackendTest {
         when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(invocationOnMock ->
                 invocationOnMock.getArgumentAt(0, Callable.class));
 
-        roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory, chatDAOProvider);
+        roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory,
+                new MockedExecutorService(4), chatDAOProvider);
     }
 
     @Test
@@ -120,7 +125,6 @@ public class RoomBackendTest {
         roomInstance.sendMessage(chatMessage);
 
         assertTrue(roomInstance.getMessages().contains(chatMessage));
-        verify(roomDAO, atLeastOnce()).merge(room);
     }
 
     @Test
@@ -143,13 +147,41 @@ public class RoomBackendTest {
 
     @Test
     public void playSongCreatesQueueWhenRepeating() {
-        final RoomInstance instance = roomBackend.getRoomInstance(1);
-
-        room.setPlayQueue(Lists.newArrayList());
+        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
         room.setRepeat(true);
+
+        final RoomInstance instance = roomBackend.getRoomInstance(1);
 
         instance.playNext();
 
         assertNotEquals(room.getPlayHistory(), room.getPlayQueue());
+    }
+
+    @Test
+    public void playSongDoesNotContinueWhenNoHistoryOrFuture() {
+        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
+        when(room.getPlayHistory()).thenReturn(Lists.newArrayList());
+        when(room.getCurrentSong()).thenReturn(null);
+        room.setRepeat(true);
+
+        final RoomInstance instance = roomBackend.getRoomInstance(1);
+
+        instance.playNext();
+
+        assertNull(instance.getCurrentSong());
+    }
+
+    static class MockedExecutorService extends ScheduledThreadPoolExecutor {
+
+        public MockedExecutorService(final int corePoolSize) {
+            super(corePoolSize);
+        }
+
+        @Override
+        public <T> Future<T> submit(final Callable<T> task) {
+            final FutureTask<T> future = new FutureTask<T>(task);
+            future.run();
+            return future;
+        }
     }
 }
