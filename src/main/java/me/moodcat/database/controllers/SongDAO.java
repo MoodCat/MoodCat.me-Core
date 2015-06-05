@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
 
 import com.google.inject.Inject;
@@ -33,9 +32,17 @@ public class SongDAO extends AbstractDAO<Song> {
                 .list(song);
     }
 
+    /**
+     * Retrieve random unclassified songs from the database.
+     *
+     * @param limit
+     *            The number of songs to retrieve.
+     * @return A list of random songs.
+     */
     @SuppressWarnings("unchecked")
     @Transactional
-    public List<Song> listRandomsongs(int limit) {
+    public List<Song> listRandomsongs(final int limit) {
+        // QueryDSL does not support random ordering, so we have to make a custom native query.
         return this
                 .getManager()
                 .createNativeQuery(
