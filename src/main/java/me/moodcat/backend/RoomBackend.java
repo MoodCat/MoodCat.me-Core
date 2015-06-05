@@ -151,6 +151,11 @@ public class RoomBackend extends AbstractLifeCycleListener {
         public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
 
         /**
+         * The number of seconds that the song is changed in order to keep up with the frontend.
+         */
+        private static final long NUMBER_OF_SECONDS_FOR_NEXT_SONG = 5;
+
+        /**
          * The roomInstance's room.
          *
          * @return the room.
@@ -226,7 +231,6 @@ public class RoomBackend extends AbstractLifeCycleListener {
          * Merge the changes of the instance in the database.
          */
         protected void merge() {
-            log.info("Merging changes in room {}", this);
             performInUnitOfWork(() -> roomDAOProvider.get().merge(room));
         }
 
@@ -274,8 +278,12 @@ public class RoomBackend extends AbstractLifeCycleListener {
             playHistory.add(room.getCurrentSong());
             List<Song> playQueue = room.getPlayQueue();
 
-            if (playQueue.isEmpty() && room.isRepeat()) {
-                playQueue = Lists.newArrayList(playHistory);
+            if (playQueue.isEmpty()) {
+                if (room.isRepeat()) {
+                    playQueue = Lists.newArrayList(playHistory);
+                } else {
+                    // TODO: Select songs from a database.
+                }
             }
 
             if (!playQueue.isEmpty()) {
@@ -293,9 +301,10 @@ public class RoomBackend extends AbstractLifeCycleListener {
          */
         protected void incrementTime() {
             final int time = this.currentTime.incrementAndGet();
-            final int duration = this.getCurrentSong().getDuration();
+            final int duration = (int) TimeUnit.MILLISECONDS.toSeconds(this.getCurrentSong()
+                    .getDuration());
 
-            if (time > duration) {
+            if (duration - time < NUMBER_OF_SECONDS_FOR_NEXT_SONG) {
                 playNext();
             }
         }

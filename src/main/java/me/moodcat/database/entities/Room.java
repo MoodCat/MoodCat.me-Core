@@ -1,7 +1,6 @@
 package me.moodcat.database.entities;
 
 import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
 
 import java.util.List;
@@ -13,11 +12,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -62,12 +60,7 @@ public class Room {
     /**
      * Songs to be played.
      */
-    @ManyToMany(fetch = EAGER)
-    @JoinTable(name = "room_play_queue", joinColumns = {
-            @JoinColumn(name = "room_id", referencedColumnName = "id")
-    }, inverseJoinColumns = {
-            @JoinColumn(name = "song_id", referencedColumnName = "id")
-    })
+    @Transient
     private List<Song> playQueue;
 
     /**
@@ -79,17 +72,13 @@ public class Room {
     /**
      * The songs recently played in the roomProvider&lt;ChatDAO&gt; chatDAOProvider.
      */
-    @ManyToMany(fetch = LAZY)
-    @JoinTable(name = "room_play_history", joinColumns = {
-            @JoinColumn(name = "room_id", referencedColumnName = "id")
-    }, inverseJoinColumns = {
-            @JoinColumn(name = "song_id", referencedColumnName = "id")
-    })
+    @Transient
     private List<Song> playHistory;
 
     /**
      * Development flag to temporarily repeat the current song in a room.
      */
+    // TODO: Remove or extract for state pattern
     @Column(name = "repeat")
     private boolean repeat;
 
