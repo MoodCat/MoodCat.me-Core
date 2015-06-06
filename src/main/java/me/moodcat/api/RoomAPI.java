@@ -1,19 +1,10 @@
 package me.moodcat.api;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
+import algorithms.KNearestNeighbours;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+import datastructures.dataholders.Pair;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
 import me.moodcat.backend.RoomBackend;
@@ -24,13 +15,19 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Room.RoomDistanceMetric;
 import me.moodcat.mood.Mood;
-import algorithms.KNearestNeighbours;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-
-import datastructures.dataholders.Pair;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The API for the room.
@@ -106,10 +103,10 @@ public class RoomAPI {
      */
     public static RoomModel transform(final RoomBackend.RoomInstance roomInstance) {
         final RoomModel roomModel = new RoomModel();
-        roomModel.setId(roomInstance.getRoom().getId());
+        roomModel.setId(roomInstance.getId());
         roomModel.setName(roomInstance.getName());
         roomModel.setSong(SongModel.transform(roomInstance.getCurrentSong()));
-        roomModel.setTime(roomInstance.getCurrentTime());
+        roomModel.setTime((int) roomInstance.getCurrentTime());
         return roomModel;
     }
 
@@ -159,9 +156,7 @@ public class RoomAPI {
     @Transactional
     public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int roomId) {
         final RoomBackend.RoomInstance roomInstance = backend.getRoomInstance(roomId);
-        msg.setRoom(roomInstance.getRoom());
         msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
-
         roomInstance.sendMessage(msg);
         return msg;
     }
@@ -169,7 +164,7 @@ public class RoomAPI {
     @GET
     @Path("{id}/time")
     @Transactional
-    public int getCurrentTime(@PathParam("id") final int roomId) {
+    public long getCurrentTime(@PathParam("id") final int roomId) {
         return backend.getRoomInstance(roomId).getCurrentTime();
     }
 

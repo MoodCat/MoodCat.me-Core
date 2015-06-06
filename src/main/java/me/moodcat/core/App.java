@@ -11,6 +11,7 @@ import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.backend.RoomBackend;
 import me.moodcat.database.DbModule;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -19,6 +20,7 @@ import org.eclipse.jetty.server.session.HashSessionIdManager;
 import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
@@ -238,7 +240,7 @@ public class App {
      * MoodCat base API service. It tells Google Guice which classes (and their
      * dependencies) to instantiate.
      */
-    public static class MoodcatServletModule extends ServletModule {
+    public class MoodcatServletModule extends ServletModule {
 
         /**
          * The string representation of the api package.
@@ -272,6 +274,8 @@ public class App {
             this.bindDatabaseModule();
             this.bindAPI();
             this.bindExceptionMappers();
+            this.bind(LifeCycle.class).toInstance(server);
+            this.bind(RoomBackend.class).asEagerSingleton();
         }
 
         private void bindDatabaseModule() {

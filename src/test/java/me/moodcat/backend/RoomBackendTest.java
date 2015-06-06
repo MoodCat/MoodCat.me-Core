@@ -1,18 +1,7 @@
 package me.moodcat.backend;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
 import me.moodcat.backend.RoomBackend.RoomInstance;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -21,7 +10,6 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.util.CallableInUnitOfWork;
 import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +20,18 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomBackendTest {
@@ -110,8 +108,8 @@ public class RoomBackendTest {
         when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(invocationOnMock ->
                 invocationOnMock.getArgumentAt(0, Callable.class));
 
-        roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory,
-                new MockedExecutorService(4), chatDAOProvider);
+//        roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory,
+//                new MockedExecutorService(4), chatDAOProvider);
     }
 
     @Test
