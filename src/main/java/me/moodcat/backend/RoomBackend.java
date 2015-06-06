@@ -18,6 +18,7 @@ import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
 import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
 import org.eclipse.jetty.util.component.LifeCycle;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -200,6 +202,11 @@ public class RoomBackend extends AbstractLifeCycleListener {
         private final AtomicReference<SongInstance> currentSong;
 
         /**
+         * Has changed flag
+         */
+        private final AtomicBoolean hasChanged;
+
+        /**
          * ChatRoomInstance's constructur, will create a roomInstance from a room
          * and start the timer for the current song.
          *
@@ -207,10 +214,13 @@ public class RoomBackend extends AbstractLifeCycleListener {
          *            the room used to create the roomInstance.
          */
         public RoomInstance(final Room room) {
-            this.name = room.getName();
             this.id = room.getId();
+            this.name = room.getName();
             this.messages = new LinkedList<ChatMessage>(room.getChatMessages());
+
             this.currentSong = new AtomicReference<>();
+            this.hasChanged = new AtomicBoolean(false);
+
             this.scheduleSyncTimer();
             this.playNext(room.getCurrentSong());
             log.info("Initialized room instance {}", this);
@@ -220,6 +230,8 @@ public class RoomBackend extends AbstractLifeCycleListener {
         public void playNext() {
             RoomDAO roomDAO = roomDAOProvider.get();
             Room room = roomDAO.findById(id);
+            room.getPlayHistory().add(room.getCurrentSong());
+
             List<Song> playQueue = room.getPlayQueue();
             if(!playQueue.isEmpty()) {
                 playNext(playQueue.remove(0));
@@ -238,6 +250,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
                 playNext(currentSong.get().getSong());
             }
 
+            hasChanged.set(true);
             roomDAO.merge(room);
         }
 
@@ -251,6 +264,15 @@ public class RoomBackend extends AbstractLifeCycleListener {
             songInstance.addObserver((o, arg) -> future.cancel(false));
             // Observer: Play the next song when the song is finished
             songInstance.addObserver((o, arg) -> playNext());
+            hasChanged.set(true);
+        }
+
+        @Transactional
+        public void queue(Collection<Song> songs) {
+            RoomDAO roomDAO = roomDAOProvider.get();
+            Room room = roomDAO.findById(id);
+            room.getPlayQueue().addAll(songs);
+            hasChanged.set(true);
         }
 
         /**
@@ -276,6 +298,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
                 messages.removeFirst();
             }
 
+            hasChanged.set(true);
             log.info("Sending message {} in room {}", chatMessage, this);
         }
 
@@ -283,21 +306,23 @@ public class RoomBackend extends AbstractLifeCycleListener {
          * Merge the changes of the instance in the database.
          */
         protected void merge() {
-            log.info("Merging changes in room {}", this);
-            performInUnitOfWork(() -> {
-                RoomDAO roomDAO = roomDAOProvider.get();
-                Room room = roomDAO.findById(id);
-                room.setChatMessages(messages.stream().map(message -> {
-                    ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.setTimestamp(message.getTimestamp());
-                    chatMessage.setAuthor(message.getAuthor());
-                    chatMessage.setMessage(message.getMessage());
-                    chatMessage.setRoom(room);
-                    return chatMessage;
-                }).collect(Collectors.toList()));
-                room.setCurrentSong(getCurrentSong());
-                return roomDAO.merge(room);
-            });
+            if(hasChanged.getAndSet(false)) {
+                log.info("Merging changes in room {}", this);
+                performInUnitOfWork(() -> {
+                    RoomDAO roomDAO = roomDAOProvider.get();
+                    Room room = roomDAO.findById(id);
+                    room.setChatMessages(messages.stream().map(message -> {
+                        ChatMessage chatMessage = new ChatMessage();
+                        chatMessage.setTimestamp(message.getTimestamp());
+                        chatMessage.setAuthor(message.getAuthor());
+                        chatMessage.setMessage(message.getMessage());
+                        chatMessage.setRoom(room);
+                        return chatMessage;
+                    }).collect(Collectors.toList()));
+                    room.setCurrentSong(getCurrentSong());
+                    return roomDAO.merge(room);
+                });
+            }
         }
 
         /**
@@ -343,6 +368,11 @@ public class RoomBackend extends AbstractLifeCycleListener {
         private final int duration;
 
         /**
+         * Last update.
+         */
+        private final AtomicLong lastUpdate;
+
+        /**
          * Song id for the song
          */
         private final int songId;
@@ -351,6 +381,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
             this.currentTime = new AtomicLong(0l);
             this.songId = song.getId();
             this.duration = song.getDuration();
+            this.lastUpdate = new AtomicLong(System.currentTimeMillis());
         }
 
         @Transactional
@@ -368,8 +399,10 @@ public class RoomBackend extends AbstractLifeCycleListener {
                 notifyObservers();
             }
             else {
-                log.debug("Incremented time for song {}", this);
-                currentTime.addAndGet(200l);
+                long now = System.currentTimeMillis();
+                long then = lastUpdate.getAndSet(now);
+//                log.debug("Incremented time for song {}", this);
+                currentTime.addAndGet(now - then);
             }
         }
 

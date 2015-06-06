@@ -176,7 +176,7 @@ public class Bootstrapper {
         song.setId(bSong.getId());
         song.setName(bSong.getName());
         song.setArtworkUrl(bSong.getArtworkUrl());
-        song.setDuration(600);
+        song.setDuration(bSong.getDuration());
         song.setSoundCloudId(bSong.getSoundCloudId());
         song.setArtist(artist);
         song.setValenceArousal(new VAVector(0,0));
