@@ -34,6 +34,11 @@ public class SongAPI {
     protected static final int MINIMUM_NUMBER_OF_POSITIVE_VOTES = 5;
 
     /**
+     * The number of songs retrieved for each classification list.
+     */
+    private static final int NUMBER_OF_CLASSIFICATION_SONGS = 5;
+
+    /**
      * The weight used to modify {@link VAVector vectors} of {@link Song songs} with a
      * classification vector.
      */
@@ -68,6 +73,13 @@ public class SongAPI {
     @Transactional
     public Song getSongById(@PathParam("id") final int id) {
         return songDAO.findById(id);
+    }
+
+    @GET
+    @Path("toclassify")
+    @Transactional
+    public List<Song> toClassify() {
+        return songDAO.listRandomsongs(NUMBER_OF_CLASSIFICATION_SONGS);
     }
 
     /**

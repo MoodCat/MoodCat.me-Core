@@ -1,4 +1,4 @@
-package me.moodcat.database;
+package me.moodcat.database.bulkInsert;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +24,7 @@ import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudExtract;
 import me.moodcat.soundcloud.SoundCloudTrack;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -35,6 +36,16 @@ import com.google.inject.persist.Transactional;
 @Singleton
 @Slf4j
 public class BulkInsertData {
+
+    /**
+     * The maximum length of the history and queue.
+     */
+    private static final int MAX_QUEUE_LENGTH = 10;
+
+    /**
+     * The minimum length of the history and queue.
+     */
+    private static final int MIN_QUEUE_LENGTH = 3;
 
     /**
      * The default [0,0] VA vector.
@@ -67,6 +78,11 @@ public class BulkInsertData {
     private final SoundCloudExtract soundCloudExtract;
 
     /**
+     * Random object, to avoid having to instantiate at every call.
+     */
+    private final Random random;
+
+    /**
      * Object to bulk insert a list of given songs into the databse.
      *
      * @param artistDAOProvider
@@ -84,6 +100,7 @@ public class BulkInsertData {
         this.songDAOProvider = songDAOProvider;
         this.roomDAOProvider = roomDAOProvider;
         soundCloudExtract = new SoundCloudExtract();
+        this.random = new Random();
     }
 
     /**
@@ -100,7 +117,10 @@ public class BulkInsertData {
         final Map<String, Artist> artistMap = new HashMap<>();
 
         final List<Integer> soundCloudIds = readSoundCloudIds();
+        int i = 0;
         for (final Integer id : soundCloudIds) {
+            i++;
+            if (i > 10) break;
             try {
                 final SoundCloudTrack track = soundCloudExtract.extract(id);
                 final Artist artist = getOrPersistArtist(track.getUser().getUsername(), artistMap);
@@ -144,16 +164,46 @@ public class BulkInsertData {
         final RoomDAO roomDAO = roomDAOProvider.get();
         final SongDAO songDAO = songDAOProvider.get();
         final List<Song> songs = songDAO.listSongs();
-        final Random random = new Random();
         for (int i = 0; i < numberOfRooms; i++) {
             final Room room = new Room();
-            room.setSong(songs.get(random.nextInt(songs.size())));
+            room.setPlayHistory(getRandomSongList(songs));
+            room.setPlayQueue(getRandomSongList(songs));
+            room.setCurrentSong(songs.get(random.nextInt(songs.size())));
             room.setName("ROOM_STUB #" + i);
-            room.setTime(0);
-            room.setPosition(i);
+            room.setVaVector(VAVector.createRandomVector());
             room.setChatMessages(Collections.<ChatMessage> emptyList());
+            room.setRepeat(true);
             roomDAO.persist(room);
         }
+    }
+
+    /**
+     * Generate a random list of random length of songs. The bounds of the length of the list are
+     * {@link BulkInsertData#MIN_QUEUE_LENGTH} and {@link BulkInsertData#MAX_QUEUE_LENGTH}.
+     *
+     * @param allSongs
+     *            a list of all songs.
+     * @return the generated list.
+     */
+    private List<Song> getRandomSongList(final List<Song> allSongs) {
+        final int queueSize = MIN_QUEUE_LENGTH
+                + random.nextInt(MAX_QUEUE_LENGTH - MIN_QUEUE_LENGTH);
+        final List<Song> songs = Lists.newArrayList();
+        for (int i = 0; i < queueSize; i++) {
+            songs.add(getRandomSong(allSongs));
+        }
+        return songs;
+    }
+
+    /**
+     * Get a single random song from the given list of songs.
+     *
+     * @param allSongs
+     *            the list of all songs.
+     * @return the random song.
+     */
+    private Song getRandomSong(final List<Song> allSongs) {
+        return allSongs.get(random.nextInt(allSongs.size()));
     }
 
     /**

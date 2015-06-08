@@ -19,7 +19,7 @@ import lombok.ToString;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * An artist composes a {@link Song#getArtist()}.
+ * An artist composes an entity that owns a {@link Song}.
  */
 @Data
 @Entity

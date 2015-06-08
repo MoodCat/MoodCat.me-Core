@@ -10,7 +10,7 @@
 					"name": "Thanks for the Memories",
 					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
 					"soundCloudId": 202330997,
-					"duration": 600
+					"duration": 300000
 				}
 			]
 		},
@@ -23,14 +23,14 @@
 					"name": "Thanks for the Base",
 					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
 					"soundCloudId": 202330997,
-					"duration": 600
+					"duration": 300000
 				},
 				{
 					"id": 3,
 					"name": "Thanks for the Base Extended",
 					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
 					"soundCloudId": 202330997,
-					"duration": 600
+					"duration": 300000
 				}
 			]
 		},

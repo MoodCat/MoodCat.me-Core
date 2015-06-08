@@ -17,7 +17,7 @@ import javax.persistence.Table;
  */
 @Data
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @EqualsAndHashCode(of = {
         "id"
 })

@@ -1,6 +1,8 @@
 package me.moodcat.api;
 
-import me.moodcat.database.controllers.ChatDAO;
+import com.google.common.collect.Lists;
+import me.moodcat.api.models.RoomModel;
+import me.moodcat.backend.RoomBackend;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -18,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,10 +27,10 @@ import static org.mockito.Mockito.when;
 public class RoomAPITest {
 
     @Mock
-    private RoomDAO roomDAO;
+    private RoomBackend chatBackend;
 
     @Mock
-    private ChatDAO chatDAO;
+    private RoomDAO roomDAO;
 
     @InjectMocks
     private RoomAPI roomAPI;
@@ -38,6 +39,12 @@ public class RoomAPITest {
 
     @Mock
     private Room oneRoom;
+
+    @Mock
+    private RoomBackend.RoomInstance oneRoomInstance;
+
+    @Mock
+    private RoomBackend.RoomInstance otherRoomInstance;
 
     @Mock
     private Room otherRoom;
@@ -53,46 +60,49 @@ public class RoomAPITest {
         roomList.add(oneRoom);
         roomList.add(otherRoom);
 
+        when(oneRoom.getId()).thenReturn(1);
+        when(oneRoom.getVaVector()).thenReturn(Mood.HAPPY.getVector());
+
+        when(otherRoom.getId()).thenReturn(2);
+        when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
+
         messagesList = new ArrayList<ChatMessage>();
         messagesList.add(message);
 
-        when(roomDAO.listRooms()).thenReturn(roomList);
-        when(roomDAO.listMessages(1)).thenReturn(messagesList);
+        mockRoom(oneRoom, oneRoomInstance);
+        mockRoom(otherRoom, otherRoomInstance);
+        when(roomDAO.listRooms()).thenReturn(Lists.newArrayList(oneRoom, otherRoom));
+    }
 
-        when(oneRoom.getArousal()).thenReturn(Mood.HAPPY.getVector().getArousal());
-        when(oneRoom.getValence()).thenReturn(Mood.HAPPY.getVector().getValence());
-        when(oneRoom.getId()).thenReturn(1);
-        when(roomDAO.findById(1)).thenReturn(oneRoom);
+    private void mockRoom(Room room, RoomBackend.RoomInstance roomInstance) {
+//        when(roomInstance.getRoom()).thenReturn(room);
+        when(chatBackend.getRoomInstance(room.getId())).thenReturn(roomInstance);
+        when(roomInstance.getMessages()).thenReturn(messagesList);
+//        when(roomInstance.getRoom()).thenReturn(room);
 
-        when(otherRoom.getArousal()).thenReturn(Mood.ANGRY.getVector().getArousal());
-        when(otherRoom.getValence()).thenReturn(Mood.ANGRY.getVector().getValence());
-        when(otherRoom.getId()).thenReturn(2);
-        when(roomDAO.findById(2)).thenReturn(otherRoom);
     }
 
     @Test
     public void retrieveNearestRoomsContainsOneRoom() {
         final List<String> moods = Arrays.asList("Happy");
 
-        final List<Room> result = this.roomAPI.getRooms(moods, 1);
+        final List<RoomModel> result = this.roomAPI.getRooms(moods, 1);
 
         assertEquals(1, result.size());
-        assertTrue(result.contains(oneRoom));
     }
 
     @Test
     public void retrieveNearestRoomsIsSorted() {
         final List<String> moods = Arrays.asList("Exciting");
 
-        final List<Room> result = this.roomAPI.getRooms(moods, 2);
+        final List<RoomModel> result = this.roomAPI.getRooms(moods, 2);
 
-        assertEquals(oneRoom, result.get(0));
-        assertEquals(otherRoom, result.get(1));
+        assertEquals(RoomAPI.transform(oneRoomInstance), result.get(0));
     }
 
     @Test
     public void retrieveCorrectRoom() {
-        assertEquals(oneRoom, this.roomAPI.getRoom(1));
+        assertEquals(RoomAPI.transform(oneRoomInstance), this.roomAPI.getRoom(1));
     }
 
     @Test
@@ -104,7 +114,6 @@ public class RoomAPITest {
     public void storeMessagePersistsDatabase() {
         this.roomAPI.postChatMessage(message, 1);
 
-        verify(chatDAO).persist(message);
-        assertEquals(oneRoom, message.getRoom());
+        verify(chatBackend.getRoomInstance(1)).sendMessage(message);
     }
 }

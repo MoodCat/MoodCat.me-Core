@@ -1,7 +1,9 @@
-package me.moodcat.database;
+package me.moodcat.database.bulkInsert;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+
+import me.moodcat.database.DbModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -18,7 +20,7 @@ public class BulkInsertApp {
     /**
      * The port the bulk insert server runs on.
      */
-    private static final int NUMBER_OF_ROOMS = 5;
+    private static final int NUMBER_OF_ROOMS = 10;
 
     /**
      * The main method, will clear and fill the database.

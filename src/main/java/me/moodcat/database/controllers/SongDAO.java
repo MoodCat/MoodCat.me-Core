@@ -33,6 +33,25 @@ public class SongDAO extends AbstractDAO<Song> {
     }
 
     /**
+     * Retrieve random unclassified songs from the database.
+     *
+     * @param limit
+     *            The number of songs to retrieve.
+     * @return A list of random songs.
+     */
+    @SuppressWarnings("unchecked")
+    @Transactional
+    public List<Song> listRandomsongs(final int limit) {
+        // QueryDSL does not support random ordering, so we have to make a custom native query.
+        return this
+                .getManager()
+                .createNativeQuery(
+                        "SELECT * FROM song WHERE arousal = 0"
+                                + " AND valence = 0 ORDER BY RANDOM() LIMIT " + limit, Song.class)
+                .getResultList();
+    }
+
+    /**
      * Get a song by name.
      *
      * @param name

@@ -181,10 +181,9 @@ public class Bootstrapper {
         Room room = new Room();
         room.setId(bRoom.getId());
         room.setName(bRoom.getName());
-        room.setTime(bRoom.getTime());
-        room.setPosition(bRoom.getPosition());
         room.setChatMessages(Collections.<ChatMessage> emptyList());
-        room.setSong(persistedSongs.get(bRoom.getSongId()));
+        room.setCurrentSong(persistedSongs.get(bRoom.getSongId()));
+        room.setVaVector(room.getCurrentSong().getValenceArousal());
         Room persistedRoom = roomDAO.merge(room);
         bRoom.getMessages().forEach(bSong -> createChatMessage(bSong, persistedRoom));
         persistedRooms.put(bRoom.getId(), persistedRoom);
@@ -207,7 +206,7 @@ public class Bootstrapper {
         song.setId(bSong.getId());
         song.setName(bSong.getName());
         song.setArtworkUrl(bSong.getArtworkUrl());
-        song.setDuration(600);
+        song.setDuration(bSong.getDuration());
         song.setSoundCloudId(bSong.getSoundCloudId());
         song.setArtist(artist);
         song.setValenceArousal(new VAVector(0,0));

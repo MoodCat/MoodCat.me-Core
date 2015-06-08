@@ -5,7 +5,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import datastructures.dataholders.Pair;
-import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
@@ -26,6 +25,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import me.moodcat.api.models.NowPlaying;
+import me.moodcat.api.models.RoomModel;
+import me.moodcat.api.models.SongModel;
+import me.moodcat.backend.RoomBackend;
+import me.moodcat.backend.RoomBackend.RoomInstance;
+import me.moodcat.database.entities.Song;
+
 /**
  * The API for the room.
  */
@@ -39,20 +45,20 @@ public class RoomAPI {
     private static final int SECOND_OF_MILISECONDS = 1000;
 
     /**
-     * The DAO of the room.
+     * The backend of the room.
+     */
+    private final RoomBackend backend;
+
+    /**
+     * The database access object for the rooms.
      */
     private final RoomDAO roomDAO;
 
-    /**
-     * Access to the chat DAO.
-     */
-    private final ChatDAO chatDAO;
-
     @Inject
     @VisibleForTesting
-    public RoomAPI(final RoomDAO roomDAO, final ChatDAO chatDAO) {
+    public RoomAPI(final RoomBackend backend, final RoomDAO roomDAO) {
+        this.backend = backend;
         this.roomDAO = roomDAO;
-        this.chatDAO = chatDAO;
     }
 
     /**
@@ -66,13 +72,12 @@ public class RoomAPI {
      */
     @GET
     @Transactional
-    public List<Room> getRooms(@QueryParam("mood") final List<String> moods,
+    public List<RoomModel> getRooms(@QueryParam("mood") final List<String> moods,
             @QueryParam("limit") @DefaultValue("25") final int limit) {
         final VAVector targetVector = Mood.createTargetVector(moods);
 
         final Room idealroom = new Room();
-        idealroom.setArousal(targetVector.getArousal());
-        idealroom.setValence(targetVector.getValence());
+        idealroom.setVaVector(targetVector);
 
         final List<Room> allRooms = roomDAO.listRooms();
 
@@ -82,8 +87,33 @@ public class RoomAPI {
                 idealroom);
 
         return knearestResult.stream()
-                .map(neighbour -> neighbour.getRight())
+                .map(Pair::getRight)
+                .map(this::resolveRoomInstance)
+                .map(RoomAPI::transform)
                 .collect(Collectors.toList());
+    }
+
+    private RoomBackend.RoomInstance resolveRoomInstance(final Room room) {
+        return backend.getRoomInstance(room.getId());
+    }
+
+    /**
+     * Transform a {@link RoomInstance} into a roommodel.
+     *
+     * @param roomInstance
+     *            The instance to create a roommodel from.
+     * @return The roommodel that represents the roominstance.
+     */
+    @Transactional
+    public static RoomModel transform(final RoomBackend.RoomInstance roomInstance) {
+        final RoomModel roomModel = new RoomModel();
+        final SongModel songModel = SongModel.transform(roomInstance.getCurrentSong());
+        final NowPlaying nowPlaying = new NowPlaying(roomInstance.getCurrentTime(), songModel);
+
+        roomModel.setId(roomInstance.getId());
+        roomModel.setName(roomInstance.getName());
+        roomModel.setNowPlaying(nowPlaying);
+        return roomModel;
     }
 
     /**
@@ -97,9 +127,8 @@ public class RoomAPI {
      */
     @GET
     @Path("{id}")
-    @Transactional
-    public Room getRoom(@PathParam("id") final int roomId) {
-        return roomDAO.findById(roomId);
+    public RoomModel getRoom(@PathParam("id") final int roomId) {
+        return transform(backend.getRoomInstance(roomId));
     }
 
     /**
@@ -111,9 +140,8 @@ public class RoomAPI {
      */
     @GET
     @Path("{id}/messages")
-    @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
-        return roomDAO.listMessages(roomId);
+        return backend.getRoomInstance(roomId).getMessages();
     }
 
     /**
@@ -121,21 +149,39 @@ public class RoomAPI {
      *
      * @param msg
      *            The message to post.
-     * @param id
+     * @param roomId
      *            The id of the room.
      * @return The chatmessage if storage was succesful.
      */
     @POST
     @Path("{id}/messages")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
-    public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int id) {
-        msg.setRoom(roomDAO.findById(id));
+    public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int roomId) {
+        final RoomBackend.RoomInstance roomInstance = backend.getRoomInstance(roomId);
         msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
-
-        chatDAO.persist(msg);
+        roomInstance.sendMessage(msg);
         return msg;
+    }
+
+    /**
+     * Retrieve whats playing now.
+     * 
+     * @param roomId
+     *            The id of the room.
+     * @return
+     *         Whats currently playing in the room
+     */
+    @GET
+    @Path("{id}/now-playing")
+    @Transactional
+    public NowPlaying getCurrentTime(@PathParam("id") final int roomId) {
+        final RoomInstance roomInstance = backend.getRoomInstance(roomId);
+        final Song song = roomInstance.getCurrentSong();
+
+        final NowPlaying nowPlaying = new NowPlaying();
+        nowPlaying.setSong(SongModel.transform(song));
+        nowPlaying.setTime(roomInstance.getCurrentTime());
+        return nowPlaying;
     }
 
 }

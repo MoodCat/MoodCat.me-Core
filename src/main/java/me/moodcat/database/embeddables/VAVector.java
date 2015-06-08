@@ -1,6 +1,7 @@
 package me.moodcat.database.embeddables;
 
 import java.util.List;
+import java.util.Random;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -17,6 +18,11 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @NoArgsConstructor
 public class VAVector {
+
+    /**
+     * The zero vector.
+     */
+    public static final VAVector ZERO = new VAVector(0.0, 0.0);
 
     /**
      * The valence in the range of [-1, 1]. It is the first dimension of this vector.
@@ -131,7 +137,7 @@ public class VAVector {
      * @return The length of this vector.
      */
     public double length() {
-        return this.distance(new VAVector(0.0, 0.0));
+        return this.distance(ZERO);
     }
 
     /**
@@ -145,12 +151,24 @@ public class VAVector {
         final Counter counter = new Counter();
 
         final VAVector average = vectors.stream()
-                .reduce(new VAVector(0.0, 0.0), (one, other) -> {
+                .reduce(ZERO, (one, other) -> {
                     counter.increment();
                     return one.add(other);
                 });
 
         return counter.average(average);
+    }
+
+    /**
+     * Create a {@link VAVector} with random valence and arousal values.
+     *
+     * @return the random vector.
+     */
+    public static VAVector createRandomVector() {
+        Random random = new Random();
+        double valence = 2 * random.nextDouble() - 1d;
+        double arousal = 2 * random.nextDouble() - 1d;
+        return new VAVector(valence, arousal);
     }
 
     /**
@@ -176,7 +194,7 @@ public class VAVector {
                 return vector.multiply(1.0 / counter);
             }
 
-            return new VAVector(0.0, 0.0);
+            return ZERO;
         }
     }
 }
