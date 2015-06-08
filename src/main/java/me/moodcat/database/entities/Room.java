@@ -62,7 +62,7 @@ public class Room {
     /**
      * Songs to be played.
      */
-    @ManyToMany(fetch = EAGER)
+    @ManyToMany(fetch = EAGER, cascade = ALL)
     @JoinTable(name = "room_play_queue", joinColumns = {
             @JoinColumn(name = "room_id", referencedColumnName = "id")
     }, inverseJoinColumns = {
@@ -79,7 +79,7 @@ public class Room {
     /**
      * The songs recently played in the roomProvider&lt;ChatDAO&gt; chatDAOProvider.
      */
-    @ManyToMany(fetch = LAZY)
+    @ManyToMany(fetch = LAZY, cascade = ALL)
     @JoinTable(name = "room_play_history", joinColumns = {
             @JoinColumn(name = "room_id", referencedColumnName = "id")
     }, inverseJoinColumns = {

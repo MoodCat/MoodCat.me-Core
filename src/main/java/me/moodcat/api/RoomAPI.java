@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
 import me.moodcat.backend.RoomBackend;
@@ -23,6 +24,7 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Room.RoomDistanceMetric;
+import me.moodcat.database.entities.Song;
 import me.moodcat.mood.Mood;
 import algorithms.KNearestNeighbours;
 
@@ -99,17 +101,20 @@ public class RoomAPI {
 
     /**
      * Transform a {@link RoomInstance} into a roommodel.
-     * 
+     *
      * @param roomInstance
      *            The instance to create a roommodel from.
      * @return The roommodel that represents the roominstance.
      */
+    @Transactional
     public static RoomModel transform(final RoomBackend.RoomInstance roomInstance) {
         final RoomModel roomModel = new RoomModel();
-        roomModel.setId(roomInstance.getRoom().getId());
+        final SongModel songModel = SongModel.transform(roomInstance.getCurrentSong());
+        final NowPlaying nowPlaying = new NowPlaying(roomInstance.getCurrentTime(), songModel);
+
+        roomModel.setId(roomInstance.getId());
         roomModel.setName(roomInstance.getName());
-        roomModel.setSong(SongModel.transform(roomInstance.getCurrentSong()));
-        roomModel.setTime(roomInstance.getCurrentTime());
+        roomModel.setNowPlaying(nowPlaying);
         return roomModel;
     }
 
@@ -124,7 +129,6 @@ public class RoomAPI {
      */
     @GET
     @Path("{id}")
-    @Transactional
     public RoomModel getRoom(@PathParam("id") final int roomId) {
         return transform(backend.getRoomInstance(roomId));
     }
@@ -138,7 +142,6 @@ public class RoomAPI {
      */
     @GET
     @Path("{id}/messages")
-    @Transactional
     public List<ChatMessage> getMessages(@PathParam("id") final int roomId) {
         return backend.getRoomInstance(roomId).getMessages();
     }
@@ -155,22 +158,32 @@ public class RoomAPI {
     @POST
     @Path("{id}/messages")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Transactional
     public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int roomId) {
         final RoomBackend.RoomInstance roomInstance = backend.getRoomInstance(roomId);
-        msg.setRoom(roomInstance.getRoom());
         msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
-
         roomInstance.sendMessage(msg);
         return msg;
     }
 
+    /**
+     * Retrieve whats playing now.
+     * 
+     * @param roomId
+     *            The id of the room.
+     * @return
+     *         Whats currently playing in the room
+     */
     @GET
-    @Path("{id}/time")
+    @Path("{id}/now-playing")
     @Transactional
-    public int getCurrentTime(@PathParam("id") final int roomId) {
-        return backend.getRoomInstance(roomId).getCurrentTime();
+    public NowPlaying getCurrentTime(@PathParam("id") final int roomId) {
+        final RoomInstance roomInstance = backend.getRoomInstance(roomId);
+        final Song song = roomInstance.getCurrentSong();
+
+        final NowPlaying nowPlaying = new NowPlaying();
+        nowPlaying.setSong(SongModel.transform(song));
+        nowPlaying.setTime(roomInstance.getCurrentTime());
+        return nowPlaying;
     }
 
 }

@@ -14,27 +14,43 @@ public class RoomModel {
     private Integer id;
 
     /**
-     * The current song of the room model.
-     *
-     * @param song Song for this room
-     * @return Song for this room
-     */
-    private SongModel song;
-
-    /**
      * The name of the room model.
      *
-     * @param name name for this room
+     * @param name
+     *            name for this room
      * @return name for this room
      */
     private String name;
 
     /**
-     * Song time.
+     * The song currently playing in the room.
      *
-     * @param time time for this room
-     * @return time for this room
+     * @param song
+     *            the song currently playing in the room
+     * @return the song currently playing in the room
      */
-    private Integer time;
+    private NowPlaying nowPlaying;
+
+    /**
+     * The song for the current room.
+     * 
+     * @return the song for this room
+     * @deprecated Replaced by the now playing field
+     */
+    @Deprecated
+    public SongModel getSong() {
+        return nowPlaying.getSong();
+    }
+
+    /**
+     * The time in the room.
+     * 
+     * @return the song for this room
+     * @deprecated Replaced by the now playing field
+     */
+    @Deprecated
+    public Long getTime() {
+        return nowPlaying.getTime();
+    }
 
 }

@@ -11,23 +11,21 @@ public class RoomModelTest extends EqualsHashCodeTestCase {
         super(name);
     }
 
-    private SongModel song = new SongModel();
+    private NowPlaying nowPlaying = new NowPlaying();
 
     @Override
     protected RoomModel createInstance() throws Exception {
         RoomModel model = new RoomModel();
-        model.setTime(0);
-        model.setSong(song);
         model.setName("First room");
+        model.setNowPlaying(nowPlaying);
         return model;
     }
 
     @Override
     protected Object createNotEqualInstance() throws Exception {
         RoomModel model = new RoomModel();
-        model.setTime(0);
-        model.setSong(song);
         model.setName("Second room");
+        model.setNowPlaying(nowPlaying);
         return model;
     }
 }

@@ -75,10 +75,10 @@ public class RoomAPITest {
     }
 
     private void mockRoom(Room room, RoomBackend.RoomInstance roomInstance) {
-        when(roomInstance.getRoom()).thenReturn(room);
+//        when(roomInstance.getRoom()).thenReturn(room);
         when(chatBackend.getRoomInstance(room.getId())).thenReturn(roomInstance);
         when(roomInstance.getMessages()).thenReturn(messagesList);
-        when(roomInstance.getRoom()).thenReturn(room);
+//        when(roomInstance.getRoom()).thenReturn(room);
 
     }
 
@@ -115,6 +115,5 @@ public class RoomAPITest {
         this.roomAPI.postChatMessage(message, 1);
 
         verify(chatBackend.getRoomInstance(1)).sendMessage(message);
-        assertEquals(oneRoom, message.getRoom());
     }
 }
