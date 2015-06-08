@@ -12,26 +12,28 @@ import static me.moodcat.database.entities.QUser.user;
  */
 public class UserDAO extends AbstractDAO<User> {
 
-	/**
-	 * Construct a new user data access object.
-	 *
-	 * @param entityManager current entity manager
-	 */
-	@Inject
-	public UserDAO(final EntityManager entityManager) {
-		super(entityManager);
-	}
+    /**
+     * Construct a new user data access object.
+     *
+     * @param entityManager
+     *            current entity manager
+     */
+    @Inject
+    public UserDAO(final EntityManager entityManager) {
+        super(entityManager);
+    }
 
-	/**
-	 * Find a user by its soundcloud id.
-	 *
-	 * @param soundCloudId Soundcloud id for the user
-	 * @return The user entity
-	 */
-	public User retrieveBySoundcloudId(final Integer soundCloudId) {
-		return ensureExists(query().from(user)
-			.where(user.soundcloud_id.eq(soundCloudId))
-			.singleResult(user));
-	}
+    /**
+     * Find a user by its soundcloud id.
+     *
+     * @param soundCloudId
+     *            Soundcloud id for the user
+     * @return The user entity
+     */
+    public User retrieveBySoundcloudId(final Integer soundCloudId) {
+        return ensureExists(query().from(user)
+                .where(user.soundCloudUserId.eq(soundCloudId))
+                .singleResult(user));
+    }
 
 }

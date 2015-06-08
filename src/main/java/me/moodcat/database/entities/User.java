@@ -19,49 +19,48 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "user")
 @EqualsAndHashCode(of = {
-	"id"
+        "id"
 })
 public class User {
 
-	/**
-	 * The unique id of the user.
-	 *
-	 * @param id
-	 *            The new Id to set.
-	 * @return The id of the user.
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Integer id;
+    /**
+     * The unique id of the user.
+     *
+     * @param id
+     *            The new Id to set.
+     * @return The id of the user.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-	/**
-	 * The unique id of the user.
-	 *
-	 * @param id
-	 *            The new Id to set.
-	 * @return The id of the user.
-	 */
-	@Column(name = "soundcloud_id", nullable = true, unique = true)
-	private Integer soundcloud_id;
+    /**
+     * The unique id of the user.
+     *
+     * @param id
+     *            The new Id to set.
+     * @return The id of the user.
+     */
+    @Column(name = "soundCloudUserId", nullable = true, unique = true)
+    private Integer soundCloudUserId;
 
-	/**
-	 * The name of this user.
-	 *
-	 * @param name
-	 *            The name to set.
-	 * @return The name of this user.
-	 */
-	@Column(name = "name", nullable = false, unique = true)
-	private String name;
+    /**
+     * The name of this user.
+     *
+     * @param name
+     *            The name to set.
+     * @return The name of this user.
+     */
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
 
-	/**
-	 * Soundcloud OAuth access token.
-	 *
-	 * See: https://developers.soundcloud.com/docs/api/reference#token
-	 */
-	@Basic(fetch = FetchType.LAZY)
-	@Column(name = "access_token", nullable = true)
-	private String accessToken;
+    /**
+     * SoundCloud OAuth access token.
+     * See: https://developers.soundcloud.com/docs/api/reference#token
+     */
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "access_token", nullable = true)
+    private String accessToken;
 
 }
