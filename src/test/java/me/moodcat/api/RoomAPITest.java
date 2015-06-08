@@ -115,6 +115,5 @@ public class RoomAPITest {
         this.roomAPI.postChatMessage(message, 1);
 
         verify(chatBackend.getRoomInstance(1)).sendMessage(message);
-        assertEquals(oneRoom, message.getRoom());
     }
 }

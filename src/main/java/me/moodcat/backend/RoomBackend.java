@@ -1,5 +1,6 @@
 package me.moodcat.backend;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -66,11 +67,6 @@ public class RoomBackend extends AbstractLifeCycleListener {
     private final Provider<SongDAO> songDAOProvider;
 
     /**
-     * The chat DAO provider.
-     */
-    private Provider<ChatDAO> chatDAOProvider;
-
-    /**
      * The CallableInUnitOfWorkFactory which is used to perform large tasks in the background.
      */
     private final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory;
@@ -92,7 +88,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
             final Provider<ChatDAO> chatDAOProvider,
             final LifeCycle lifeCycle) {
         this(roomDAOProvider, songDAOProvider, callableInUnitOfWorkFactory, Executors
-                .newScheduledThreadPool(THREAD_POOL_SIZE), chatDAOProvider);
+                .newScheduledThreadPool(THREAD_POOL_SIZE));
         // Add this as lifecycle listener
         lifeCycle.addLifeCycleListener(this);
     }
@@ -106,18 +102,14 @@ public class RoomBackend extends AbstractLifeCycleListener {
      *            The factory that can create UnitOfWorks.
      * @param executorService
      *            The executor service to run multi-threaded.
-     * @param chatDAOProvider
-     *            The provider for the ChatDAO.
      */
     protected RoomBackend(final Provider<RoomDAO> roomDAOProvider,
             final Provider<SongDAO> songDAOProvider,
             final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
-            final ScheduledExecutorService executorService,
-            final Provider<ChatDAO> chatDAOProvider) {
+            final ScheduledExecutorService executorService) {
         this.executorService = executorService;
         this.songDAOProvider = songDAOProvider;
         this.roomDAOProvider = roomDAOProvider;
-        this.chatDAOProvider = chatDAOProvider;
         this.callableInUnitOfWorkFactory = callableInUnitOfWorkFactory;
         this.roomInstances = Maps.newTreeMap();
     }
@@ -161,6 +153,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
 
     @SneakyThrows
     protected <V> V performInUnitOfWork(final Callable<V> callable) {
+        assert callable != null;
         final Callable<V> inUnitOfWork = callableInUnitOfWorkFactory.create(callable);
         return executorService.submit(inUnitOfWork).get();
     }
@@ -214,6 +207,8 @@ public class RoomBackend extends AbstractLifeCycleListener {
          *            the room used to create the roomInstance.
          */
         public RoomInstance(final Room room) {
+            Preconditions.checkNotNull(room);
+
             this.id = room.getId();
             this.name = room.getName();
             this.messages = new LinkedList<ChatMessage>(room.getChatMessages());
@@ -228,34 +223,30 @@ public class RoomBackend extends AbstractLifeCycleListener {
 
         @Transactional
         public void playNext() {
-            RoomDAO roomDAO = roomDAOProvider.get();
-            Room room = roomDAO.findById(id);
-            room.getPlayHistory().add(room.getCurrentSong());
+            final RoomDAO roomDAO = roomDAOProvider.get();
+            final Room room = roomDAO.findById(id);
+            final List<Song> history = room.getPlayHistory();
+            final Song previousSong = room.getCurrentSong();
+
+            if(previousSong == null) {
+                throw new IllegalStateException("Room should be playing a song");
+            }
+
+            history.add(previousSong);
 
             List<Song> playQueue = room.getPlayQueue();
-            if(!playQueue.isEmpty()) {
-                playNext(playQueue.remove(0));
+            if(playQueue.isEmpty()) {
+                playQueue.addAll(history);
             }
 
-            List<Song> playHistory = room.getPlayHistory();
-            if(room.isRepeat()) {
-                if(!playHistory.isEmpty()) {
-                    playNext(playHistory.remove(0));
-                }
-                else {
-                    playNext(currentSong.get().getSong());
-                }
-            }
-            else {
-                playNext(currentSong.get().getSong());
-            }
-
+            playNext(playQueue.remove(0));
             hasChanged.set(true);
             roomDAO.merge(room);
         }
 
         @Transactional
         protected void playNext(Song song) {
+            assert song != null;
             final SongInstance songInstance = new SongInstance(song);
             currentSong.set(songInstance);
             log.info("Room {} now playing {}", this.id, song);
@@ -269,6 +260,8 @@ public class RoomBackend extends AbstractLifeCycleListener {
 
         @Transactional
         public void queue(Collection<Song> songs) {
+            Preconditions.checkNotNull(songs);
+
             RoomDAO roomDAO = roomDAOProvider.get();
             Room room = roomDAO.findById(id);
             room.getPlayQueue().addAll(songs);
@@ -290,6 +283,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
          *            the message to send.
          */
         public void sendMessage(final ChatMessage chatMessage) {
+            Preconditions.checkNotNull(chatMessage);
             chatMessage.setTimestamp(System.currentTimeMillis());
 
             messages.addLast(chatMessage);
@@ -355,6 +349,10 @@ public class RoomBackend extends AbstractLifeCycleListener {
 
     }
 
+    /**
+     * A song that is currently playing in a room.
+     *
+     */
     public class SongInstance extends Observable {
 
         /**
@@ -378,6 +376,8 @@ public class RoomBackend extends AbstractLifeCycleListener {
         private final int songId;
 
         public SongInstance(Song song) {
+            Preconditions.checkNotNull(song);
+
             this.currentTime = new AtomicLong(0l);
             this.songId = song.getId();
             this.duration = song.getDuration();

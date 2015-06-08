@@ -5,6 +5,8 @@ import com.google.inject.Provider;
 import me.moodcat.backend.RoomBackend.RoomInstance;
 import me.moodcat.database.controllers.ChatDAO;
 import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -20,8 +22,10 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -31,22 +35,23 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RoomBackendTest {
+public class RoomBackendTest extends BackendTest {
 
     @Mock
     private Provider<RoomDAO> roomDAOProvider;
 
     @Mock
-    private Provider<ChatDAO> chatDAOProvider;
+    private Provider<SongDAO> songDAOProvider;
 
     @Mock
     private RoomDAO roomDAO;
 
     @Mock
-    private ChatDAO chatDAO;
+    private SongDAO songDAO;
 
     @Spy
     private Room room;
@@ -64,20 +69,17 @@ public class RoomBackendTest {
 
     private RoomBackend roomBackend;
 
-    @Mock
-    private ChatMessage chatMessage;
-
     private ArrayList<ChatMessage> messages;
 
     private List<Song> songHistory;
 
     private List<Song> songFuture;
 
-    @Mock
-    private Song song1;
+    private ChatMessage chatMessage = createChatMessage();
 
-    @Mock
-    private Song song2;
+    private Song song1 = createSong(1);
+
+    private Song song2 = createSong(2);
 
     @Before
     public void setUp() {
@@ -93,23 +95,24 @@ public class RoomBackendTest {
         songFuture = Lists.newArrayList();
         songFuture.add(song2);
 
-        when(song1.getDuration()).thenReturn(1000);
-
         when(room.getId()).thenReturn(1);
         when(room.getChatMessages()).thenReturn(messages);
         when(room.getPlayHistory()).thenReturn(songHistory);
         when(room.getPlayQueue()).thenReturn(songFuture);
 
         when(roomDAOProvider.get()).thenReturn(roomDAO);
-        when(chatDAOProvider.get()).thenReturn(chatDAO);
+        when(songDAOProvider.get()).thenReturn(songDAO);
 
         when(roomDAO.listRooms()).thenReturn(rooms);
+        when(roomDAO.findById(room.getId())).thenReturn(room);
 
         when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(invocationOnMock ->
                 invocationOnMock.getArgumentAt(0, Callable.class));
 
-//        roomBackend = new RoomBackend(roomDAOProvider, unitOfWorkFactory,
-//                new MockedExecutorService(4), chatDAOProvider);
+        roomBackend = new RoomBackend(roomDAOProvider, songDAOProvider, unitOfWorkFactory,
+                new MockedExecutorService(4));
+
+        roomBackend.initializeRooms();
     }
 
     @Test
@@ -139,6 +142,7 @@ public class RoomBackendTest {
 
         final Song song = room.getCurrentSong();
         instance.playNext();
+        instance.merge();
 
         assertNotEquals(song, room.getCurrentSong());
     }
@@ -151,22 +155,9 @@ public class RoomBackendTest {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
 
         instance.playNext();
+        instance.merge();
 
         assertNotEquals(room.getPlayHistory(), room.getPlayQueue());
-    }
-
-    @Test
-    public void playSongDoesNotContinueWhenNoHistoryOrFuture() {
-        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
-        when(room.getPlayHistory()).thenReturn(Lists.newArrayList());
-        when(room.getCurrentSong()).thenReturn(null);
-        room.setRepeat(true);
-
-        final RoomInstance instance = roomBackend.getRoomInstance(1);
-
-        instance.playNext();
-
-        assertNull(instance.getCurrentSong());
     }
 
     static class MockedExecutorService extends ScheduledThreadPoolExecutor {
