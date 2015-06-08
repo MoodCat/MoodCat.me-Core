@@ -20,7 +20,7 @@ public class BulkInsertApp {
     /**
      * The port the bulk insert server runs on.
      */
-    private static final int NUMBER_OF_ROOMS = 5;
+    private static final int NUMBER_OF_ROOMS = 10;
 
     /**
      * The main method, will clear and fill the database.

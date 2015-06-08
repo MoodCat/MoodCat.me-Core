@@ -319,7 +319,7 @@ public class RoomBackend extends AbstractLifeCycleListener {
                     room.setChatMessages(messages.stream().map(message -> {
                         final ChatMessage chatMessage = new ChatMessage();
                         chatMessage.setTimestamp(message.getTimestamp());
-                        chatMessage.setAuthor(message.getAuthor());
+                        chatMessage.setUser(message.getUser());
                         chatMessage.setMessage(message.getMessage());
                         chatMessage.setRoom(room);
                         return chatMessage;

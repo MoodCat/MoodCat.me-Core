@@ -3,6 +3,7 @@ package me.moodcat.backend;
 import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -16,7 +17,9 @@ public abstract class BackendTest {
 
     protected static ChatMessage createChatMessage() {
         final ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setAuthor(randomString());
+        User user = new User();
+        user.setName(randomString());
+        chatMessage.setUser(user);
         chatMessage.setMessage(randomString());
         chatMessage.setTimestamp(System.currentTimeMillis());
         return chatMessage;
