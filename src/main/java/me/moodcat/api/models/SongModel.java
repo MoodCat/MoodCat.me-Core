@@ -66,6 +66,12 @@ public class SongModel {
      */
     private String artworkUrl;
 
+    @Deprecated
+    private double valence;
+
+    @Deprecated
+    private double arousal;
+
     /**
      * Transform a database {@link Song} into a {@code SongModel}.
      *
@@ -84,6 +90,8 @@ public class SongModel {
         songModel.setArtworkUrl(song.getArtworkUrl());
         songModel.setDuration(song.getDuration());
         songModel.setSoundCloudId(song.getSoundCloudId());
+        songModel.setValence(song.getValenceArousal().getValence());
+        songModel.setArousal(song.getValenceArousal().getArousal());
         return songModel;
     }
 

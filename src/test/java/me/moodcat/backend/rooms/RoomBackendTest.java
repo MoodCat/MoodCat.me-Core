@@ -19,6 +19,7 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,5 +146,5 @@ public class RoomBackendTest extends BackendTest {
 
         assertNotEquals(room.getPlayHistory(), room.getPlayQueue());
     }
-
+    
 }

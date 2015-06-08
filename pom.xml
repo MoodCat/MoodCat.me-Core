@@ -72,13 +72,20 @@
 		<lombok.version>1.16.4</lombok.version>
 		<mockito.version>1.10.19</mockito.version>
 		<pmd.version>3.4</pmd.version>
-		<querydsl.version>3.6.0</querydsl.version>
+		<querydsl.version>3.6.4</querydsl.version>
 		<recommendation-library.version>2.0.0</recommendation-library.version>
 		<resteasy.version>3.0.11.Final</resteasy.version>
 		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
 
 	<repositories>
+		<repository>
+			<id>central</id>
+			<url>https://repo1.maven.org/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 		<!-- We have to use the devhub repository in order to obtain the hosted 
 			Recommendation-Library for the dependency chain. -->
 		<repository>
@@ -91,6 +98,20 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<!-- repository for hibernate spatial -->
+		<repository>
+			<id>Hibernate Spatial repo</id>
+			<url>http://www.hibernatespatial.org/repository</url>
+		</repository>
+		<!-- repository for h2 geo (spatial) -->
+		<repository>
+			<id>boundless</id>
+			<url>http://repo.boundlessgeo.com/main</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</releases>
 		</repository>
 	</repositories>
 
@@ -170,6 +191,7 @@
 			<version>${slf4j.version}</version>
 		</dependency>
 
+		<!-- testing -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -192,6 +214,12 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -226,15 +254,36 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-spatial</artifactId>
+			<version>4.3</version>
+		</dependency>
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.187</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.opengeo</groupId>
+			<artifactId>geodb</artifactId>
+			<version>0.8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mysema.querydsl</groupId>
+			<artifactId>querydsl-spatial</artifactId>
+			<version>${querydsl.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>9.4-1201-jdbc41</version>
+		</dependency>
+		<dependency>
+			<groupId>org.postgis</groupId>
+			<artifactId>postgis-jdbc</artifactId>
+			<version>1.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -257,18 +306,10 @@
 			<version>${resteasy.version}</version>
 		</dependency>
 
-		<!-- This dependency is needed in order to let JavaDoc not throw an exception 
-			on the @Transactional annotation. -->
 		<dependency>
 			<groupId>javax.interceptor</groupId>
 			<artifactId>javax.interceptor-api</artifactId>
 			<version>1.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-all</artifactId>
-			<version>1.3</version>
 		</dependency>
 	</dependencies>
 
@@ -295,8 +336,8 @@
 
 			<plugin>
 				<groupId>com.mysema.maven</groupId>
-				<artifactId>maven-apt-plugin</artifactId>
-				<version>1.0.4</version>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.1.3</version>
 				<executions>
 					<execution>
 						<goals>
@@ -305,6 +346,7 @@
 						<configuration>
 							<outputDirectory>target/metamodel</outputDirectory>
 							<processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+							<spatial>true</spatial>
 						</configuration>
 					</execution>
 				</executions>
@@ -434,6 +476,7 @@
 					</archive>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 
