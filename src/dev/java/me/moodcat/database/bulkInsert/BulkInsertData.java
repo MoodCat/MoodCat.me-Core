@@ -224,6 +224,8 @@ public class BulkInsertData {
         song.setSoundCloudId(id);
         song.setDuration(track.getDuration());
         song.setArtist(artist);
+        song.setPurchaseTitle(track.getPurchaseTitle());
+        song.setPurchaseUrl(track.getPurchaseUrl());
         song.setArtworkUrl(track.getArtworkUrl());
         song.setValenceArousal(vector);
         return song;

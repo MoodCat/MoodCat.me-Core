@@ -91,6 +91,26 @@ public class Song {
     @Column(name = "artworkUrl")
     private String artworkUrl;
 
+   /**
+     * The purchase link of the song.
+     *
+     * @param purchaseUrl
+     *            The new purchaseUrl to set.
+     * @return The url to the purchase link.
+     */
+    @Column(name = "purchaseUrl")
+    private String purchaseUrl;
+
+   /**
+     * The purchase title of the song.
+     *
+     * @param purchaseTitle
+     *            The new purchaseTitle to set.
+     * @return The title of the purchase link.
+     */
+    @Column(name = "purchaseTitle")
+    private String purchaseTitle;
+
     /**
      * The valence and arousal vector of this song.
      *

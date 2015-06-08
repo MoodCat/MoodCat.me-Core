@@ -73,6 +73,24 @@ public class SongModel {
     private double arousal;
 
     /**
+     * The link to the site to purchase the song.
+     *
+     * @param purchaseUrl
+     *          The new purchaseURL to set.
+     * @return The url to the artwork image.
+     */
+    private String purchaseUrl;
+
+    /**
+     * The title of the purchase URL.
+     *
+     * @param purchaseTitle
+     *          The new purchase title to set.
+     * @return The purchase title.
+     */
+    private String purchaseTitle;
+
+    /**
      * Transform a database {@link Song} into a {@code SongModel}.
      *
      * @param song
