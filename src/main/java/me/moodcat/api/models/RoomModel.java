@@ -16,7 +16,8 @@ public class RoomModel {
     /**
      * The name of the room model.
      *
-     * @param name name for this room
+     * @param name
+     *            name for this room
      * @return name for this room
      */
     private String name;
@@ -24,13 +25,15 @@ public class RoomModel {
     /**
      * The song currently playing in the room.
      *
-     * @param song the song currently playing in the room
+     * @param song
+     *            the song currently playing in the room
      * @return the song currently playing in the room
      */
     private NowPlaying nowPlaying;
 
     /**
-     * The song for the current room
+     * The song for the current room.
+     * 
      * @return the song for this room
      * @deprecated Replaced by the now playing field
      */
@@ -40,7 +43,8 @@ public class RoomModel {
     }
 
     /**
-     * The time in the room
+     * The time in the room.
+     * 
      * @return the song for this room
      * @deprecated Replaced by the now playing field
      */

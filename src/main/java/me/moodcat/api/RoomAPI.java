@@ -1,10 +1,19 @@
 package me.moodcat.api;
 
-import algorithms.KNearestNeighbours;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-import datastructures.dataholders.Pair;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
@@ -17,19 +26,13 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Room.RoomDistanceMetric;
 import me.moodcat.database.entities.Song;
 import me.moodcat.mood.Mood;
+import algorithms.KNearestNeighbours;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+
+import datastructures.dataholders.Pair;
 
 /**
  * The API for the room.
@@ -98,7 +101,7 @@ public class RoomAPI {
 
     /**
      * Transform a {@link RoomInstance} into a roommodel.
-     * 
+     *
      * @param roomInstance
      *            The instance to create a roommodel from.
      * @return The roommodel that represents the roominstance.
@@ -108,7 +111,7 @@ public class RoomAPI {
         final RoomModel roomModel = new RoomModel();
         final SongModel songModel = SongModel.transform(roomInstance.getCurrentSong());
         final NowPlaying nowPlaying = new NowPlaying(roomInstance.getCurrentTime(), songModel);
-        
+
         roomModel.setId(roomInstance.getId());
         roomModel.setName(roomInstance.getName());
         roomModel.setNowPlaying(nowPlaying);
@@ -163,18 +166,19 @@ public class RoomAPI {
     }
 
     /**
-     * Retrieve whats playing now
+     * Retrieve whats playing now.
+     * 
      * @param roomId
-     *          The id of the room.
+     *            The id of the room.
      * @return
-     *      Whats currently playing in the room
+     *         Whats currently playing in the room
      */
     @GET
     @Path("{id}/now-playing")
     @Transactional
     public NowPlaying getCurrentTime(@PathParam("id") final int roomId) {
-        RoomInstance roomInstance = backend.getRoomInstance(roomId);
-        Song song = roomInstance.getCurrentSong();
+        final RoomInstance roomInstance = backend.getRoomInstance(roomId);
+        final Song song = roomInstance.getCurrentSong();
 
         final NowPlaying nowPlaying = new NowPlaying();
         nowPlaying.setSong(SongModel.transform(song));

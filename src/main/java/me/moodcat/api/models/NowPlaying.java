@@ -13,9 +13,10 @@ import lombok.NoArgsConstructor;
 public class NowPlaying {
 
     /**
-     * The current time
+     * The current time.
      *
-     * @param time the current time
+     * @param time
+     *            the current time
      * @return the current time
      */
     private long time;
@@ -23,7 +24,8 @@ public class NowPlaying {
     /**
      * The current song.
      *
-     * @param song the current song
+     * @param song
+     *            the current song
      * @return the current song
      */
     private SongModel song;
