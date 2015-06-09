@@ -110,6 +110,8 @@ public class SongModel {
         songModel.setSoundCloudId(song.getSoundCloudId());
         songModel.setValence(song.getValenceArousal().getValence());
         songModel.setArousal(song.getValenceArousal().getArousal());
+        songModel.setPurchaseUrl(song.getPurchaseUrl());
+        songModel.setPurchaseTitle(song.getPurchaseTitle());
         return songModel;
     }
 
