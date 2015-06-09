@@ -3,7 +3,11 @@ package me.moodcat.backend.rooms;
 import java.util.Observable;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Song;
 
 import com.google.common.base.Preconditions;
@@ -16,9 +20,9 @@ import com.google.inject.persist.Transactional;
 public class SongInstance extends Observable {
 
     /**
-	 * 
-	 */
-	private final RoomBackend roomBackend;
+     * SongDAO provider for the context
+     */
+    private final Provider<SongDAO> songDAOProvider;
 
 	/**
      * The current time of the room's song.
@@ -43,13 +47,16 @@ public class SongInstance extends Observable {
     /**
      * Create a new song instance.
      *
+     * @param songDAOProvider
+     *            The SongDAO provider.
      * @param song
      *            The song this instance presents.
-     * @param roomBackend TODO
      */
-    public SongInstance(RoomBackend roomBackend, final Song song) {
-        this.roomBackend = roomBackend;
-		Preconditions.checkNotNull(song);
+    @AssistedInject
+    public SongInstance(final Provider<SongDAO> songDAOProvider, @Assisted final Song song) {
+		assert songDAOProvider != null;
+        Preconditions.checkNotNull(song);
+        this.songDAOProvider = songDAOProvider;
 
         this.currentTime = new AtomicLong(0L);
         this.songId = song.getId();
@@ -59,7 +66,7 @@ public class SongInstance extends Observable {
 
     @Transactional
     public Song getSong() {
-        return this.roomBackend.getSongDAO().findById(songId);
+        return this.songDAOProvider.get().findById(songId);
     }
 
     /**
