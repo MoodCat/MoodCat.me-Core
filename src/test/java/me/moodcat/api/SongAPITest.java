@@ -1,6 +1,7 @@
 package me.moodcat.api;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -107,6 +108,27 @@ public class SongAPITest {
     @Test(expected = InvalidVoteException.class)
     public void bogusVoteThrowsException() throws InvalidVoteException {
         songAPI.voteSong(SOUNCLOUD_ID, "bogus");
+    }
+    
+    @Test
+    public void canRetrieveAllSongs() {
+    	songAPI.getSongs();
+    	
+    	verify(songDAO).listSongs();
+    }
+    
+    @Test
+    public void canSupplyRandomVectorsForClassification() {
+    	songAPI.toClassify();
+    	
+    	verify(songDAO).listRandomsongs(anyInt());
+    }
+    
+    @Test
+    public void canRetrieveSongById() {
+    	songAPI.getSongById(SONG_ID);
+    	
+    	verify(songDAO).findById(SONG_ID);
     }
 
 }

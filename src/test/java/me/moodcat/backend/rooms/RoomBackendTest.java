@@ -4,13 +4,13 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import me.moodcat.backend.BackendTest;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
@@ -94,7 +94,7 @@ public class RoomBackendTest extends BackendTest {
         when(roomDAO.listRooms()).thenReturn(rooms);
         when(roomDAO.findById(room.getId())).thenReturn(room);
 
-        when(unitOfWorkSchedulingService.performInUnitOfWork(any(Callable.class))).thenAnswer(invocationOnMock ->
+        when(unitOfWorkSchedulingService.performInUnitOfWork(any())).thenAnswer(invocationOnMock ->
                 invocationOnMock.getArgumentAt(0, Callable.class).call());
 
         roomBackend = new RoomBackend(unitOfWorkSchedulingService, roomInstanceFactoryMock, roomDAOProvider);

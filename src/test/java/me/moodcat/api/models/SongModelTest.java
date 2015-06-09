@@ -17,7 +17,6 @@ public class SongModelTest {
 
         public EqualsSongModelTest(final String name) {
             super(name);
-            // TODO Auto-generated constructor stub
         }
 
         @Override

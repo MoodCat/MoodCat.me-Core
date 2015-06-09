@@ -1,14 +1,16 @@
-package me.moodcat.backend.rooms;
+package me.moodcat.backend;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.google.inject.assistedinject.FactoryProvider;
 import com.google.inject.name.Names;
+
 import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.rooms.RoomInstanceFactory;
+import me.moodcat.backend.rooms.SongInstanceFactory;
 import me.moodcat.database.DatabaseTestModule;
+
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.jukito.JukitoRunner;
@@ -18,7 +20,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 
 /**
  * Created by jwgmeligmeyling on 9-6-15.

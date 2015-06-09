@@ -149,10 +149,12 @@ public class RoomInstance {
 
         final ScheduledFuture<?> future = this.unitOfWorkSchedulingService.scheduleAtFixedRate(
                 songInstance::incrementTime, 1L, 1L, TimeUnit.SECONDS);
+        
         // Observer: Stop the increment time task when the song is finished
         songInstance.addObserver((observer, arg) -> future.cancel(false));
         // Observer: Play the next song when the song is finished
         songInstance.addObserver((observer, arg) -> playNext());
+        
         hasChanged.set(true);
     }
 
