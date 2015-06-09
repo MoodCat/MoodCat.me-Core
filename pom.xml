@@ -79,13 +79,6 @@
 	</properties>
 
 	<repositories>
-		<repository>
-			<id>central</id>
-			<url>https://repo1.maven.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
 		<!-- We have to use the devhub repository in order to obtain the hosted 
 			Recommendation-Library for the dependency chain. -->
 		<repository>
@@ -101,17 +94,15 @@
 		</repository>
 		<!-- repository for hibernate spatial -->
 		<repository>
-			<id>Hibernate Spatial repo</id>
-			<url>http://www.hibernatespatial.org/repository</url>
-		</repository>
-		<!-- repository for h2 geo (spatial) -->
-		<repository>
-			<id>boundless</id>
-			<url>http://repo.boundlessgeo.com/main</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</releases>
+			<id>thirdparty</id>
+			<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/thirdparty</url>
+                        <releases>
+                                <enabled>true</enabled>
+                                <updatePolicy>always</updatePolicy>
+                        </releases>
+                        <snapshots>
+                                <enabled>false</enabled>
+                        </snapshots>
 		</repository>
 	</repositories>
 
@@ -496,6 +487,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>2.8</version>
+				<configuration>
+					<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
 			</plugin>
 
 			<!-- JUnit report -->
