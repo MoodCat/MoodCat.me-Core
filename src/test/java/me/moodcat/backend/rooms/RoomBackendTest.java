@@ -1,4 +1,4 @@
-package me.moodcat.backend;
+package me.moodcat.backend.rooms;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -12,7 +12,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import me.moodcat.backend.RoomBackend.RoomInstance;
+import me.moodcat.backend.rooms.RoomBackend;
+import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.ChatMessage;

@@ -1,4 +1,4 @@
-package me.moodcat.backend;
+package me.moodcat.backend.rooms;
 
 import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;

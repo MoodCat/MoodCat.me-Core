@@ -1,7 +1,9 @@
 import com.google.inject.Injector;
-import me.moodcat.backend.RoomBackend;
+
+import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.core.App;
 import me.moodcat.database.bootstrapper.Bootstrapper;
+
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**

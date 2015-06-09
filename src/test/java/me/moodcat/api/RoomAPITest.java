@@ -1,12 +1,15 @@
 package me.moodcat.api;
 
 import com.google.common.collect.Lists;
+
 import me.moodcat.api.models.RoomModel;
-import me.moodcat.backend.RoomBackend;
+import me.moodcat.backend.rooms.RoomBackend;
+import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.mood.Mood;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,10 +44,10 @@ public class RoomAPITest {
     private Room oneRoom;
 
     @Mock
-    private RoomBackend.RoomInstance oneRoomInstance;
+    private RoomInstance oneRoomInstance;
 
     @Mock
-    private RoomBackend.RoomInstance otherRoomInstance;
+    private RoomInstance otherRoomInstance;
 
     @Mock
     private Room otherRoom;
@@ -74,7 +77,7 @@ public class RoomAPITest {
         when(roomDAO.listRooms()).thenReturn(Lists.newArrayList(oneRoom, otherRoom));
     }
 
-    private void mockRoom(Room room, RoomBackend.RoomInstance roomInstance) {
+    private void mockRoom(Room room, RoomInstance roomInstance) {
 //        when(roomInstance.getRoom()).thenReturn(room);
         when(chatBackend.getRoomInstance(room.getId())).thenReturn(roomInstance);
         when(roomInstance.getMessages()).thenReturn(messagesList);
