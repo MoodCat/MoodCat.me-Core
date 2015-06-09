@@ -1,4 +1,4 @@
-package me.moodcat.mood;
+package me.moodcat.api;
 
 import java.util.Arrays;
 import java.util.List;

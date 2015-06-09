@@ -1,4 +1,4 @@
-package me.moodcat.mood;
+package me.moodcat.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import me.moodcat.api.Mood;
 import me.moodcat.database.embeddables.VAVector;
 
 import org.junit.Test;

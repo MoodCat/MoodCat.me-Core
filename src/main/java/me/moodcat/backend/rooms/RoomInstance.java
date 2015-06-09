@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.Vote;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -21,6 +23,7 @@ import me.moodcat.database.entities.Song;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -94,6 +97,11 @@ public class RoomInstance {
      * Has changed flag.
      */
     private final AtomicBoolean hasChanged;
+    
+    /**
+     * The votes of the users for the current song.
+     */
+    private final Map<User, Vote> votes;
 
     /**
      * ChatRoomInstance's constructur, will create a roomInstance from a room
@@ -120,6 +128,7 @@ public class RoomInstance {
         this.roomDAOProvider = roomDAOProvider;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
         this.chatMessageFactory = chatMessageFactory;
+        this.votes = Maps.newConcurrentMap();
 
         this.id = room.getId();
         this.name = room.getName();
@@ -153,7 +162,6 @@ public class RoomInstance {
             throw new IllegalStateException("Room should be playing a song");
         }
         history.add(previousSong);
-
         final List<Song> playQueue = room.getPlayQueue();
         if (playQueue.isEmpty()) {
             playQueue.addAll(history);
@@ -162,6 +170,7 @@ public class RoomInstance {
         playNext(playQueue.remove(0));
         hasChanged.set(true);
         this.merge();
+        this.votes.clear();
     }
 
     @Transactional
@@ -289,6 +298,10 @@ public class RoomInstance {
      */
     public long getCurrentTime() {
         return this.currentSong.get().getTime();
+    }
+
+    public void addVote(User user, Vote valueOf) {
+        this.votes.put(user, valueOf);
     }
 
 }

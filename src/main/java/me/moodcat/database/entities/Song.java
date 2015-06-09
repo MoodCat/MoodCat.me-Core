@@ -15,8 +15,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import me.moodcat.database.embeddables.VAVector;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 /**
  * A song that can be played.
  */
@@ -98,33 +96,23 @@ public class Song {
      *            The new vector to set.
      * @return The valence-arousal vector of this song.
      */
-    @JsonIgnore
     @Embedded
     private VAVector valenceArousal;
 
-    /**
-     * The amount of votes received. Can become negative if more people voted it negative than
-     * positive.
-     *
-     * @param numberOfPositiveVotes
-     *            The new amount of votes to set.
-     * @return The amount of netto votes that this song received.
-     */
-    @JsonIgnore
-    private int numberOfPositiveVotes;
-
-    /**
-     * Increase {@link #numberOfPositiveVotes}.
-     */
-    public void increaseNumberOfPositiveVotes() {
-        this.numberOfPositiveVotes++;
-    }
-
-    /**
-     * Decreases {@link #numberOfPositiveVotes}.
-     */
-    public void decreaseNumberOfPositiveVotes() {
-        this.numberOfPositiveVotes--;
-    }
+//    /**
+//     * The amount of votes received. Can become negative if more people voted it negative than
+//     * positive.
+//     *
+//     * @param numberOfPositiveVotes
+//     *            The new amount of votes to set.
+//     * @return The amount of netto votes that this song received.
+//     */
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "artist", nullable = true)
+//    private List<Room> exclusions;
+//
+//    public void addExclusionRoom(final Room room) {
+//        this.getExclusions().add(room);
+//    }
 
 }

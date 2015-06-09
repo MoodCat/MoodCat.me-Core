@@ -43,7 +43,7 @@ public class UserDAO extends AbstractDAO<User> {
      *            Soundcloud id for the user
      * @return The user entity
      */
-    public User retrieveBySoundcloudId(final Integer soundCloudId) {
+    public User findBySoundcloudId(final Integer soundCloudId) {
         return ensureExists(query().from(user)
                 .where(user.soundCloudUserId.eq(soundCloudId))
                 .singleResult(user));

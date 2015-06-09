@@ -22,7 +22,6 @@ public class SongTest extends EqualsHashCodeTestCase {
         song.setId(43);
         song.setSoundCloudId(273642387);
         song.setDuration(3423);
-        song.setNumberOfPositiveVotes(5);
 
         return song;
     }
@@ -37,7 +36,6 @@ public class SongTest extends EqualsHashCodeTestCase {
         song.setId(44);
         song.setSoundCloudId(273642387);
         song.setDuration(3423);
-        song.setNumberOfPositiveVotes(5);
 
         return song;
     }

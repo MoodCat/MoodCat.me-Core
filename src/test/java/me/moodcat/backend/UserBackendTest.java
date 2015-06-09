@@ -67,7 +67,7 @@ public class UserBackendTest {
 		
 		when(meModel.getId()).thenReturn(USER_ID);
 				
-		when(userDAO.retrieveBySoundcloudId(USER_ID)).thenReturn(user);
+		when(userDAO.findBySoundcloudId(USER_ID)).thenReturn(user);
 		when(userDAO.merge(user)).thenReturn(user);
 		when(userDAO.persist(Matchers.any())).thenAnswer((invocation) -> invocation.getArgumentAt(0, User.class));
 		
@@ -90,7 +90,7 @@ public class UserBackendTest {
 	@Test
 	public void whenUserIsNotFoundCreateTheUser() {
 		when(meModel.getId()).thenReturn(ANOTHER_USER_ID);
-		when(userDAO.retrieveBySoundcloudId(ANOTHER_USER_ID)).thenThrow(new EntityNotFoundException());
+		when(userDAO.findBySoundcloudId(ANOTHER_USER_ID)).thenThrow(new EntityNotFoundException());
 		
 		assertEquals(anotherUser, userBackend.loginUsingSoundCloud(TOKEN));
 	}

@@ -5,8 +5,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import me.moodcat.mood.Mood;
-
 /**
  * The API to retrieve the moods.
  */
