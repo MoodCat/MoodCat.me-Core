@@ -73,7 +73,7 @@ public class SongInstance extends Observable {
      * Method used to increment the time of the current song by one second.
      */
     protected void incrementTime() {
-        if (isStopped()) {
+        if (isStopped() && !hasChanged()) {
             log.debug("Song {} has finished playing", this);
             setChanged();
             notifyObservers();
