@@ -7,9 +7,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.rooms.RoomBackend;
+import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.rooms.*;
 import me.moodcat.database.DbModule;
 
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -67,7 +69,14 @@ public class MoodcatServletModule extends ServletModule {
         this.bindDatabaseModule();
         this.bindAPI();
         this.bindExceptionMappers();
+
+        this.bindConstant().annotatedWith(Names.named("thread.pool.size")).to(4);
         this.bind(LifeCycle.class).toInstance(this.app.getServer());
+
+        install(new FactoryModuleBuilder().build(SongInstanceFactory.class));
+        install(new FactoryModuleBuilder().build(RoomInstanceFactory.class));
+
+        this.bind(UnitOfWorkSchedulingService.class).asEagerSingleton();
         this.bind(RoomBackend.class).asEagerSingleton();
     }
 

@@ -137,7 +137,7 @@ public class VAVector {
      * @return The length of this vector.
      */
     public double length() {
-        return this.distance(ZERO);
+        return distance(this, ZERO);
     }
 
     /**

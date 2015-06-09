@@ -2,12 +2,15 @@ package me.moodcat.api;
 
 import com.google.common.collect.Lists;
 
+import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
+import me.moodcat.api.models.SongModel;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Song;
 import me.moodcat.mood.Mood;
 
 import org.junit.Before;
@@ -29,8 +32,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RoomAPITest {
 
-    @Mock
-    private RoomBackend chatBackend;
+    private static final long PLAYING_TIME = 5000;
+
+	@Mock
+    private RoomBackend roomBackend;
 
     @Mock
     private RoomDAO roomDAO;
@@ -56,6 +61,9 @@ public class RoomAPITest {
 
     @Spy
     private ChatMessage message;
+    
+    @Spy
+    private Song song;
 
     @Before
     public void setUp() {
@@ -78,11 +86,10 @@ public class RoomAPITest {
     }
 
     private void mockRoom(Room room, RoomInstance roomInstance) {
-//        when(roomInstance.getRoom()).thenReturn(room);
-        when(chatBackend.getRoomInstance(room.getId())).thenReturn(roomInstance);
+        when(roomBackend.getRoomInstance(room.getId())).thenReturn(roomInstance);
         when(roomInstance.getMessages()).thenReturn(messagesList);
-//        when(roomInstance.getRoom()).thenReturn(room);
-
+        when(roomInstance.getCurrentSong()).thenReturn(song);
+        when(roomInstance.getCurrentTime()).thenReturn(PLAYING_TIME);
     }
 
     @Test
@@ -117,6 +124,14 @@ public class RoomAPITest {
     public void storeMessagePersistsDatabase() {
         this.roomAPI.postChatMessage(message, 1);
 
-        verify(chatBackend.getRoomInstance(1)).sendMessage(message);
+        verify(roomBackend.getRoomInstance(1)).sendMessage(message);
+    }
+    
+    @Test
+    public void canRetrieveCurrentTime() {
+    	NowPlaying playing = this.roomAPI.getCurrentTime(1);
+    	
+    	assertEquals(PLAYING_TIME, playing.getTime());
+    	assertEquals(SongModel.transform(song), playing.getSong());
     }
 }

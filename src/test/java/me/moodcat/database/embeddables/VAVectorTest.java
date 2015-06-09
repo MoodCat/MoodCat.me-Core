@@ -1,80 +1,93 @@
 package me.moodcat.database.embeddables;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import junitx.extensions.EqualsHashCodeTestCase;
 
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
 /**
  * Test to make sure {@link VAVector vectors} are elementary.
  *
  * @author JeremybellEU
  */
-public class VAVectorTest extends EqualsHashCodeTestCase {
+@RunWith(Enclosed.class)
+public class VAVectorTest {
 
-    public VAVectorTest(final String name) {
-        super(name);
-    }
+	public static class VAVectorEqualsTest extends EqualsHashCodeTestCase {
 
-    @Test
-    public void additionAndSubstractionReturnSameVector() {
-        final VAVector one = new VAVector(0.5, 0.5);
-        final VAVector other = new VAVector(0.25, 0.25);
+		public VAVectorEqualsTest(final String name) {
+			super(name);
+		}
 
-        assertEquals(one, one.add(other).subtract(other));
-    }
+		@Override
+		protected Object createInstance() throws Exception {
+			return new VAVector(0.5, 0.5);
+		}
 
-    @Test
-    public void multiplicationTwoAndSubstractionReturnSameVector() {
-        final VAVector one = new VAVector(0.5, 0.5);
-        final double scalar = 2;
+		@Override
+		protected Object createNotEqualInstance() throws Exception {
+			return new VAVector(0.5, 1.0);
+		}
+	}
 
-        assertEquals(one, one.multiply(scalar).subtract(one));
-    }
+	public static class VAVectorCalculationsTest {
 
-    @Test
-    public void multiplicationTwoDistanceIsOne() {
-        final VAVector one = new VAVector(0.5, 0.0);
-        final double scalar = 2;
+		@Test
+		public void additionAndSubstractionReturnSameVector() {
+			final VAVector one = new VAVector(0.5, 0.5);
+			final VAVector other = new VAVector(0.25, 0.25);
 
-        assertEquals(one.length(), one.distance(one.multiply(scalar)), 1E-5);
-        assertEquals(one.length(), VAVector.distance(one, one.multiply(scalar)), 1E-5);
-    }
+			assertEquals(one, one.add(other).subtract(other));
+		}
 
-    @Test
-    public void averageOfList() {
-        final VAVector one = new VAVector(0.5, 0.5);
-        final VAVector second = new VAVector(1.0, 1.0);
-        final VAVector otherOne = new VAVector(-0.5, -0.5);
-        final VAVector otherSecond = new VAVector(-1.0, -1.0);
+		@Test
+		public void multiplicationTwoAndSubstractionReturnSameVector() {
+			final VAVector one = new VAVector(0.5, 0.5);
+			final double scalar = 2;
 
-        final List<VAVector> vectors = new ArrayList<VAVector>();
-        vectors.add(one);
-        vectors.add(second);
-        vectors.add(otherOne);
-        vectors.add(otherSecond);
+			assertEquals(one, one.multiply(scalar).subtract(one));
+		}
 
-        assertEquals(new VAVector(0.0, 0.0), VAVector.average(vectors));
-    }
+		@Test
+		public void multiplicationTwoDistanceIsOne() {
+			final VAVector one = new VAVector(0.5, 0.0);
+			final double scalar = 2;
 
-    @Test
-    public void averageOfEmptyListIsZeroVector() {
-        final VAVector zero = new VAVector(0.0, 0.0);
+			assertEquals(one.length(), one.distance(one.multiply(scalar)), 1E-5);
+			assertEquals(one.length(),
+					VAVector.distance(one, one.multiply(scalar)), 1E-5);
+		}
 
-        final List<VAVector> vectors = new ArrayList<VAVector>();
+		@Test
+		public void averageOfList() {
+			final VAVector one = new VAVector(0.5, 0.5);
+			final VAVector second = new VAVector(1.0, 1.0);
+			final VAVector otherOne = new VAVector(-0.5, -0.5);
+			final VAVector otherSecond = new VAVector(-1.0, -1.0);
 
-        assertEquals(zero, VAVector.average(vectors));
-    }
+			final List<VAVector> vectors = new ArrayList<VAVector>();
+			vectors.add(one);
+			vectors.add(second);
+			vectors.add(otherOne);
+			vectors.add(otherSecond);
 
-    @Override
-    protected Object createInstance() throws Exception {
-        return new VAVector(0.5, 0.5);
-    }
+			assertEquals(new VAVector(0.0, 0.0), VAVector.average(vectors));
+		}
 
-    @Override
-    protected Object createNotEqualInstance() throws Exception {
-        return new VAVector(0.5, 1.0);
-    }
+		@Test
+		public void averageOfEmptyListIsZeroVector() {
+			final VAVector zero = new VAVector(0.0, 0.0);
+
+			final List<VAVector> vectors = new ArrayList<VAVector>();
+
+			assertEquals(zero, VAVector.average(vectors));
+		}
+	}
+
 }

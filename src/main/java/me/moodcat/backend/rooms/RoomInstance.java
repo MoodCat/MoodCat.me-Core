@@ -10,14 +10,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.google.inject.assistedinject.AssistedInject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
 import com.google.inject.persist.Transactional;
 
 /**
@@ -27,9 +31,19 @@ import com.google.inject.persist.Transactional;
 public class RoomInstance {
 
     /**
-	 * 
-	 */
-	private final RoomBackend roomBackend;
+     * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
+     */
+    private final SongInstanceFactory songInstanceFactory;
+
+    /**
+     * {@link Provider} for a {@link RoomDAO}.
+     */
+    private final Provider<RoomDAO> roomDAOProvider;
+
+    /**
+     * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work
+     */
+    private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
 	/**
      * Number of chat messages to cache for each room.
@@ -71,13 +85,23 @@ public class RoomInstance {
      * ChatRoomInstance's constructur, will create a roomInstance from a room
      * and start the timer for the current song.
      *
+     * @param songInstanceFactory
+     * @param roomDAOProvider
+     * @param unitOfWorkSchedulingService
      * @param room
      *            the room used to create the roomInstance.
-     * @param roomBackend TODO
      */
-    public RoomInstance(RoomBackend roomBackend, final Room room) {
-        this.roomBackend = roomBackend;
-		Preconditions.checkNotNull(room);
+    @AssistedInject
+    public RoomInstance(final SongInstanceFactory songInstanceFactory,
+                        final Provider<RoomDAO> roomDAOProvider,
+                        final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
+                        final @Assisted Room room) {
+
+        Preconditions.checkNotNull(room);
+
+        this.songInstanceFactory = songInstanceFactory;
+        this.roomDAOProvider = roomDAOProvider;
+        this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
 
         this.id = room.getId();
         this.name = room.getName();
@@ -96,7 +120,7 @@ public class RoomInstance {
      */
     @Transactional
     public void playNext() {
-        final RoomDAO roomDAO = this.roomBackend.roomDAOProvider.get();
+        final RoomDAO roomDAO = this.roomDAOProvider.get();
         final Room room = roomDAO.findById(id);
         final List<Song> history = room.getPlayHistory();
         final Song previousSong = room.getCurrentSong();
@@ -119,15 +143,18 @@ public class RoomInstance {
     @Transactional
     protected void playNext(final Song song) {
         assert song != null;
-        final SongInstance songInstance = new SongInstance(this.roomBackend, song);
-        currentSong.set(songInstance);
+        final SongInstance songInstance = songInstanceFactory.create(song);
+        this.currentSong.set(songInstance);
         log.info("Room {} now playing {}", this.id, song);
-        final ScheduledFuture<?> future = this.roomBackend.executorService.scheduleAtFixedRate(
+
+        final ScheduledFuture<?> future = this.unitOfWorkSchedulingService.scheduleAtFixedRate(
                 songInstance::incrementTime, 1L, 1L, TimeUnit.SECONDS);
+        
         // Observer: Stop the increment time task when the song is finished
         songInstance.addObserver((observer, arg) -> future.cancel(false));
         // Observer: Play the next song when the song is finished
         songInstance.addObserver((observer, arg) -> playNext());
+        
         hasChanged.set(true);
     }
 
@@ -141,7 +168,7 @@ public class RoomInstance {
     public void queue(final Collection<Song> songs) {
         Preconditions.checkNotNull(songs);
 
-        final RoomDAO roomDAO = this.roomBackend.roomDAOProvider.get();
+        final RoomDAO roomDAO = this.roomDAOProvider.get();
         final Room room = roomDAO.findById(id);
         room.getPlayQueue().addAll(songs);
         hasChanged.set(true);
@@ -151,7 +178,7 @@ public class RoomInstance {
      * Sync room messages to the database.
      */
     private void scheduleSyncTimer() {
-        this.roomBackend.executorService.scheduleAtFixedRate(this::merge,
+        this.unitOfWorkSchedulingService.scheduleAtFixedRate(this::merge,
                 1, 1, TimeUnit.MINUTES);
     }
 
@@ -181,14 +208,11 @@ public class RoomInstance {
     protected void merge() {
         if (hasChanged.getAndSet(false)) {
             log.info("Merging changes in room {}", this);
-            this.roomBackend.performInUnitOfWork(() -> {
-                final RoomDAO roomDAO = this.roomBackend.roomDAOProvider.get();
+            this.unitOfWorkSchedulingService.performInUnitOfWork(() -> {
+                final RoomDAO roomDAO = this.roomDAOProvider.get();
                 final Room room = roomDAO.findById(id);
                 room.setChatMessages(messages.stream().map(message -> {
-                    final ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.setTimestamp(message.getTimestamp());
-                    chatMessage.setUser(message.getUser());
-                    chatMessage.setMessage(message.getMessage());
+                    final ChatMessage chatMessage = message.clone();
                     chatMessage.setRoom(room);
                     return chatMessage;
                 }).collect(Collectors.toList()));

@@ -4,9 +4,6 @@ import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -122,43 +119,9 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
          */
         protected <T> T resolve(final String url, final Class<T> targetEntity)
                 throws SoundCloudException {
-            final Client client = SoundCloudExtract.this.createClient();
-
-            try {
-                return client.target(this.redirectLocation(url))
-                        .request()
-                        .get(targetEntity);
-            } catch (final Exception e) {
-                throw new SoundCloudException(e.getMessage(), e);
-            } finally {
-                client.close();
-            }
-        }
-
-        /**
-         * The redirection url to obtain the actual metadata of a track.
-         *
-         * @param url
-         *            The url to obtain the metadata for.
-         * @return The location of the metadata of the track.
-         * @throws SoundCloudException
-         *             If the connection failed.
-         */
-        protected String redirectLocation(final String url) throws SoundCloudException {
-            final Client client = SoundCloudExtract.this.createClient();
-            try {
-                final Response redirect = client.target(SOUNDCLOUD_API)
-                        .path("resolve.json")
-                        .queryParam("client_id", CLIENT_ID)
-                        .queryParam("url", url)
-                        .request().get();
-
-                return redirect.getHeaderString("Location");
-            } catch (final Exception e) {
-                throw new SoundCloudException(e.getMessage(), e);
-            } finally {
-                client.close();
-            }
+            return perform(url, target -> target
+                    .request()
+                    .get(targetEntity));
         }
 
         /**
@@ -178,19 +141,11 @@ public class SoundCloudExtract extends SoundCloudAPIConnector {
          */
         protected <T> T retrieve(final int id, final Class<T> targetEntity)
                 throws SoundCloudException {
-            final Client client = SoundCloudExtract.this.createClient();
-            try {
-                return client.target(SOUNDCLOUD_API)
-                        .path("tracks")
-                        .path(id + ".json")
-                        .queryParam("client_id", CLIENT_ID)
-                        .request()
-                        .get(targetEntity);
-            } catch (final Exception e) {
-                throw new SoundCloudException(e.getMessage(), e);
-            } finally {
-                client.close();
-            }
+            return perform(target -> target.path("tracks")
+                    .path(id + ".json")
+                    .queryParam("client_id", CLIENT_ID)
+                    .request()
+                    .get(targetEntity));
         }
 
     }
