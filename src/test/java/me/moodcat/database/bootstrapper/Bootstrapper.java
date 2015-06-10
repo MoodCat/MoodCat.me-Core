@@ -33,8 +33,11 @@ import java.util.Map;
 public class Bootstrapper {
 
     private final Map<Integer, Artist> persistedArtists;
+
     private final Map<Integer, Song> persistedSongs;
+
     private final Map<Integer, Room> persistedRooms;
+
     private final Map<Integer, User> persistedUsers;
 
     /**
@@ -57,8 +60,8 @@ public class Bootstrapper {
 
     @Inject
     public Bootstrapper(final ObjectMapper objectMapper, final ArtistDAO artistDAO,
-                        final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO,
-                        final UserDAO userDAO) {
+            final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO,
+            final UserDAO userDAO) {
         this.objectMapper = objectMapper;
         this.artistDAO = artistDAO;
         this.roomDAO = roomDAO;
@@ -90,6 +93,10 @@ public class Bootstrapper {
         private int id;
 
         private String username;
+
+        private int soundCloudUserId;
+
+        private Integer points;
 
     }
 
@@ -171,6 +178,8 @@ public class Bootstrapper {
         final User user = new User();
         user.setId(bUser.getId());
         user.setName(bUser.getUsername());
+        user.setSoundCloudUserId(bUser.getSoundCloudUserId());
+        user.setPoints(bUser.getPoints());
         User persistedUser = userDAO.merge(user);
         persistedUsers.put(persistedUser.getId(), persistedUser);
         log.info("Bootstrapper created user {}", persistedUser);
@@ -209,7 +218,7 @@ public class Bootstrapper {
         song.setDuration(bSong.getDuration());
         song.setSoundCloudId(bSong.getSoundCloudId());
         song.setArtist(artist);
-        song.setValenceArousal(new VAVector(0,0));
+        song.setValenceArousal(new VAVector(0, 0));
         song = songDAO.merge(song);
         persistedSongs.put(bSong.getId(), song);
         return song;
@@ -237,7 +246,9 @@ public class Bootstrapper {
 
     /**
      * Get a persisted artist
-     * @param id id for the artist
+     * 
+     * @param id
+     *            id for the artist
      * @return artist
      */
     public Artist getArtist(Integer id) {
@@ -246,7 +257,9 @@ public class Bootstrapper {
 
     /**
      * Get a persisted Room
-     * @param id id for the Room
+     * 
+     * @param id
+     *            id for the Room
      * @return Room
      */
     public Room getRoom(Integer id) {
@@ -256,7 +269,8 @@ public class Bootstrapper {
     /**
      * Get an artist
      *
-     * @param id id for the Song
+     * @param id
+     *            id for the Song
      * @return an artist
      */
     public Song getSong(Integer id) {

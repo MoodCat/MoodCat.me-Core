@@ -3,17 +3,20 @@ package me.moodcat.api;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
 
@@ -52,14 +55,25 @@ public class SongAPI {
     };
 
     /**
-     * Manager to talk to the database to obtain songs.
+     * The points a user gains when he classifies a song.
+     */
+    private static final int CLASSIFICATION_POINTS_AWARD = 6;
+
+    /**
+     * Java facade to talk to the database to obtain songs.
      */
     private final SongDAO songDAO;
 
+    /**
+     * Java facade to talk to the database for user communication.
+     */
+    private final UserDAO userDAO;
+
     @Inject
     @VisibleForTesting
-    public SongAPI(final SongDAO songDAO) {
+    public SongAPI(final SongDAO songDAO, final UserDAO userDAO) {
         this.songDAO = songDAO;
+        this.userDAO = userDAO;
     }
 
     @GET
@@ -97,7 +111,8 @@ public class SongAPI {
     @Path("{id}/classify")
     @Transactional
     public ClassificationRequest classifySong(@PathParam("id") final int id,
-            final ClassificationRequest classification) throws InvalidClassificationException {
+            final ClassificationRequest classification)
+            throws InvalidClassificationException {
         final Song song = this.songDAO.findBySoundCloudId(id);
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
@@ -106,6 +121,36 @@ public class SongAPI {
             song.setValenceArousal(adjustSongVector(classification, song));
             this.songDAO.merge(song);
         }
+
+        return classification;
+    }
+
+    /**
+     * Process a user classification game for the given songId.
+     *
+     * @param id
+     *            The id of the song.
+     * @param classification
+     *            The classification of the user for the song.
+     * @return The classification provided.
+     * @throws InvalidClassificationException
+     *             When the classification provided was invalid
+     */
+    @POST
+    @Path("{id}/classifygame")
+    @Transactional
+    public ClassificationRequest approachSong(@PathParam("id") final int id,
+            final ClassificationRequest classification,
+            @QueryParam("userid") @DefaultValue("0") final int userId)
+            throws InvalidClassificationException {
+        final Song song = this.songDAO.findBySoundCloudId(id);
+        assertDimensionIsValid(classification.getValence());
+        assertDimensionIsValid(classification.getArousal());
+
+        song.setValenceArousal(new VAVector(classification.getValence(), classification
+                .getArousal()));
+        this.songDAO.merge(song);
+        this.userDAO.incrementPoints(userId, CLASSIFICATION_POINTS_AWARD);
 
         return classification;
     }
