@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
+import me.moodcat.database.entities.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,16 +117,24 @@ public class RoomBackendTest extends BackendTest {
 
     @Test
     public void canSendMessage() {
-        final RoomInstance roomInstance = roomBackend.getRoomInstance(1);
-        roomInstance.sendMessage(chatMessage);
+        final RoomInstance instance = roomBackend.getRoomInstance(1);
 
-        assertTrue(roomInstance.getMessages().contains(chatMessage));
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1);
+
+        instance.sendMessage(chatMessage, user);
+
+        assertTrue(instance.getMessages().contains(chatMessage));
     }
 
     @Test
     public void canRetrieveMessages() {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
-        instance.sendMessage(chatMessage);
+
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1);
+
+        instance.sendMessage(chatMessage, user);
 
         assertTrue(instance.getMessages().contains(chatMessage));
     }

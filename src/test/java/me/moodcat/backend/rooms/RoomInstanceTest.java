@@ -13,6 +13,7 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
+import me.moodcat.database.entities.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +55,7 @@ public class RoomInstanceTest {
 	@Test
 	public void whenTooManyMessagesRemoveOneFromList() {
 		for (int i = 0; i < RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES + 1; i++) {
-			instance.sendMessage(mock(ChatMessageModel.class));
+			instance.sendMessage(mock(ChatMessageModel.class), mock(User.class));
 		}
 
 		assertEquals(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES, instance

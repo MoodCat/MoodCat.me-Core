@@ -23,10 +23,13 @@ import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 import me.moodcat.mood.Mood;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 
 /**
@@ -46,11 +49,18 @@ public class RoomAPI {
      */
     private final RoomDAO roomDAO;
 
+    /**
+     * Current User provider.
+     */
+    private final Provider<User> currentUserProvider;
+
     @Inject
     @VisibleForTesting
-    public RoomAPI(final RoomBackend backend, final RoomDAO roomDAO) {
+    public RoomAPI(final RoomBackend backend, final RoomDAO roomDAO,
+            @Named("current.user") final Provider<User> currentUserProvider) {
         this.backend = backend;
         this.roomDAO = roomDAO;
+        this.currentUserProvider = currentUserProvider;
     }
 
     /**
@@ -140,7 +150,7 @@ public class RoomAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public ChatMessageModel postChatMessage(final ChatMessageModel msg,
             @PathParam("id") final int roomId) {
-        return backend.getRoomInstance(roomId).sendMessage(msg);
+        return backend.getRoomInstance(roomId).sendMessage(msg, currentUserProvider.get());
     }
 
     /**

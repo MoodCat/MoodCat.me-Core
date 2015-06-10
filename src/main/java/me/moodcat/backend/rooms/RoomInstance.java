@@ -25,6 +25,7 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.persist.Transactional;
+import me.moodcat.database.entities.User;
 
 /**
  * The instance object of the rooms.
@@ -215,13 +216,13 @@ public class RoomInstance {
      * @param model
      *            the message to send.
      */
-    public ChatMessageModel sendMessage(final ChatMessageModel model) {
+    public ChatMessageModel sendMessage(final ChatMessageModel model, final User user) {
         Preconditions.checkNotNull(model);
 
         model.setId(chatMessageIdGenerator.generateId());
         model.setTimestamp(System.currentTimeMillis());
 
-        ChatMessageInstance chatMessage = new ChatMessageInstance(1, model);
+        ChatMessageInstance chatMessage = new ChatMessageInstance(user.getId(), model);
         messages.addLast(chatMessage);
 
         if (messages.size() > MAXIMAL_NUMBER_OF_CHAT_MESSAGES) {

@@ -2,6 +2,7 @@ package me.moodcat.core.mappers;
 
 import java.util.UUID;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -23,11 +24,15 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
     public Response toResponse(final T exception) {
         final UUID id = UUID.randomUUID();
         log.error(exception.getMessage() + " (" + id + ")", exception);
+        return createResponse(exception, id);
+    }
 
+    protected Response createResponse(T exception, UUID id) {
         final ExceptionResponse exceptionResponse = createResponse(exception);
         exceptionResponse.setUuid(id.toString());
 
         return Response.status(getStatusCode())
+                .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(exceptionResponse)
                 .build();
     }

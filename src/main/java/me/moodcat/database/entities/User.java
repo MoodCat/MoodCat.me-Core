@@ -56,6 +56,17 @@ public class User {
     private String name;
 
     /**
+     * The avatar of this user.
+     *
+     * @param avatarUrl
+     *            The avatar to set.
+     * @return The avatar of this user.
+     */
+    @Column(name = "avatar_url", nullable = true, unique = false, length = 255)
+    private String avatarUrl;
+
+
+    /**
      * SoundCloud OAuth access token.
      * See: https://developers.soundcloud.com/docs/api/reference#token
      */
