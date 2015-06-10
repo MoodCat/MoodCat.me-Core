@@ -1,7 +1,6 @@
 package me.moodcat.soundcloud;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
 
 import lombok.SneakyThrows;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -50,7 +49,7 @@ public abstract class SoundCloudAPIConnector {
     }
 
     /**
-     * Encode a String for URLs
+     * Encode a String for URLs.
      * 
      * @param url
      *            string to be decoded
@@ -62,31 +61,10 @@ public abstract class SoundCloudAPIConnector {
     }
 
     /**
-     * An invocation to the Soundcloud API
-     * 
-     * @param <T>
-     *            return type
-     */
-    @FunctionalInterface
-    interface Invocation<T> {
-
-        /**
-         * Perform the call to the SoundCloud API.
-         *
-         * @param webTarget
-         *            target to interact with
-         * @return response
-         * @throws Exception
-         *             any exception that occurs
-         */
-        T perform(WebTarget webTarget) throws Exception;
-    }
-
-    /**
      * Perform a Http request to the Soundcloud API.
      *
      * @param invocation
-     *            Invocation that interacts with a {@link WebTarget}.
+     *            Invocation that interacts with a {@link javax.ws.rs.client.WebTarget}.
      * @param <T>
      *            Type of response
      * @return return value of the request

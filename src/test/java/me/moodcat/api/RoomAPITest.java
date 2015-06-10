@@ -28,7 +28,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -80,7 +79,8 @@ public class RoomAPITest {
 
         when(otherRoom.getId()).thenReturn(2);
         when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
-
+        when(song.getValenceArousal()).thenReturn(Mood.HAPPY.getVector());
+        
         messagesList = new ArrayList<ChatMessage>();
         messagesList.add(message);
 

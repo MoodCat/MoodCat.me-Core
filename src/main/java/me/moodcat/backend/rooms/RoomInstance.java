@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.google.inject.assistedinject.AssistedInject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
@@ -22,6 +21,7 @@ import me.moodcat.database.entities.Song;
 import com.google.common.base.Preconditions;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.persist.Transactional;
 
 /**
@@ -29,6 +29,11 @@ import com.google.inject.persist.Transactional;
  */
 @Slf4j
 public class RoomInstance {
+
+    /**
+     * Number of chat messages to cache for each room.
+     */
+    public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
 
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
@@ -41,14 +46,9 @@ public class RoomInstance {
     private final Provider<RoomDAO> roomDAOProvider;
 
     /**
-     * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work
+     * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
-
-    /**
-     * Number of chat messages to cache for each room.
-     */
-    public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
 
     /**
      * The room index.
@@ -86,16 +86,19 @@ public class RoomInstance {
      * and start the timer for the current song.
      *
      * @param songInstanceFactory
+     *          SongInstanceFactory to create Songs.
      * @param roomDAOProvider
+     *          Provider to get RoomDAOs when in a Unit of Work.
      * @param unitOfWorkSchedulingService
+     *          Scheduling service to run tasks in a Unit of Work.
      * @param room
      *            the room used to create the roomInstance.
      */
     @AssistedInject
     public RoomInstance(final SongInstanceFactory songInstanceFactory,
-                        final Provider<RoomDAO> roomDAOProvider,
-                        final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
-                        final @Assisted Room room) {
+            final Provider<RoomDAO> roomDAOProvider,
+            final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
+            @Assisted final Room room) {
 
         Preconditions.checkNotNull(room);
 
@@ -149,12 +152,12 @@ public class RoomInstance {
 
         final ScheduledFuture<?> future = this.unitOfWorkSchedulingService.scheduleAtFixedRate(
                 songInstance::incrementTime, 1L, 1L, TimeUnit.SECONDS);
-        
+
         // Observer: Stop the increment time task when the song is finished
         songInstance.addObserver((observer, arg) -> future.cancel(false));
         // Observer: Play the next song when the song is finished
         songInstance.addObserver((observer, arg) -> playNext());
-        
+
         hasChanged.set(true);
     }
 

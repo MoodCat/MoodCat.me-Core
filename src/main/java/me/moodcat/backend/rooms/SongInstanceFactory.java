@@ -3,7 +3,7 @@ package me.moodcat.backend.rooms;
 import me.moodcat.database.entities.Song;
 
 /**
- * Helper for Guice assisted inject to create SongInstances
+ * Helper for Guice assisted inject to create SongInstances.
  */
 public interface SongInstanceFactory {
 

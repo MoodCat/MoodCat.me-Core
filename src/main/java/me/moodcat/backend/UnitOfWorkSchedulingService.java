@@ -6,8 +6,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import me.moodcat.util.CallableInUnitOfWork;
+
+import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
 import org.eclipse.jetty.util.component.LifeCycle;
 
 import com.google.inject.Inject;
@@ -15,20 +16,22 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
- * The UnitOfWorkSchedulingService can be used to schedule tasks in a {@link com.google.inject.persist.UnitOfWork}.
- * Furthermore it listens on the current {@link LifeCycle} in order to terminate the threadpool on shutdown.
- *
+ * The UnitOfWorkSchedulingService can be used to schedule tasks in a
+ * {@link com.google.inject.persist.UnitOfWork}.
+ * Furthermore it listens on the current {@link LifeCycle} in order to terminate the threadpool on
+ * shutdown.
  */
 @Slf4j
 @Singleton
-public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor implements LifeCycle.Listener {
+public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor implements
+        LifeCycle.Listener {
 
     private final CallableInUnitOfWork.CallableInUnitOfWorkFactory callableInUnitOfWorkFactory;
 
     @Inject
-    public UnitOfWorkSchedulingService(final CallableInUnitOfWork.CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
-                                       final @Named("thread.pool.size") int corePoolSize,
-                                       final LifeCycle lifeCycle) {
+    public UnitOfWorkSchedulingService(final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
+            @Named("thread.pool.size") final int corePoolSize,
+            final LifeCycle lifeCycle) {
         super(corePoolSize);
         lifeCycle.addLifeCycleListener(this);
         this.callableInUnitOfWorkFactory = callableInUnitOfWorkFactory;
@@ -37,8 +40,10 @@ public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor imp
     /**
      * Submit a {@link Callable} to be ran in a {@link com.google.inject.persist.UnitOfWork}.
      *
-     * @param callable Callable to be ran
-     * @param <T> Return type of the callable
+     * @param callable
+     *            Callable to be ran
+     * @param <T>
+     *            Return type of the callable
      * @return Future that promises the return value of the callable
      */
     public <T> Future<T> submitInUnitOfWork(final Callable<T> callable) {
@@ -47,11 +52,13 @@ public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor imp
     }
 
     /**
-     * Perform a {@link Callable} in a  {@link com.google.inject.persist.UnitOfWork} and
+     * Perform a {@link Callable} in a {@link com.google.inject.persist.UnitOfWork} and
      * wait for its result.
      *
-     * @param callable Callable to be ran
-     * @param <T> Return type of the callable
+     * @param callable
+     *            Callable to be ran
+     * @param <T>
+     *            Return type of the callable
      * @return return value of the callable
      */
     @SneakyThrows
@@ -86,5 +93,3 @@ public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor imp
     }
 
 }
-
-

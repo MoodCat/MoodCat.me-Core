@@ -81,9 +81,12 @@ public class RoomDAO extends AbstractDAO<Room> {
     }
 
     /**
-     * Query rooms in space
-     * @param vector Vector to compare with
-     * @param limit Limit results
+     * Query rooms in space.
+     * 
+     * @param vector
+     *            Vector to compare with
+     * @param limit
+     *            Limit results
      * @return a list of rooms
      */
     @Transactional

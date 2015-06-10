@@ -49,6 +49,8 @@ public class SongAPITest {
         when(song.getId()).thenReturn(SONG_ID);
         when(song.getSoundCloudId()).thenReturn(SOUNCLOUD_ID);
         when(song.getNumberOfPositiveVotes()).thenReturn(NUMBER_OF_VOTES);
+        final VAVector songVector = new VAVector(0.5, 0.5);
+        when(song.getValenceArousal()).thenReturn(songVector);
 
         when(songDAO.findById(Matchers.eq(SONG_ID))).thenReturn(song);
         when(songDAO.findBySoundCloudId(Matchers.eq(SOUNCLOUD_ID))).thenReturn(song);
@@ -57,8 +59,6 @@ public class SongAPITest {
     @Test
     public void classificationUpdatesSong() throws InvalidClassificationException {
         Mockito.doNothing().when(song).setValenceArousal(vectorCaptor.capture());
-        final VAVector songVector = new VAVector(0.5, 0.5);
-        when(song.getValenceArousal()).thenReturn(songVector);
 
         final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
 

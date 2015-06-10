@@ -1,17 +1,18 @@
 package me.moodcat.core;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
-import com.google.inject.assistedinject.FactoryModuleBuilder;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
-import me.moodcat.backend.rooms.*;
+import me.moodcat.backend.rooms.RoomBackend;
+import me.moodcat.backend.rooms.RoomInstanceFactory;
+import me.moodcat.backend.rooms.SongInstanceFactory;
 import me.moodcat.database.DbModule;
 
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -19,6 +20,7 @@ import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
 import org.reflections.Reflections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import com.google.inject.persist.PersistFilter;
 import com.google.inject.servlet.ServletModule;
@@ -31,20 +33,13 @@ import com.google.inject.servlet.ServletModule;
 @Slf4j
 public class MoodcatServletModule extends ServletModule {
 
-    /**
-     * 
-     */
-    private final App app;
-
-    /**
-     * The string representation of the api package.
-     */
     private static final String API_PACKAGE_NAME = "me.moodcat.api";
 
-    /**
-     * The string representation of the api package.
-     */
     private static final String MAPPER_PACKAGE_NAME = "me.moodcat.core.mappers";
+
+    private static final int THREAD_POOL_SIZE = 4;
+
+    private final App app;
 
     /**
      * The rootFolder that contains all resources.
@@ -62,22 +57,28 @@ public class MoodcatServletModule extends ServletModule {
         this.install(new JaxrsModule());
         // Ensure an ObjectMapper (json (de)serializer) is available at this point
         this.requireBinding(ObjectMapper.class);
-        // Provide a way to access the resources folder from other classes
-        this.bind(File.class).annotatedWith(Names.named("root.folder"))
-                .toInstance(this.rootFolder);
+        this.bindConstants();
         // Bind the database module
         this.bindDatabaseModule();
         this.bindAPI();
         this.bindExceptionMappers();
-
-        this.bindConstant().annotatedWith(Names.named("thread.pool.size")).to(4);
-        this.bind(LifeCycle.class).toInstance(this.app.getServer());
-
-        install(new FactoryModuleBuilder().build(SongInstanceFactory.class));
-        install(new FactoryModuleBuilder().build(RoomInstanceFactory.class));
-
+        this.bindFactories();
+        // Bind eager singletons
         this.bind(UnitOfWorkSchedulingService.class).asEagerSingleton();
         this.bind(RoomBackend.class).asEagerSingleton();
+    }
+
+    private void bindConstants() {
+        // Provide a way to access the resources folder from other classes
+        this.bind(File.class).annotatedWith(Names.named("root.folder"))
+            .toInstance(this.rootFolder);
+        this.bindConstant().annotatedWith(Names.named("thread.pool.size")).to(THREAD_POOL_SIZE);
+        this.bind(LifeCycle.class).toInstance(this.app.getServer());
+    }
+
+    private void bindFactories() {
+        this.install(new FactoryModuleBuilder().build(SongInstanceFactory.class));
+        this.install(new FactoryModuleBuilder().build(RoomInstanceFactory.class));
     }
 
     private void bindDatabaseModule() {
@@ -87,23 +88,21 @@ public class MoodcatServletModule extends ServletModule {
         requireBinding(EntityManagerFactory.class);
     }
 
-    @SneakyThrows
     private void bindAPI() {
-        final Reflections reflections = new Reflections(API_PACKAGE_NAME);
-
-        for (final Class<?> clazz : reflections.getTypesAnnotatedWith(Path.class)) {
-            this.bind(clazz);
-            log.info("Registering resource {}", clazz);
-        }
+        this.bindClassesAnnotatedWithInPackage(API_PACKAGE_NAME, Path.class);
     }
 
-    @SneakyThrows
     private void bindExceptionMappers() {
-        final Reflections reflections = new Reflections(MAPPER_PACKAGE_NAME);
+        this.bindClassesAnnotatedWithInPackage(MAPPER_PACKAGE_NAME, Provider.class);
+    }
 
-        for (final Class<?> clazz : reflections.getTypesAnnotatedWith(Provider.class)) {
+    private void bindClassesAnnotatedWithInPackage(final String packageName,
+                                                   final Class<? extends Annotation> annotation) {
+        final Reflections reflections = new Reflections(packageName);
+
+        for (final Class<?> clazz : reflections.getTypesAnnotatedWith(annotation)) {
             this.bind(clazz);
-            log.info("Registering exception mapper {}", clazz);
+            log.info("Registering class {}", clazz);
         }
     }
 }

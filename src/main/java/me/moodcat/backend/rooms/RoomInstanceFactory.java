@@ -11,7 +11,8 @@ public interface RoomInstanceFactory {
      * Create a new {@link RoomInstance}.
      *
      * @param room
-     * @return
+     *          Room to instantiate a RoomInstance for.
+     * @return instantiated RoomInstance.
      */
     RoomInstance create(Room room);
 

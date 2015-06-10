@@ -1,8 +1,19 @@
 package me.moodcat.database.entities;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.ToString;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -95,11 +106,12 @@ public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
     /**
      * Compare function that allows chatmessages to be sorted.
      *
-     * @param o another chatmessage
+     * @param other
+     *            another chatmessage
      * @return the ordering
      */
     @Override
-    public int compareTo(final ChatMessage o) {
-        return getTimestamp().compareTo(o.getTimestamp());
+    public int compareTo(final ChatMessage other) {
+        return getTimestamp().compareTo(other.getTimestamp());
     }
 }

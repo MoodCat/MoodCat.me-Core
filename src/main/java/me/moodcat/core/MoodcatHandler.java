@@ -31,9 +31,6 @@ import com.google.inject.util.Modules;
  */
 public class MoodcatHandler extends ServletContextHandler {
 
-    /**
-     * 
-     */
     private final App app;
 
     /**

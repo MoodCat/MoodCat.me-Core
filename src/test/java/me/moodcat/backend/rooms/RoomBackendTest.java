@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
 
 import me.moodcat.backend.BackendTest;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
@@ -19,11 +19,11 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
@@ -62,11 +62,11 @@ public class RoomBackendTest extends BackendTest {
 
     private List<Song> songFuture;
 
-    private ChatMessage chatMessage = createChatMessage();
+    private static ChatMessage chatMessage = createChatMessage();
 
-    private Song song1 = createSong(1);
+    private final static Song song1 = createSong(1);
 
-    private Song song2 = createSong(2);
+    private final static Song song2 = createSong(2);
 
     @Before
     public void setUp() {

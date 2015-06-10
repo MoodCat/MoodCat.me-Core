@@ -1,12 +1,5 @@
 package me.moodcat.backend;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.google.inject.name.Names;
-
-import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.rooms.RoomInstanceFactory;
 import me.moodcat.backend.rooms.SongInstanceFactory;
 import me.moodcat.database.DatabaseTestModule;
@@ -20,6 +13,12 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
 
 /**
  * Created by jwgmeligmeyling on 9-6-15.

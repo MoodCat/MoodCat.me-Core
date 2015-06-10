@@ -22,12 +22,12 @@ import com.google.inject.Singleton;
 public class RoomBackend extends AbstractLifeCycleListener {
 
     /**
-     * UnitOfWorkSchedulingService
+     * UnitOfWorkSchedulingService.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
     /**
-     * RoomInstanceFactory for this roombackend
+     * RoomInstanceFactory for this roombackend.
      */
     private final RoomInstanceFactory roomInstanceFactory;
 
@@ -45,9 +45,14 @@ public class RoomBackend extends AbstractLifeCycleListener {
      * The constructor of the chat's backend, initializes fields and rooms.
      *
      * @param unitOfWorkSchedulingService
+     *          UnitOfWorkSchedulingService to schedule tasks in a unit of work
      * @param roomInstanceFactory
+     *          RoomInstanceFactory to instantiate RoomInstances
      * @param roomDAOProvider
+     *          Provider to create RoomDAOs when in a unit of work
      * @param lifeCycle
+     *          The program lifecycle, to instantiate the initial rooms
+     *          when the program has started
      */
     @Inject
     public RoomBackend(final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
@@ -62,8 +67,11 @@ public class RoomBackend extends AbstractLifeCycleListener {
      * The constructor of the chat's backend, initializes fields and rooms.
      *
      * @param unitOfWorkSchedulingService
+     *          UnitOfWorkSchedulingService to schedule tasks in a unit of work
      * @param roomInstanceFactory
+     *          RoomInstanceFactory to instantiate RoomInstances
      * @param roomDAOProvider
+     *          Provider to create RoomDAOs when in a unit of work
      */
     public RoomBackend(final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
                        final RoomInstanceFactory roomInstanceFactory,

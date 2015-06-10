@@ -20,7 +20,7 @@ import com.google.inject.persist.Transactional;
 public class SongInstance extends Observable {
 
     /**
-     * SongDAO provider for the context
+     * SongDAO provider for the context.
      */
     private final Provider<SongDAO> songDAOProvider;
 
