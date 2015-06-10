@@ -1,8 +1,5 @@
 package me.moodcat.database.entities;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +8,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * User entity.
@@ -68,11 +68,29 @@ public class User {
     private String avatarUrl;
 
     /**
+     * The amount of points the user has collected.
+     * 
+     * @return The amount of points the user has
+     */
+    @Column(name = "points")
+    private int points;
+
+    /**
      * SoundCloud OAuth access token.
      * See: https://developers.soundcloud.com/docs/api/reference#token
      */
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "access_token", nullable = true)
     private String accessToken;
+
+    /**
+     * Updates the points for the user.
+     * 
+     * @param addition
+     *            The amount of points the user gained
+     */
+    public void increment(Integer addition) {
+        this.points = this.getPoints() + addition;
+    }
 
 }

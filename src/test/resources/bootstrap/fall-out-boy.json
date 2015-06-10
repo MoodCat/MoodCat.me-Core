@@ -2,7 +2,8 @@
 	"users":[
 		{
 			"id": 1,
-			"username": "System"
+			"username": "System",
+			"points": 10
 		}
 	],
 	"artists":[
