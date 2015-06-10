@@ -91,7 +91,8 @@ public class SongInstance extends Observable {
      * @return true if the song is finished
      */
     public boolean isStopped() {
-        return currentTime.get() >= duration;
+        final long time = currentTime.get();
+        return time >= duration;
     }
 
     /**

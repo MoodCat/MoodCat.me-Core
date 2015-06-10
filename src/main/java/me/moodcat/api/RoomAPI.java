@@ -1,39 +1,27 @@
 package me.moodcat.api;
 
-import algorithms.KNearestNeighbours;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-
-import datastructures.dataholders.Pair;
-import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
-import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.Room.RoomDistanceMetric;
-import me.moodcat.mood.Mood;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
+import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.mood.Mood;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
 /**
  * The API for the room.
@@ -79,18 +67,8 @@ public class RoomAPI {
             @QueryParam("limit") @DefaultValue("25") final int limit) {
         final VAVector targetVector = Mood.createTargetVector(moods);
 
-        final Room idealroom = new Room();
-        idealroom.setVaVector(targetVector);
-
-        final List<Room> allRooms = roomDAO.listRooms();
-
-        final KNearestNeighbours<Room> knearest = new KNearestNeighbours<Room>(allRooms,
-                new RoomDistanceMetric());
-        final Collection<Pair<Double, Room>> knearestResult = knearest.getNearestNeighbours(limit,
-                idealroom);
-
-        return knearestResult.stream()
-                .map(Pair::getRight)
+        return roomDAO.queryRooms(targetVector, limit)
+                .stream()
                 .map(this::resolveRoomInstance)
                 .map(RoomAPI::transform)
                 .collect(Collectors.toList());

@@ -8,6 +8,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 
@@ -77,6 +78,20 @@ public class RoomDAO extends AbstractDAO<Room> {
                 .where(chatMessage.room.id.eq(id))
                 .limit(NUMBER_OF_CHAT_MESSAGE)
                 .list(chatMessage);
+    }
+
+    /**
+     * Query rooms in space
+     * @param vector Vector to compare with
+     * @param limit Limit results
+     * @return a list of rooms
+     */
+    @Transactional
+    public List<Room> queryRooms(final VAVector vector, final int limit) {
+        return query().from(room)
+                .orderBy(room.vaVector.location.distance(vector.getLocation()).asc())
+                .limit(limit)
+                .list(room);
     }
 
 }

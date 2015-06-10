@@ -79,20 +79,7 @@
 	</properties>
 
 	<repositories>
-		<!-- We have to use the devhub repository in order to obtain the hosted 
-			Recommendation-Library for the dependency chain. -->
-		<repository>
-			<id>devhub</id>
-			<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<!-- repository for hibernate spatial -->
+		<!-- repository for hibernate spatial and GEO db -->
 		<repository>
 			<id>thirdparty</id>
 			<url>https://devhub.ewi.tudelft.nl/nexus/content/repositories/thirdparty</url>
@@ -226,11 +213,6 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.jeremybelleu.recommendation-library</groupId>
-			<artifactId>recommendation-library</artifactId>
-			<version>${recommendation-library.version}</version>
 		</dependency>
 
 		<!-- persistence -->

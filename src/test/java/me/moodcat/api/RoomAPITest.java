@@ -8,6 +8,7 @@ import me.moodcat.api.models.SongModel;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -26,6 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +87,8 @@ public class RoomAPITest {
         mockRoom(oneRoom, oneRoomInstance);
         mockRoom(otherRoom, otherRoomInstance);
         when(roomDAO.listRooms()).thenReturn(Lists.newArrayList(oneRoom, otherRoom));
+        when(roomDAO.queryRooms(any(VAVector.class), eq(1))).thenReturn(Lists.newArrayList(oneRoom));
+        when(roomDAO.queryRooms(any(VAVector.class), eq(2))).thenReturn(Lists.newArrayList(oneRoom, otherRoom));
     }
 
     private void mockRoom(Room room, RoomInstance roomInstance) {
