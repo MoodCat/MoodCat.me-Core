@@ -100,4 +100,11 @@ public class UserAPI {
             @QueryParam("amount") @DefaultValue("0") final int amount) {
         userDAO.incrementPoints(userId, amount);
     }
+
+    @GET
+    @Path("leaderboard")
+    @Transactional
+    public List<User> getLeaderboard(@QueryParam("limit") @DefaultValue("10") final long limit) {
+        return userDAO.getLeaderboard(limit);
+    }
 }

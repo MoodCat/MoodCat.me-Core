@@ -7,6 +7,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import com.mysema.query.types.OrderSpecifier;
+
 import me.moodcat.database.entities.User;
 
 /**
@@ -85,6 +87,21 @@ public class UserDAO extends AbstractDAO<User> {
         User usr = this.retrieveBySoundcloudId(userId);
         usr.increment(amount);
         this.merge(usr);
+    }
+
+    /**
+     * Retrieves a list of {limit} users, sorted on their score.
+     * 
+     * @param limit
+     *            The number of users to retrieve.
+     * @return A list of the most awarded users.
+     */
+    public List<User> getLeaderboard(final long limit) {
+        return this.query()
+                .from(user)
+                .orderBy(user.points.desc())
+                .limit(limit)
+                .list(user);
     }
 
 }
