@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
@@ -19,6 +20,7 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -67,9 +69,19 @@ public class RoomInstance {
     private final String name;
 
     /**
+     * Keep track of the message index.
+     */
+    private final ChatMessageIdGenerator chatMessageIdGenerator;
+
+    /**
+     * Factory for chat messages.
+     */
+    private final ChatMessageFactory chatMessageFactory;
+
+    /**
      * The cached messages in order to speed up retrieval.
      */
-    private final Deque<ChatMessage> messages;
+    private final Deque<ChatMessageInstance> messages;
 
     /**
      * The current song.
@@ -86,11 +98,11 @@ public class RoomInstance {
      * and start the timer for the current song.
      *
      * @param songInstanceFactory
-     *          SongInstanceFactory to create Songs.
+     *            SongInstanceFactory to create Songs.
      * @param roomDAOProvider
-     *          Provider to get RoomDAOs when in a Unit of Work.
+     *            Provider to get RoomDAOs when in a Unit of Work.
      * @param unitOfWorkSchedulingService
-     *          Scheduling service to run tasks in a Unit of Work.
+     *            Scheduling service to run tasks in a Unit of Work.
      * @param room
      *            the room used to create the roomInstance.
      */
@@ -98,6 +110,7 @@ public class RoomInstance {
     public RoomInstance(final SongInstanceFactory songInstanceFactory,
             final Provider<RoomDAO> roomDAOProvider,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
+            final ChatMessageFactory chatMessageFactory,
             @Assisted final Room room) {
 
         Preconditions.checkNotNull(room);
@@ -105,10 +118,14 @@ public class RoomInstance {
         this.songInstanceFactory = songInstanceFactory;
         this.roomDAOProvider = roomDAOProvider;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
+        this.chatMessageFactory = chatMessageFactory;
 
         this.id = room.getId();
         this.name = room.getName();
-        this.messages = new LinkedList<ChatMessage>(room.getChatMessages());
+
+        final Collection<ChatMessage> messages = room.getChatMessages();
+        this.chatMessageIdGenerator = new ChatMessageIdGenerator(room);
+        this.messages = getChatMessageModels(messages);
 
         this.currentSong = new AtomicReference<>();
         this.hasChanged = new AtomicBoolean(false);
@@ -116,6 +133,13 @@ public class RoomInstance {
         this.scheduleSyncTimer();
         this.playNext(room.getCurrentSong());
         log.info("Initialized room instance {}", this);
+    }
+
+    private static LinkedList<ChatMessageInstance> getChatMessageModels(
+            final Collection<ChatMessage> messages) {
+        return Lists.newLinkedList(messages.stream()
+                .map(ChatMessageInstance::create)
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -140,7 +164,7 @@ public class RoomInstance {
 
         playNext(playQueue.remove(0));
         hasChanged.set(true);
-        roomDAO.merge(room);
+        this.merge();
     }
 
     @Transactional
@@ -188,13 +212,16 @@ public class RoomInstance {
     /**
      * Store a message in the instance.
      *
-     * @param chatMessage
+     * @param model
      *            the message to send.
      */
-    public void sendMessage(final ChatMessage chatMessage) {
-        Preconditions.checkNotNull(chatMessage);
-        chatMessage.setTimestamp(System.currentTimeMillis());
+    public ChatMessageModel sendMessage(final ChatMessageModel model) {
+        Preconditions.checkNotNull(model);
 
+        model.setId(chatMessageIdGenerator.generateId());
+        model.setTimestamp(System.currentTimeMillis());
+
+        ChatMessageInstance chatMessage = new ChatMessageInstance(1, model);
         messages.addLast(chatMessage);
 
         if (messages.size() > MAXIMAL_NUMBER_OF_CHAT_MESSAGES) {
@@ -203,6 +230,7 @@ public class RoomInstance {
 
         hasChanged.set(true);
         log.info("Sending message {} in room {}", chatMessage, this);
+        return model;
     }
 
     /**
@@ -214,14 +242,19 @@ public class RoomInstance {
             this.unitOfWorkSchedulingService.performInUnitOfWork(() -> {
                 final RoomDAO roomDAO = this.roomDAOProvider.get();
                 final Room room = roomDAO.findById(id);
-                room.setChatMessages(messages.stream().map(message -> {
-                    final ChatMessage chatMessage = message.clone();
-                    chatMessage.setRoom(room);
-                    return chatMessage;
-                }).collect(Collectors.toList()));
+                room.getChatMessages().addAll(messages.stream()
+                        .map(message -> chatMessageFactory.create(room, message))
+                        .collect(Collectors.toList()));
                 room.setCurrentSong(getCurrentSong());
-                return roomDAO.merge(room);
-            });
+
+                try {
+                    return roomDAO.merge(room);
+                }
+                    catch (Exception e) {
+                        log.error("Failed to persist room {}", room);
+                        return null;
+                    }
+                });
         }
     }
 
@@ -230,8 +263,10 @@ public class RoomInstance {
      *
      * @return The latest {@link #MAXIMAL_NUMBER_OF_CHAT_MESSAGES} messages.
      */
-    public Collection<ChatMessage> getMessages() {
-        return messages;
+    public List<ChatMessageModel> getMessages() {
+        return this.messages.stream()
+                .map(ChatMessageInstance::transform)
+                .collect(Collectors.toList());
     }
 
     /**

@@ -7,8 +7,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.util.CallableInUnitOfWork;
-
 import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
+
 import org.eclipse.jetty.util.component.LifeCycle;
 
 import com.google.inject.Inject;
@@ -29,7 +29,8 @@ public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor imp
     private final CallableInUnitOfWork.CallableInUnitOfWorkFactory callableInUnitOfWorkFactory;
 
     @Inject
-    public UnitOfWorkSchedulingService(final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
+    public UnitOfWorkSchedulingService(
+            final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
             @Named("thread.pool.size") final int corePoolSize,
             final LifeCycle lifeCycle) {
         super(corePoolSize);

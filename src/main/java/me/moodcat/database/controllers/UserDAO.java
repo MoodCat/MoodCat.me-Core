@@ -24,6 +24,19 @@ public class UserDAO extends AbstractDAO<User> {
     }
 
     /**
+     * Find a user by its id.
+     *
+     * @param id
+     *            id for the user
+     * @return The user entity
+     */
+    public User findById(final int id) {
+        return ensureExists(query().from(user)
+            .where(user.id.eq(id))
+            .singleResult(user));
+    }
+
+    /**
      * Find a user by its soundcloud id.
      *
      * @param soundCloudId

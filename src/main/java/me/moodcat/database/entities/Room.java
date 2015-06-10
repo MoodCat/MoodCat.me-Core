@@ -5,6 +5,7 @@ import static javax.persistence.FetchType.EAGER;
 import static javax.persistence.FetchType.LAZY;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -96,6 +97,6 @@ public class Room {
      * The chat messages in the room.
      */
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
-    private List<ChatMessage> chatMessages;
+    private Set<ChatMessage> chatMessages;
 
 }

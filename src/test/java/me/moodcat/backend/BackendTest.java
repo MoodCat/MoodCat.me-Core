@@ -1,12 +1,12 @@
 package me.moodcat.backend;
 
-import me.moodcat.database.entities.Artist;
-import me.moodcat.database.entities.ChatMessage;
-import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
-
 import java.math.BigInteger;
 import java.util.Random;
+
+import me.moodcat.api.models.ChatMessageModel;
+import me.moodcat.database.entities.Artist;
+import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
 /**
  * Abstract {@code BackendTest} for some shared logic for testing backends.
@@ -15,11 +15,10 @@ public abstract class BackendTest {
 
     protected static final Random random = new Random();
 
-    protected static ChatMessage createChatMessage() {
-        final ChatMessage chatMessage = new ChatMessage();
+    protected static ChatMessageModel createChatMessage() {
+        final ChatMessageModel chatMessage = new ChatMessageModel();
         User user = new User();
         user.setName(randomString());
-        chatMessage.setUser(user);
         chatMessage.setMessage(randomString());
         chatMessage.setTimestamp(System.currentTimeMillis());
         return chatMessage;

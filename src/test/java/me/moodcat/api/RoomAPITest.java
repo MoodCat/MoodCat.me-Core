@@ -2,6 +2,7 @@ package me.moodcat.api;
 
 import com.google.common.collect.Lists;
 
+import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
@@ -60,11 +61,11 @@ public class RoomAPITest {
     @Mock
     private Room otherRoom;
 
-    private List<ChatMessage> messagesList;
+    private List<ChatMessageModel> messagesList;
 
     @Spy
-    private ChatMessage message;
-    
+    private ChatMessageModel message;
+
     @Spy
     private Song song;
 
@@ -80,8 +81,8 @@ public class RoomAPITest {
         when(otherRoom.getId()).thenReturn(2);
         when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
         when(song.getValenceArousal()).thenReturn(Mood.HAPPY.getVector());
-        
-        messagesList = new ArrayList<ChatMessage>();
+
+        messagesList = new ArrayList<ChatMessageModel>();
         messagesList.add(message);
 
         mockRoom(oneRoom, oneRoomInstance);
@@ -132,11 +133,11 @@ public class RoomAPITest {
 
         verify(roomBackend.getRoomInstance(1)).sendMessage(message);
     }
-    
+
     @Test
     public void canRetrieveCurrentTime() {
     	NowPlaying playing = this.roomAPI.getCurrentTime(1);
-    	
+
     	assertEquals(PLAYING_TIME, playing.getTime());
     	assertEquals(SongModel.transform(song), playing.getSong());
     }

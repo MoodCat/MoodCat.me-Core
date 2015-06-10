@@ -2,9 +2,8 @@ package me.moodcat.database.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,7 +14,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import me.moodcat.database.entities.ChatMessage.ChatMessageId;
+
+import java.io.Serializable;
 
 /**
  * A chat message for a room.
@@ -24,11 +25,36 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "chatmessage")
 @ToString(of = {
-        "room", "message", "user"
+        "id", "room", "message", "user"
 })
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = { "id", "room" })
 @NoArgsConstructor()
-public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
+@IdClass(ChatMessageId.class)
+public class ChatMessage implements Comparable<ChatMessage> {
+
+    /**
+     * Id Class for ChatMessage.
+     */
+    @Data
+    public static class ChatMessageId implements Serializable {
+
+        private Room room;
+
+        private Integer id;
+
+    }
+
+    /**
+     * The room the message was for.
+     *
+     * @param room
+     *            The room to set.
+     * @return The room that the message was posted into.
+     */
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     /**
      * Global chatmessage id.
@@ -38,9 +64,8 @@ public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
      * @return The id of this chatmessage.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private Integer id;
+    private int id;
 
     /**
      * The actual message.
@@ -65,18 +90,6 @@ public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
     private User user;
 
     /**
-     * The room the message was for.
-     *
-     * @param room
-     *            The room to set.
-     * @return The room that the message was posted into.
-     */
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "room_id", nullable = false)
-    private Room room;
-
-    /**
      * The timestamp the message was posted.
      *
      * @param timestamp
@@ -85,23 +98,6 @@ public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
      */
     @Column(name = "timestamp", nullable = true)
     private Long timestamp;
-
-    /**
-     * Create a clone of this ChatMessage. While cloning objects
-     * is usually bad, we use it as a way to deproxy Hibernate
-     * entities.
-     *
-     * @return A clone of this object
-     */
-    @Override
-    public ChatMessage clone() {
-        final ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setTimestamp(this.getTimestamp());
-        chatMessage.setUser(this.getUser());
-        chatMessage.setMessage(this.getMessage());
-        chatMessage.setRoom(room);
-        return chatMessage;
-    }
 
     /**
      * Compare function that allows chatmessages to be sorted.
@@ -114,4 +110,5 @@ public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
     public int compareTo(final ChatMessage other) {
         return getTimestamp().compareTo(other.getTimestamp());
     }
+
 }
