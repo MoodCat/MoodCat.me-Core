@@ -104,7 +104,7 @@ public class SongDAO extends AbstractDAO<Song> {
      * @return List of songs
      */
     @Transactional
-    public List<Song> findForDistance(final VAVector vector, final long limit) {
+    public List<Song> findForDistance(final VAVector vector, final int limit) {
         return query().from(song)
                 .orderBy(song.valenceArousal.location.distance(vector.getLocation()).asc())
                 .limit(limit)

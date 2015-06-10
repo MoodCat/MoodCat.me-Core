@@ -1,5 +1,8 @@
 package me.moodcat.database;
 
+import me.moodcat.database.controllers.H2RoomDAO;
+import me.moodcat.database.controllers.RoomDAO;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.persist.PersistService;
@@ -17,6 +20,7 @@ public class DatabaseTestModule extends DbModule {
     @Override
     protected void configure() {
         super.configure();
+        bind(RoomDAO.class).to(H2RoomDAO.class);
         bind(JPAInitializer.class).asEagerSingleton();
     }
 

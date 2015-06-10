@@ -1,6 +1,7 @@
 package me.moodcat.core;
 
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,7 +54,7 @@ public class App {
      * @throws IOException
      *             If the statics folder threw an IOException.
      */
-    public App() throws IOException {
+    public App(final Module... overrides) throws IOException {
         final File staticsFolder = new File("src/main/resources/static/app");
 
         // Make sure the folder is available, else we can't start the server.
@@ -67,7 +68,7 @@ public class App {
 
         this.server = new Server(SERVER_PORT);
         this.server.setSessionIdManager(new HashSessionIdManager());
-        this.server.setHandler(this.attachHandlers(staticsFolder));
+        this.server.setHandler(this.attachHandlers(staticsFolder, overrides));
     }
 
     /**
@@ -87,8 +88,8 @@ public class App {
         app.joinThread();
     }
 
-    private ContextHandlerCollection attachHandlers(final File staticsFolder) {
-        final MoodcatHandler moodcatHandler = new MoodcatHandler(this, staticsFolder);
+    private ContextHandlerCollection attachHandlers(final File staticsFolder, final Module... overrides) {
+        final MoodcatHandler moodcatHandler = new MoodcatHandler(this, staticsFolder, overrides);
 
         final ResourceHandler resources = new ResourceHandler();
         resources.setBaseResource(Resource.newResource(staticsFolder));
