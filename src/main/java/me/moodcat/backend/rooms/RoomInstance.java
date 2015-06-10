@@ -45,7 +45,7 @@ public class RoomInstance {
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
-	/**
+    /**
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;

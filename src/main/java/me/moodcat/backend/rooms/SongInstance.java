@@ -24,7 +24,7 @@ public class SongInstance extends Observable {
      */
     private final Provider<SongDAO> songDAOProvider;
 
-	/**
+    /**
      * The current time of the room's song.
      */
     private final AtomicLong currentTime;
@@ -54,7 +54,7 @@ public class SongInstance extends Observable {
      */
     @AssistedInject
     public SongInstance(final Provider<SongDAO> songDAOProvider, @Assisted final Song song) {
-		assert songDAOProvider != null;
+        assert songDAOProvider != null;
         Preconditions.checkNotNull(song);
         this.songDAOProvider = songDAOProvider;
 

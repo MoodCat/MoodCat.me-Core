@@ -32,11 +32,11 @@ import com.google.inject.servlet.ServletModule;
 public class MoodcatServletModule extends ServletModule {
 
     /**
-	 * 
-	 */
-	private final App app;
+     * 
+     */
+    private final App app;
 
-	/**
+    /**
      * The string representation of the api package.
      */
     private static final String API_PACKAGE_NAME = "me.moodcat.api";
@@ -53,7 +53,7 @@ public class MoodcatServletModule extends ServletModule {
 
     public MoodcatServletModule(App app, final File rootFolder) {
         this.app = app;
-		this.rootFolder = rootFolder;
+        this.rootFolder = rootFolder;
     }
 
     @Override

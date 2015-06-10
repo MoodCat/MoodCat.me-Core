@@ -32,11 +32,11 @@ import com.google.inject.util.Modules;
 public class MoodcatHandler extends ServletContextHandler {
 
     /**
-	 * 
-	 */
-	private final App app;
+     * 
+     */
+    private final App app;
 
-	/**
+    /**
      * Constructor that takes the rootFolder and zero or more Modules to the listener.
      *
      * @param rootFolder
@@ -47,7 +47,7 @@ public class MoodcatHandler extends ServletContextHandler {
      */
     public MoodcatHandler(App app, final File rootFolder, final Module... overrides) {
         this.app = app;
-		this.addEventListener(new AppContextListener(rootFolder, overrides));
+        this.addEventListener(new AppContextListener(rootFolder, overrides));
 
         this.addServlet(HttpServletDispatcher.class, "/");
     }
