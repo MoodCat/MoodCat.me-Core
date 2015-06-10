@@ -1,43 +1,21 @@
 package me.moodcat.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
-import com.google.inject.persist.PersistFilter;
-import com.google.inject.servlet.GuiceFilter;
-import com.google.inject.servlet.ServletModule;
-import com.google.inject.util.Modules;
-import lombok.SneakyThrows;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.RoomBackend;
-import me.moodcat.database.DbModule;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.HashSessionIdManager;
 import org.eclipse.jetty.server.session.HashSessionManager;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
-import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
-import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
-import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
-import org.reflections.Reflections;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContext;
-import javax.ws.rs.Path;
-import javax.ws.rs.ext.Provider;
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -60,11 +38,13 @@ public class App {
     /**
      * The server that handles the requests.
      */
-    protected final Server server;
+    @Getter(value = AccessLevel.PACKAGE)
+    private final Server server;
 
     /**
      * Reference for injector in order to have concurrent transactions to our database.
      */
+    @Getter(value = AccessLevel.PACKAGE)
     private final AtomicReference<Injector> injectorAtomicReference = new AtomicReference<>();
 
     /**
@@ -108,7 +88,7 @@ public class App {
     }
 
     private ContextHandlerCollection attachHandlers(final File staticsFolder) {
-        final MoodcatHandler moodcatHandler = new MoodcatHandler(staticsFolder);
+        final MoodcatHandler moodcatHandler = new MoodcatHandler(this, staticsFolder);
 
         final ResourceHandler resources = new ResourceHandler();
         resources.setBaseResource(Resource.newResource(staticsFolder));
@@ -166,143 +146,6 @@ public class App {
             this.server.stop();
         } catch (final Exception e) {
             log.warn(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * The MoodcatHandler functions as an entry point for the Moodcat API.
-     * Its quite a standard ServletContextHandler, but it adds initializes three things:
-     * <ul>
-     * <li>Initializing a GuiceResteasyBootstrapServletContextListener, which is used to handle
-     * requests through Resteasy in combination with Google Guice dependency injection</li>
-     * <li>Adding a Guice requiest Filter for Guice servlet tools</li>
-     * <li>Adding the HttpServletDispatcher which dispatches the incoming requests through the set
-     * up filters and listeners</li>
-     * </ul>
-     */
-    public class MoodcatHandler extends ServletContextHandler {
-
-        /**
-         * Constructor that takes the rootFolder and zero or more Modules to the listener.
-         *
-         * @param rootFolder
-         *            The rootFolder system path.
-         * @param overrides
-         *            Zero or more modules that are attached to the listener.
-         */
-        public MoodcatHandler(final File rootFolder, final Module... overrides) {
-            this.addEventListener(new AppContextListener(rootFolder, overrides));
-
-            this.addServlet(HttpServletDispatcher.class, "/");
-        }
-
-        /**
-         * Listener that connects the API's to the correct overriden module.
-         */
-        private final class AppContextListener extends
-                GuiceResteasyBootstrapServletContextListener {
-
-            /**
-             * The folder to retrieve all resources from.
-             */
-            private final File rootFolder;
-
-            /**
-             * All modules that should be overriding path calls.
-             */
-            private final Module[] overrides;
-
-            protected AppContextListener(final File rootFolder, final Module... overrides) {
-                this.rootFolder = rootFolder;
-                this.overrides = overrides;
-            }
-
-            @Override
-            protected List<Module> getModules(final ServletContext context) {
-                final MoodcatServletModule module = new MoodcatServletModule(rootFolder);
-                return ImmutableList.<Module> of(Modules.override(module).with(overrides));
-            }
-
-            @Override
-            protected void withInjector(final Injector injector) {
-                final FilterHolder guiceFilterHolder = new FilterHolder(
-                        injector.getInstance(GuiceFilter.class));
-                MoodcatHandler.this.addFilter(guiceFilterHolder, "/*",
-                        EnumSet.allOf(DispatcherType.class));
-                injectorAtomicReference.set(injector);
-            }
-        }
-
-    }
-
-    /**
-     * The MoodcatServletModule is the Dependency Injection module for the
-     * MoodCat base API service. It tells Google Guice which classes (and their
-     * dependencies) to instantiate.
-     */
-    public class MoodcatServletModule extends ServletModule {
-
-        /**
-         * The string representation of the api package.
-         */
-        private static final String API_PACKAGE_NAME = "me.moodcat.api";
-
-        /**
-         * The string representation of the api package.
-         */
-        private static final String MAPPER_PACKAGE_NAME = "me.moodcat.core.mappers";
-
-        /**
-         * The rootFolder that contains all resources.
-         */
-        private final File rootFolder;
-
-        public MoodcatServletModule(final File rootFolder) {
-            this.rootFolder = rootFolder;
-        }
-
-        @Override
-        protected void configureServlets() {
-            // Install the JaxrsModule to use Guice with Jax RS
-            this.install(new JaxrsModule());
-            // Ensure an ObjectMapper (json (de)serializer) is available at this point
-            this.requireBinding(ObjectMapper.class);
-            // Provide a way to access the resources folder from other classes
-            this.bind(File.class).annotatedWith(Names.named("root.folder"))
-                    .toInstance(this.rootFolder);
-            // Bind the database module
-            this.bindDatabaseModule();
-            this.bindAPI();
-            this.bindExceptionMappers();
-            this.bind(LifeCycle.class).toInstance(server);
-            this.bind(RoomBackend.class).asEagerSingleton();
-        }
-
-        private void bindDatabaseModule() {
-            install(new DbModule());
-            filter("/*").through(PersistFilter.class);
-            requireBinding(EntityManager.class);
-            requireBinding(EntityManagerFactory.class);
-        }
-
-        @SneakyThrows
-        private void bindAPI() {
-            final Reflections reflections = new Reflections(API_PACKAGE_NAME);
-
-            for (final Class<?> clazz : reflections.getTypesAnnotatedWith(Path.class)) {
-                this.bind(clazz);
-                log.info("Registering resource {}", clazz);
-            }
-        }
-
-        @SneakyThrows
-        private void bindExceptionMappers() {
-            final Reflections reflections = new Reflections(MAPPER_PACKAGE_NAME);
-
-            for (final Class<?> clazz : reflections.getTypesAnnotatedWith(Provider.class)) {
-                this.bind(clazz);
-                log.info("Registering exception mapper {}", clazz);
-            }
         }
     }
 

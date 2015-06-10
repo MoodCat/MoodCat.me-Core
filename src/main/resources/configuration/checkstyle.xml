@@ -28,7 +28,7 @@
     </module>
     <module name="LineLength">
       <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-      <property name="max" value="100"/>
+      <property name="max" value="120"/>
     </module>
     <module name="AvoidStarImport"/>
     <module name="OneTopLevelClass"/>
@@ -39,7 +39,7 @@
     </module>
     <module name="NeedBraces"/>
     <module name="LeftCurly">
-      <property name="maxLineLength" value="100"/>
+      <property name="maxLineLength" value="120"/>
     </module>
     <module name="RightCurly"/>
     <module name="RightCurly">
@@ -134,7 +134,7 @@
     </module>
     <module name="JavadocMethod">
       <property name="minLineCount" value="2"/>
-      <property name="allowedAnnotations" value="Override, Test"/>
+      <property name="allowedAnnotations" value="Override, Test, Inject"/>
       <property name="scope" value="public"/>
       <property name="allowThrowsTagsForSubclasses" value="true"/>
       <property name="allowMissingParamTags" value="true"/>
@@ -155,7 +155,6 @@
     <module name="ConstantName"/>
     <module name="LocalFinalVariableName"/>
     <module name="JavadocType"/>
-    <module name="JavadocVariable"/>
     <module name="AnonInnerLength"/>
     <module name="MethodLength"/>
     <module name="MethodLength">

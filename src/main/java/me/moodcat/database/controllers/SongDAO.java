@@ -6,10 +6,12 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import com.mysema.query.types.expr.NumberExpression;
 
 /**
  * Used to retrieve songs from the database.
@@ -39,16 +41,15 @@ public class SongDAO extends AbstractDAO<Song> {
      *            The number of songs to retrieve.
      * @return A list of random songs.
      */
-    @SuppressWarnings("unchecked")
     @Transactional
     public List<Song> listRandomsongs(final int limit) {
-        // QueryDSL does not support random ordering, so we have to make a custom native query.
-        return this
-                .getManager()
-                .createNativeQuery(
-                        "SELECT * FROM song WHERE arousal = 0"
-                                + " AND valence = 0 ORDER BY RANDOM() LIMIT " + limit, Song.class)
-                .getResultList();
+        final NumberExpression<Double> x = song.valenceArousal.location.x();
+        return query().from(song)
+                .where(x.eq(0.0)
+                        .and(song.valenceArousal.location.y().eq(0.0)))
+                .orderBy(NumberExpression.random().asc())
+                .limit(limit)
+                .list(song);
     }
 
     /**
@@ -91,5 +92,22 @@ public class SongDAO extends AbstractDAO<Song> {
         return ensureExists(this.query().from(song)
                 .where(song.soundCloudId.eq(id))
                 .singleResult(song));
+    }
+
+    /**
+     * Find songs for distance.
+     *
+     * @param vector
+     *            Vector to search
+     * @param limit
+     *            limit of results
+     * @return List of songs
+     */
+    @Transactional
+    public List<Song> findForDistance(final VAVector vector, final long limit) {
+        return query().from(song)
+                .orderBy(song.valenceArousal.location.distance(vector.getLocation()).asc())
+                .limit(limit)
+                .list(song);
     }
 }

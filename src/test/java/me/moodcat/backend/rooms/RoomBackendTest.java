@@ -1,32 +1,27 @@
-package me.moodcat.backend;
+package me.moodcat.backend.rooms;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import me.moodcat.backend.RoomBackend.RoomInstance;
+import me.moodcat.backend.BackendTest;
+import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.util.CallableInUnitOfWork;
-import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -54,14 +49,10 @@ public class RoomBackendTest extends BackendTest {
 
     private List<Room> rooms;
 
-    @Mock
-    private CallableInUnitOfWork<Callable<?>> callable;
+    private RoomInstanceFactoryMock roomInstanceFactoryMock;
 
     @Mock
-    private CallableInUnitOfWorkFactory unitOfWorkFactory;
-
-    @Captor
-    private ArgumentCaptor<Callable<?>> callableCaptor;
+    private UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
     private RoomBackend roomBackend;
 
@@ -71,14 +62,16 @@ public class RoomBackendTest extends BackendTest {
 
     private List<Song> songFuture;
 
-    private ChatMessage chatMessage = createChatMessage();
+    private static ChatMessage chatMessage = createChatMessage();
 
-    private Song song1 = createSong(1);
+    private final static Song song1 = createSong(1);
 
-    private Song song2 = createSong(2);
+    private final static Song song2 = createSong(2);
 
     @Before
     public void setUp() {
+        roomInstanceFactoryMock = new RoomInstanceFactoryMock(songDAOProvider, roomDAOProvider, unitOfWorkSchedulingService);
+
         rooms = Lists.newArrayList();
         rooms.add(room);
 
@@ -102,12 +95,10 @@ public class RoomBackendTest extends BackendTest {
         when(roomDAO.listRooms()).thenReturn(rooms);
         when(roomDAO.findById(room.getId())).thenReturn(room);
 
-        when(unitOfWorkFactory.create(Matchers.any())).thenAnswer(invocationOnMock ->
-                invocationOnMock.getArgumentAt(0, Callable.class));
+        when(unitOfWorkSchedulingService.performInUnitOfWork(any())).thenAnswer(invocationOnMock ->
+                invocationOnMock.getArgumentAt(0, Callable.class).call());
 
-        roomBackend = new RoomBackend(roomDAOProvider, songDAOProvider, unitOfWorkFactory,
-                new MockedExecutorService(4));
-
+        roomBackend = new RoomBackend(unitOfWorkSchedulingService, roomInstanceFactoryMock, roomDAOProvider);
         roomBackend.initializeRooms();
     }
 
@@ -155,18 +146,5 @@ public class RoomBackendTest extends BackendTest {
 
         assertNotEquals(room.getPlayHistory(), room.getPlayQueue());
     }
-
-    static class MockedExecutorService extends ScheduledThreadPoolExecutor {
-
-        public MockedExecutorService(final int corePoolSize) {
-            super(corePoolSize);
-        }
-
-        @Override
-        public <T> Future<T> submit(final Callable<T> task) {
-            final FutureTask<T> future = new FutureTask<T>(task);
-            future.run();
-            return future;
-        }
-    }
+    
 }

@@ -2,7 +2,9 @@ package me.moodcat.api.models;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.when;
 import junitx.extensions.EqualsHashCodeTestCase;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
 
 import org.junit.Test;
@@ -17,7 +19,6 @@ public class SongModelTest {
 
         public EqualsSongModelTest(final String name) {
             super(name);
-            // TODO Auto-generated constructor stub
         }
 
         @Override
@@ -41,6 +42,7 @@ public class SongModelTest {
 
         public TransformSongModelTest() {
             song = Mockito.mock(Song.class);
+            when(song.getValenceArousal()).thenReturn(VAVector.ZERO);
         }
 
         @Test

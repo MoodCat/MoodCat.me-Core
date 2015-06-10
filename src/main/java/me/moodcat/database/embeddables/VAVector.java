@@ -3,12 +3,17 @@ package me.moodcat.database.embeddables;
 import java.util.List;
 import java.util.Random;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import org.hibernate.annotations.Type;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * Valence/Arousal vector class.
@@ -22,27 +27,22 @@ public class VAVector {
     /**
      * The zero vector.
      */
-    public static final VAVector ZERO = new VAVector(0.0, 0.0);
+    public static final VAVector ZERO;
 
     /**
-     * The valence in the range of [-1, 1]. It is the first dimension of this vector.
-     *
-     * @param valence
-     *            The new valence to set.
-     * @return The (first-dimension) valence of this vector
+     * The factory to create points.
      */
-    @Column(name = "valence")
-    private double valence;
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
+    static {
+        ZERO = new VAVector(0.0, 0.0);
+    }
 
     /**
-     * The arousal of the song in the range of [-1, 1]. It is the second dimension of this vector.
-     *
-     * @param arousal
-     *            The new arousal to set.
-     * @return The (second-dimension) arousal of this vector.
+     * The point that represents this vector.
      */
-    @Column(name = "arousal")
-    private double arousal;
+    @Type(type = "org.hibernate.spatial.GeometryType")
+    private Point location;
 
     /**
      * Constructor to create a vector. Asserts that the provided valence and arousal are in the
@@ -56,6 +56,44 @@ public class VAVector {
     public VAVector(final double valence, final double arousal) {
         this.setValence(valence);
         this.setArousal(arousal);
+    }
+
+    /**
+     * Set the valence for the {@code VAVector}.
+     *
+     * @param valence
+     *            The valence value.
+     */
+    public void setValence(final double valence) {
+        if (this.getLocation() == null) {
+            this.setLocation(GEOMETRY_FACTORY.createPoint(new Coordinate(valence, 0)));
+        } else {
+            this.setLocation(GEOMETRY_FACTORY.createPoint(new Coordinate(valence, this.location
+                    .getY())));
+        }
+    }
+
+    /**
+     * Set the arousal for the {@code VAVector}.
+     *
+     * @param arousal
+     *            The arousal value.
+     */
+    public void setArousal(final double arousal) {
+        if (this.getLocation() == null) {
+            this.setLocation(GEOMETRY_FACTORY.createPoint(new Coordinate(0, arousal)));
+        } else {
+            this.setLocation(GEOMETRY_FACTORY.createPoint(new Coordinate(this.location.getX(),
+                    arousal)));
+        }
+    }
+
+    public double getValence() {
+        return this.location.getX();
+    }
+
+    public double getArousal() {
+        return this.location.getY();
     }
 
     /**
@@ -137,7 +175,7 @@ public class VAVector {
      * @return The length of this vector.
      */
     public double length() {
-        return this.distance(ZERO);
+        return distance(this, ZERO);
     }
 
     /**
@@ -165,9 +203,9 @@ public class VAVector {
      * @return the random vector.
      */
     public static VAVector createRandomVector() {
-        Random random = new Random();
-        double valence = 2 * random.nextDouble() - 1d;
-        double arousal = 2 * random.nextDouble() - 1d;
+        final Random random = new Random();
+        final double valence = 2 * random.nextDouble() - 1d;
+        final double arousal = 2 * random.nextDouble() - 1d;
         return new VAVector(valence, arousal);
     }
 

@@ -2,17 +2,20 @@ package me.moodcat.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.moodcat.api.models.SongModel;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
@@ -64,22 +67,37 @@ public class SongAPI {
 
     @GET
     @Transactional
-    public List<Song> getSongs() {
-        return songDAO.listSongs();
+    public List<SongModel> getSongs() {
+        return transformSongs(songDAO.listSongs());
     }
 
     @GET
     @Path("{id}")
     @Transactional
-    public Song getSongById(@PathParam("id") final int id) {
-        return songDAO.findById(id);
+    public SongModel getSongById(@PathParam("id") final int id) {
+        return SongModel.transform(songDAO.findById(id));
     }
 
     @GET
     @Path("toclassify")
     @Transactional
-    public List<Song> toClassify() {
-        return songDAO.listRandomsongs(NUMBER_OF_CLASSIFICATION_SONGS);
+    public List<SongModel> toClassify() {
+        return transformSongs(songDAO.listRandomsongs(NUMBER_OF_CLASSIFICATION_SONGS));
+    }
+
+    @GET
+    @Path("query-range")
+    @Transactional
+    public List<SongModel> queryRange(@QueryParam("valence") final double valence,
+            @QueryParam("arousal") final double arousal) {
+        final VAVector vector = new VAVector(valence, arousal);
+        return transformSongs(songDAO.findForDistance(vector, 2));
+    }
+
+    private List<SongModel> transformSongs(final List<Song> songs) {
+        return songs.stream()
+                .map(SongModel::transform)
+                .collect(Collectors.toList());
     }
 
     /**

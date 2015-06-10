@@ -1,6 +1,7 @@
 package me.moodcat.api;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +49,8 @@ public class SongAPITest {
         when(song.getId()).thenReturn(SONG_ID);
         when(song.getSoundCloudId()).thenReturn(SOUNCLOUD_ID);
         when(song.getNumberOfPositiveVotes()).thenReturn(NUMBER_OF_VOTES);
+        final VAVector songVector = new VAVector(0.5, 0.5);
+        when(song.getValenceArousal()).thenReturn(songVector);
 
         when(songDAO.findById(Matchers.eq(SONG_ID))).thenReturn(song);
         when(songDAO.findBySoundCloudId(Matchers.eq(SOUNCLOUD_ID))).thenReturn(song);
@@ -56,8 +59,6 @@ public class SongAPITest {
     @Test
     public void classificationUpdatesSong() throws InvalidClassificationException {
         Mockito.doNothing().when(song).setValenceArousal(vectorCaptor.capture());
-        final VAVector songVector = new VAVector(0.5, 0.5);
-        when(song.getValenceArousal()).thenReturn(songVector);
 
         final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
 
@@ -107,6 +108,27 @@ public class SongAPITest {
     @Test(expected = InvalidVoteException.class)
     public void bogusVoteThrowsException() throws InvalidVoteException {
         songAPI.voteSong(SOUNCLOUD_ID, "bogus");
+    }
+    
+    @Test
+    public void canRetrieveAllSongs() {
+    	songAPI.getSongs();
+    	
+    	verify(songDAO).listSongs();
+    }
+    
+    @Test
+    public void canSupplyRandomVectorsForClassification() {
+    	songAPI.toClassify();
+    	
+    	verify(songDAO).listRandomsongs(anyInt());
+    }
+    
+    @Test
+    public void canRetrieveSongById() {
+    	songAPI.getSongById(SONG_ID);
+    	
+    	verify(songDAO).findById(SONG_ID);
     }
 
 }

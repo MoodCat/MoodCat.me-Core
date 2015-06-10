@@ -31,21 +31,22 @@ public class AppTest {
 
     @Test
     public void isRunningTest() {
-        assertTrue(app.server.isRunning());
+        assertTrue(app.getServer().isRunning());
     }
 
     @Test
     public void testHandlerStarted() {
-        final Handler handler = app.server.getHandler();
+        final Handler handler = app.getServer().getHandler();
         assertTrue(handler.isStarted());
     }
 
     @Test
     public void bindsMoodcatHandler() {
-        final ContextHandlerCollection handlers = (ContextHandlerCollection) app.server
+        final ContextHandlerCollection handlers = (ContextHandlerCollection) app.getServer()
                 .getHandler();
+        
         for (final Handler handler : handlers.getChildHandlers()) {
-            if (handler.getClass().equals(App.MoodcatHandler.class)) {
+            if (handler.getClass().equals(MoodcatHandler.class)) {
                 return;
             }
         }
@@ -54,8 +55,9 @@ public class AppTest {
 
     @Test
     public void bindsResourceHandler() {
-        final ContextHandlerCollection handlers = (ContextHandlerCollection) app.server
+        final ContextHandlerCollection handlers = (ContextHandlerCollection) app.getServer()
                 .getHandler();
+        
         for (final Handler handler : handlers.getChildHandlers()) {
             if (handler.getClass().equals(ResourceHandler.class)) {
                 return;

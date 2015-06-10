@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 })
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor()
-public class ChatMessage {
+public class ChatMessage implements Cloneable, Comparable<ChatMessage> {
 
     /**
      * Global chatmessage id.
@@ -86,4 +86,32 @@ public class ChatMessage {
     @Column(name = "timestamp", nullable = true)
     private Long timestamp;
 
+    /**
+     * Create a clone of this ChatMessage. While cloning objects
+     * is usually bad, we use it as a way to deproxy Hibernate
+     * entities.
+     *
+     * @return A clone of this object
+     */
+    @Override
+    public ChatMessage clone() {
+        final ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setTimestamp(this.getTimestamp());
+        chatMessage.setUser(this.getUser());
+        chatMessage.setMessage(this.getMessage());
+        chatMessage.setRoom(room);
+        return chatMessage;
+    }
+
+    /**
+     * Compare function that allows chatmessages to be sorted.
+     *
+     * @param other
+     *            another chatmessage
+     * @return the ordering
+     */
+    @Override
+    public int compareTo(final ChatMessage other) {
+        return getTimestamp().compareTo(other.getTimestamp());
+    }
 }

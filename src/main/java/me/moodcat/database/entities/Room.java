@@ -23,7 +23,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import me.moodcat.database.embeddables.VAVector;
-import distanceMetric.DistanceMetric;
 
 /**
  * A representation for a room, the room mainly supplies which song is currently listened by users
@@ -98,19 +97,5 @@ public class Room {
      */
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private List<ChatMessage> chatMessages;
-
-    /**
-     * DistanceMetric to determine the distance between 2 rooms. Will take {@link Room#vaVector} and
-     * to create vectors.
-     */
-    public static final class RoomDistanceMetric implements DistanceMetric<Room> {
-
-        @Override
-        public double distanceBetween(final Room room1, final Room room2) {
-            final VAVector room1vector = room1.getVaVector();
-            final VAVector room2vector = room2.getVaVector();
-            return room1vector.distance(room2vector);
-        }
-    }
 
 }

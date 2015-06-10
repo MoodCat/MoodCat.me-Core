@@ -11,7 +11,8 @@ import java.util.concurrent.Callable;
  * the servlet and thus not filtered by the {@code PersistFilter}. Assumes the PersistService to
  * be started.
  *
- * @param <V> return type of the unit of work.
+ * @param <V>
+ *            return type of the unit of work.
  */
 public class CallableInUnitOfWork<V> implements Callable<V> {
 
@@ -27,7 +28,7 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
 
     @Inject
     public CallableInUnitOfWork(final Provider<UnitOfWork> workProvider,
-                                final Callable<V> callable) {
+            final Callable<V> callable) {
         this.workProvider = workProvider;
         this.callable = callable;
     }
@@ -61,8 +62,10 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         /**
          * Create a {@link Callable} in {@link UnitOfWork}.
          *
-         * @param callable {@code Callable} to run in {@code UnitOfWork}
-         * @param <T>      Type of {@code Callable}
+         * @param callable
+         *            {@code Callable} to run in {@code UnitOfWork}
+         * @param <T>
+         *            Type of {@code Callable}
          * @return the {@code CallableInUnitOfWork}
          */
         public <T> Callable<T> create(final Callable<T> callable) {

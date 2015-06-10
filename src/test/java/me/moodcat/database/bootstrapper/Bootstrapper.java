@@ -209,7 +209,7 @@ public class Bootstrapper {
         song.setDuration(bSong.getDuration());
         song.setSoundCloudId(bSong.getSoundCloudId());
         song.setArtist(artist);
-        song.setValenceArousal(new VAVector(0,0));
+        song.setValenceArousal(VAVector.createRandomVector());
         song = songDAO.merge(song);
         persistedSongs.put(bSong.getId(), song);
         return song;
