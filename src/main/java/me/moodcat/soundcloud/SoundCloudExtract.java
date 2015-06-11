@@ -13,12 +13,6 @@ import lombok.SneakyThrows;
  */
 public class SoundCloudExtract extends SoundCloudAPIConnector {
 
-    public static void main(String[] args) throws SoundCloudException {
-        SoundCloudTrack track = new SoundCloudExtract().extract(203831026);
-        System.out.println(track.getPurchaseUrl());
-        System.out.println(track.getPurchaseTitle());
-    }
-
     /**
      * The pattern of an API call to get data about a track.
      */
