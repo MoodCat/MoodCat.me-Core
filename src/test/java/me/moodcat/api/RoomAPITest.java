@@ -21,7 +21,6 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-import me.moodcat.mood.Mood;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +37,8 @@ import com.google.inject.Provider;
 public class RoomAPITest {
 
     private static final long PLAYING_TIME = 5000;
+
+    private static final int SOUNCLOUD_ID = 25;
 
     @Mock
     private RoomBackend roomBackend;
@@ -73,8 +74,11 @@ public class RoomAPITest {
     @Spy
     private ChatMessageModel message;
 
-    @Spy
+    @Mock
     private Song song;
+
+    @Mock
+    private User currentUser;
 
     @Before
     public void setUp() {
@@ -97,6 +101,7 @@ public class RoomAPITest {
 
         mockRoom(oneRoom, oneRoomInstance);
         mockRoom(otherRoom, otherRoomInstance);
+
         when(roomDAO.listRooms()).thenReturn(Lists.newArrayList(oneRoom, otherRoom));
         when(roomDAO.queryRooms(any(VAVector.class), eq(1))).thenReturn(Lists.newArrayList(oneRoom));
         when(roomDAO.queryRooms(any(VAVector.class), eq(2))).thenReturn(Lists.newArrayList(oneRoom, otherRoom));
@@ -151,5 +156,10 @@ public class RoomAPITest {
 
         assertEquals(PLAYING_TIME, playing.getTime());
         assertEquals(SongModel.transform(song), playing.getSong());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void bogusVoteThrowsException() {
+        roomAPI.voteSong(SOUNCLOUD_ID, "bogus");
     }
 }

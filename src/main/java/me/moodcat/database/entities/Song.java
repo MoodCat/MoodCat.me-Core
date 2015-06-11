@@ -1,5 +1,10 @@
 package me.moodcat.database.entities;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
+
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -8,14 +13,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import me.moodcat.database.embeddables.VAVector;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A song that can be played.
@@ -98,7 +103,6 @@ public class Song {
      *            The new vector to set.
      * @return The valence-arousal vector of this song.
      */
-    @JsonIgnore
     @Embedded
     private VAVector valenceArousal;
 
@@ -110,21 +114,16 @@ public class Song {
      *            The new amount of votes to set.
      * @return The amount of netto votes that this song received.
      */
-    @JsonIgnore
-    private int numberOfPositiveVotes;
+    @ManyToMany(fetch = LAZY, cascade = ALL)
+    @JoinTable(name = "song_exclusions", joinColumns = {
+            @JoinColumn(name = "song_id", referencedColumnName = "id")
+    }, inverseJoinColumns = {
+            @JoinColumn(name = "room_id", referencedColumnName = "id")
+    })
+    private List<Room> exclusions;
 
-    /**
-     * Increase {@link #numberOfPositiveVotes}.
-     */
-    public void increaseNumberOfPositiveVotes() {
-        this.numberOfPositiveVotes++;
-    }
-
-    /**
-     * Decreases {@link #numberOfPositiveVotes}.
-     */
-    public void decreaseNumberOfPositiveVotes() {
-        this.numberOfPositiveVotes--;
+    public void addExclusionRoom(final Room room) {
+        this.getExclusions().add(room);
     }
 
 }

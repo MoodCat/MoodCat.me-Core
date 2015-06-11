@@ -134,10 +134,8 @@ public class SongAPI {
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
 
-        if (song.getNumberOfPositiveVotes() < MINIMUM_NUMBER_OF_POSITIVE_VOTES) {
-            song.setValenceArousal(adjustSongVector(classification, song));
-            this.songDAO.merge(song);
-        }
+        song.setValenceArousal(adjustSongVector(classification, song));
+        this.songDAO.merge(song);
 
         return classification;
     }
@@ -170,35 +168,6 @@ public class SongAPI {
         this.userDAO.incrementPoints(userId, CLASSIFICATION_POINTS_AWARD);
 
         return classification;
-    }
-
-    /**
-     * Process a vote to a song. A vote is either "like" or "dislike".
-     *
-     * @param soundCloudId
-     *            The soundCloudID.
-     * @param vote
-     *            The vote.
-     * @return The song object, if the process was succesful.
-     * @throws InvalidVoteException
-     *             Thrown if an invalid vote was cast.
-     */
-    @POST
-    @Path("{id}/vote/{vote}")
-    @Transactional
-    public Song voteSong(@PathParam("id") final int soundCloudId,
-            @PathParam("vote") final String vote) throws InvalidVoteException {
-        final Song song = this.songDAO.findBySoundCloudId(soundCloudId);
-
-        if ("like".equals(vote)) {
-            song.increaseNumberOfPositiveVotes();
-        } else if ("dislike".equals(vote)) {
-            song.decreaseNumberOfPositiveVotes();
-        } else {
-            throw new InvalidVoteException();
-        }
-
-        return song;
     }
 
     private void assertDimensionIsValid(final double value) throws InvalidClassificationException {
@@ -258,17 +227,6 @@ public class SongAPI {
          * Generated ID.
          */
         private static final long serialVersionUID = -6684926632173744801L;
-    }
-
-    /**
-     * Thrown if the vote was invalid.
-     */
-    protected static class InvalidVoteException extends IllegalArgumentException {
-
-        /**
-         * Generated ID.
-         */
-        private static final long serialVersionUID = -7422916305683573138L;
     }
 
 }

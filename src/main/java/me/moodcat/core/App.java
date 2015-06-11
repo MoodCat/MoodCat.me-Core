@@ -4,6 +4,10 @@ import com.google.inject.Injector;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.jetty.server.Server;
@@ -13,10 +17,6 @@ import org.eclipse.jetty.server.session.HashSessionIdManager;
 import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Main entry-point for the backend server. Initializes all {@link me.moodcat.api APIs}, starts the
@@ -120,7 +120,7 @@ public class App {
 
     /**
      * Joins the {@link App} server.
-     * 
+     *
      * @throws InterruptedException
      *             if the joined thread is interrupted
      *             before or during the merging.

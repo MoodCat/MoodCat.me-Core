@@ -21,6 +21,7 @@ import me.moodcat.backend.rooms.SongInstanceFactory;
 import me.moodcat.database.DbModule;
 
 import me.moodcat.database.entities.User;
+
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
 import org.reflections.Reflections;

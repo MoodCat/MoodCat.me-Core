@@ -18,6 +18,8 @@ import com.mysema.query.types.expr.NumberExpression;
  */
 public class SongDAO extends AbstractDAO<Song> {
 
+    private static final double VECTOR_DISTANCE_DELTA = 0.1;
+
     @Inject
     public SongDAO(final EntityManager entityManager) {
         super(entityManager);
@@ -44,7 +46,7 @@ public class SongDAO extends AbstractDAO<Song> {
     @Transactional
     public List<Song> listRandomsongs(final int limit) {
         return query().from(song)
-                .where(song.valenceArousal.location.distance(VAVector.ZERO.getLocation()).lt(0.1))
+                .where(song.valenceArousal.location.distance(VAVector.ZERO.getLocation()).lt(VECTOR_DISTANCE_DELTA))
                 .orderBy(NumberExpression.random().asc())
                 .limit(limit)
                 .list(song);

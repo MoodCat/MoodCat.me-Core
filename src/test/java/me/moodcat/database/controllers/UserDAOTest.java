@@ -55,14 +55,14 @@ public class UserDAOTest {
         user.setPoints(1);
         userDAO.persist(user);
 
-        final User actual = userDAO.retrieveBySoundcloudId(SOUNDCLOUD_ID);
+        final User actual = userDAO.findBySoundcloudId(SOUNDCLOUD_ID);
         assertEquals(user, actual);
     }
 
     @Test
     @TestBootstrap("/bootstrap/users.json")
     public void canRetrieveBySoundcloudId() {
-        assertEquals("Gijs", userDAO.retrieveBySoundcloudId(1).getName());
+        assertEquals("Gijs", userDAO.findBySoundcloudId(1).getName());
     }
 
     @Test
@@ -98,9 +98,9 @@ public class UserDAOTest {
         final int incrementAmount = 6;
         final int soundCloudId = 1;
 
-        int oldscore = userDAO.retrieveBySoundcloudId(soundCloudId).getPoints();
+        int oldscore = userDAO.findBySoundcloudId(soundCloudId).getPoints();
         userDAO.incrementPoints(soundCloudId, incrementAmount);
-        assertEquals((oldscore + incrementAmount), userDAO.retrieveBySoundcloudId(soundCloudId)
+        assertEquals((oldscore + incrementAmount), userDAO.findBySoundcloudId(soundCloudId)
                 .getPoints());
     }
 

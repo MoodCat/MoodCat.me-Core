@@ -70,9 +70,9 @@ public class UserAPI {
     }
 
     /**
-     * Returns the current user
+     * Returns the current user.
      * 
-     * @return
+     * @return The currently logged in user.
      */
     @GET
     @Path("me")

@@ -90,7 +90,7 @@ public class User {
      *            The amount of points the user gained
      */
     public void increment(Integer addition) {
-        this.points = this.getPoints() + addition;
+        this.setPoints(this.getPoints() + addition);
     }
 
 }

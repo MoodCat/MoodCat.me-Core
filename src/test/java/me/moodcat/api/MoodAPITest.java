@@ -1,7 +1,6 @@
 package me.moodcat.api;
 
 import static org.junit.Assert.assertArrayEquals;
-import me.moodcat.mood.Mood;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -2,7 +2,6 @@ package me.moodcat.api.models;
 
 import lombok.Data;
 import me.moodcat.database.entities.User;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

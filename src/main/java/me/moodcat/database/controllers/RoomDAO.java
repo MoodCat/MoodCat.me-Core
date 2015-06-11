@@ -1,6 +1,5 @@
 package me.moodcat.database.controllers;
 
-import static me.moodcat.database.entities.QChatMessage.chatMessage;
 import static me.moodcat.database.entities.QRoom.room;
 
 import java.util.List;
@@ -9,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 
 import com.google.inject.Inject;
@@ -18,11 +16,6 @@ import com.google.inject.Inject;
  * The DAO for rooms.
  */
 public class RoomDAO extends AbstractDAO<Room> {
-
-    /**
-     * The number of chat messages we want to return for each request.
-     */
-    private static final long NUMBER_OF_CHAT_MESSAGE = 10;
 
     @Inject
     public RoomDAO(final EntityManager entityManager) {
