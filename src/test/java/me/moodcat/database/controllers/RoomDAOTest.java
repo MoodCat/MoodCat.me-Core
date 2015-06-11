@@ -28,6 +28,7 @@ public class RoomDAOTest {
     @Rule
     @Inject
     public BootstrapRule bootstrapRule;
+
     // Public for JUnit, it's required. Not unused either :)
 
     /**
@@ -52,12 +53,6 @@ public class RoomDAOTest {
     @TestBootstrap("/bootstrap/rooms.json")
     public void canRetrieveById() {
         assertEquals(2, roomDAO.findById(2).getId().intValue());
-    }
-
-    @Test
-    @TestBootstrap("/bootstrap/rooms.json")
-    public void canRetrieveChatMessages() {
-        assertEquals("Welcome to Moodcat!", roomDAO.listMessages(1).get(0).getMessage());
     }
 
 }
