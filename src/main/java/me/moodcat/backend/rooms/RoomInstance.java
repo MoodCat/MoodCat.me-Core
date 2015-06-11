@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -14,6 +16,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.Vote;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -21,6 +24,7 @@ import me.moodcat.database.entities.Song;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
@@ -94,6 +98,11 @@ public class RoomInstance {
      * Has changed flag.
      */
     private final AtomicBoolean hasChanged;
+    
+    /**
+     * The votes of the users for the current song.
+     */
+    private final Map<User, Vote> votes;
 
     /**
      * ChatRoomInstance's constructur, will create a roomInstance from a room
@@ -120,6 +129,7 @@ public class RoomInstance {
         this.roomDAOProvider = roomDAOProvider;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
         this.chatMessageFactory = chatMessageFactory;
+        this.votes = Maps.newConcurrentMap();
 
         this.id = room.getId();
         this.name = room.getName();
@@ -153,14 +163,10 @@ public class RoomInstance {
             throw new IllegalStateException("Room should be playing a song");
         }
         history.add(previousSong);
-
-        final List<Song> playQueue = room.getPlayQueue();
-        if (playQueue.isEmpty()) {
-            playQueue.addAll(history);
-        }
-
-        playNext(playQueue.remove(0));
-        hasChanged.set(true);
+        
+        processVotes(previousSong);
+        
+        processNextSong(room, history);
         this.merge();
     }
 
@@ -180,6 +186,31 @@ public class RoomInstance {
         // Observer: Play the next song when the song is finished
         songInstance.addObserver((observer, arg) -> playNext());
 
+        hasChanged.set(true);
+    }
+    
+    private void processVotes(final Song previousSong) {
+        int nettoVotes = this.votes.values().stream()
+                .mapToInt(Vote::getValue)
+                .sum();
+        
+        if (nettoVotes < 0) {
+            final RoomDAO roomDAO = this.roomDAOProvider.get();
+            final Room room = roomDAO.findById(id);
+            
+            previousSong.addExclusionRoom(room);
+        }
+        
+        this.votes.clear();
+    }
+    
+    private void processNextSong(final Room room, final List<Song> history) {
+        final List<Song> playQueue = room.getPlayQueue();
+        if (playQueue.isEmpty()) {
+            playQueue.addAll(history);
+        }
+
+        playNext(playQueue.remove(0));
         hasChanged.set(true);
     }
 
@@ -289,6 +320,10 @@ public class RoomInstance {
      */
     public long getCurrentTime() {
         return this.currentSong.get().getTime();
+    }
+
+    public void addVote(final User user, final Vote valueOf) {
+        this.votes.put(user, valueOf);
     }
 
 }

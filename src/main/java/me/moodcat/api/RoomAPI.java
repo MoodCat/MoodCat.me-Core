@@ -24,7 +24,7 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-import me.moodcat.mood.Mood;
+import me.moodcat.backend.Vote;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
@@ -174,4 +174,26 @@ public class RoomAPI {
         return nowPlaying;
     }
 
+    /**
+     * Process a vote to a song. A vote is either "like" or "dislike".
+     *
+     * @param vote
+     *            The vote.
+     * @return The song object, if the process was succesful.
+     * @throws InvalidVoteException
+     *             Thrown if an invalid vote was cast.
+     */
+    @POST
+    @Path("{id}/vote/{vote}")
+    @Transactional
+    public RoomModel voteSong(@PathParam("id") final int roomId,
+            @PathParam("vote") final String vote) {
+        final RoomInstance roomInstance = this.backend.getRoomInstance(roomId);
+
+        Vote voteValue = Vote.valueOf(vote.toUpperCase());
+            
+        roomInstance.addVote(currentUserProvider.get(), voteValue);
+
+        return transform(roomInstance);
+    }
 }

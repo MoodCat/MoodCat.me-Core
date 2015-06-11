@@ -1,9 +1,9 @@
 package me.moodcat.database.entities;
 
 import java.util.Set;
+import me.moodcat.api.Mood;
 
 import junitx.extensions.EqualsHashCodeTestCase;
-import me.moodcat.mood.Mood;
 
 import com.google.common.collect.Sets;
 
