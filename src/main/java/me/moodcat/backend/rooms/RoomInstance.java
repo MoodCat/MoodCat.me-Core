@@ -190,17 +190,11 @@ public class RoomInstance {
     }
     
     private void processVotes(final Song previousSong) {
-        AtomicInteger nettoVotes = new AtomicInteger();
+        int nettoVotes = this.votes.values().stream()
+                .mapToInt(Vote::getValue)
+                .sum();
         
-        this.votes.values().stream().forEach((vote) -> {
-            if (vote.equals(Vote.LIKE)) {
-                nettoVotes.incrementAndGet();
-            } else {
-                nettoVotes.decrementAndGet();
-            }
-        });
-        
-        if (nettoVotes.get() < 0) {
+        if (nettoVotes < 0) {
             final RoomDAO roomDAO = this.roomDAOProvider.get();
             final Room room = roomDAO.findById(id);
             

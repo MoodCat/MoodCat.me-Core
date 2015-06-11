@@ -185,15 +185,4 @@ public class SongAPI {
         private static final long serialVersionUID = -6684926632173744801L;
     }
 
-    /**
-     * Thrown if the vote was invalid.
-     */
-    protected static class InvalidVoteException extends IllegalArgumentException {
-
-        /**
-         * Generated ID.
-         */
-        private static final long serialVersionUID = -7422916305683573138L;
-    }
-
 }

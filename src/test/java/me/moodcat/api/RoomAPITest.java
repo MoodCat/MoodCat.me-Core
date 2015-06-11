@@ -16,7 +16,6 @@ import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
-import me.moodcat.api.SongAPI.InvalidVoteException;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
@@ -159,8 +158,8 @@ public class RoomAPITest {
         assertEquals(SongModel.transform(song), playing.getSong());
     }
 
-    @Test(expected = InvalidVoteException.class)
-    public void bogusVoteThrowsException() throws InvalidVoteException {
+    @Test(expected = IllegalArgumentException.class)
+    public void bogusVoteThrowsException() {
         roomAPI.voteSong(SOUNCLOUD_ID, "bogus");
     }
 }

@@ -24,8 +24,8 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-import me.moodcat.api.SongAPI.InvalidVoteException;
 import me.moodcat.backend.Vote;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -187,14 +187,12 @@ public class RoomAPI {
     @Path("{id}/vote/{vote}")
     @Transactional
     public RoomModel voteSong(@PathParam("id") final int roomId,
-            @PathParam("vote") final String vote) throws InvalidVoteException {
+            @PathParam("vote") final String vote) {
         final RoomInstance roomInstance = this.backend.getRoomInstance(roomId);
 
-        if ("like".equals(vote) || "dislike".equals(vote)) {
-            roomInstance.addVote(currentUserProvider.get(), Vote.valueOf(vote.toUpperCase()));
-        } else {
-            throw new InvalidVoteException();
-        }
+        Vote voteValue = Vote.valueOf(vote.toUpperCase());
+            
+        roomInstance.addVote(currentUserProvider.get(), voteValue);
 
         return transform(roomInstance);
     }
