@@ -11,6 +11,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
+import me.moodcat.api.models.UserModel;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.User;
 
@@ -26,26 +30,33 @@ import com.google.inject.persist.Transactional;
 public class UserAPI {
 
     /**
+     * Provider for the current user.
+     */
+    private final Provider<User> currentUserProvider;
+
+    /**
      * Access to the user DAO.
      */
     private final UserDAO userDAO;
 
     @Inject
     @VisibleForTesting
-    public UserAPI(final UserDAO userDAO) {
+    public UserAPI(final UserDAO userDAO,
+                   @Named("current.user") final Provider<User> currentUserProvider) {
         this.userDAO = userDAO;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @GET
     @Transactional
-    public List<User> getUsers() {
-        return userDAO.getAll();
+    public List<UserModel> getUsers() {
+        return Lists.transform(userDAO.getAll(), UserModel::transform);
     }
 
     /**
      * Get the user according to the provided id.
      *
-     * @param id
+     * @param userId
      *            The id of the user to find.
      * @return The user according to the id.
      * @throws IllegalArgumentException
@@ -54,8 +65,8 @@ public class UserAPI {
     @GET
     @Path("{id}")
     @Transactional
-    public User getUser(@PathParam("id") final int userId) {
-        return userDAO.retrieveBySoundcloudId(userId);
+    public UserModel getUser(@PathParam("id") final int userId) {
+        return UserModel.transform(userDAO.retrieveBySoundcloudId(userId));
     }
 
     /**
@@ -66,9 +77,8 @@ public class UserAPI {
     @GET
     @Path("me")
     @Transactional
-    public User getMe() {
-        // FIXME: Hardcoded until Oauth works
-        return userDAO.retrieveBySoundcloudId(1);
+    public UserModel getMe() {
+        return UserModel.transform(currentUserProvider.get());
     }
 
     /**
@@ -104,7 +114,7 @@ public class UserAPI {
     @GET
     @Path("leaderboard")
     @Transactional
-    public List<User> getLeaderboard(@QueryParam("limit") @DefaultValue("10") final long limit) {
-        return userDAO.getLeaderboard(limit);
+    public List<UserModel> getLeaderboard(@QueryParam("limit") @DefaultValue("10") final long limit) {
+        return Lists.transform(userDAO.getLeaderboard(limit), UserModel::transform);
     }
 }
