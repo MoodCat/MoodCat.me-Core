@@ -1,5 +1,10 @@
 package me.moodcat.database.entities;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
+
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -8,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -99,20 +106,24 @@ public class Song {
     @Embedded
     private VAVector valenceArousal;
 
-//    /**
-//     * The amount of votes received. Can become negative if more people voted it negative than
-//     * positive.
-//     *
-//     * @param numberOfPositiveVotes
-//     *            The new amount of votes to set.
-//     * @return The amount of netto votes that this song received.
-//     */
-//    @ManyToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "artist", nullable = true)
-//    private List<Room> exclusions;
-//
-//    public void addExclusionRoom(final Room room) {
-//        this.getExclusions().add(room);
-//    }
+    /**
+     * The amount of votes received. Can become negative if more people voted it negative than
+     * positive.
+     *
+     * @param numberOfPositiveVotes
+     *            The new amount of votes to set.
+     * @return The amount of netto votes that this song received.
+     */
+    @ManyToMany(fetch = LAZY, cascade = ALL)
+    @JoinTable(name = "song_exclusions", joinColumns = {
+            @JoinColumn(name = "song_id", referencedColumnName = "id")
+    }, inverseJoinColumns = {
+            @JoinColumn(name = "room_id", referencedColumnName = "id")
+    })
+    private List<Room> exclusions;
+
+    public void addExclusionRoom(final Room room) {
+        this.getExclusions().add(room);
+    }
 
 }

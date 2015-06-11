@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -162,15 +163,11 @@ public class RoomInstance {
             throw new IllegalStateException("Room should be playing a song");
         }
         history.add(previousSong);
-        final List<Song> playQueue = room.getPlayQueue();
-        if (playQueue.isEmpty()) {
-            playQueue.addAll(history);
-        }
-
-        playNext(playQueue.remove(0));
-        hasChanged.set(true);
+        
+        processVotes(previousSong);
+        
+        processNextSong(room, history);
         this.merge();
-        this.votes.clear();
     }
 
     @Transactional
@@ -189,6 +186,37 @@ public class RoomInstance {
         // Observer: Play the next song when the song is finished
         songInstance.addObserver((observer, arg) -> playNext());
 
+        hasChanged.set(true);
+    }
+    
+    private void processVotes(final Song previousSong) {
+        AtomicInteger nettoVotes = new AtomicInteger();
+        
+        this.votes.values().stream().forEach((vote) -> {
+            if (vote.equals(Vote.LIKE)) {
+                nettoVotes.incrementAndGet();
+            } else {
+                nettoVotes.decrementAndGet();
+            }
+        });
+        
+        if (nettoVotes.get() < 0) {
+            final RoomDAO roomDAO = this.roomDAOProvider.get();
+            final Room room = roomDAO.findById(id);
+            
+            previousSong.addExclusionRoom(room);
+        }
+        
+        this.votes.clear();
+    }
+    
+    private void processNextSong(final Room room, final List<Song> history) {
+        final List<Song> playQueue = room.getPlayQueue();
+        if (playQueue.isEmpty()) {
+            playQueue.addAll(history);
+        }
+
+        playNext(playQueue.remove(0));
         hasChanged.set(true);
     }
 
@@ -300,7 +328,7 @@ public class RoomInstance {
         return this.currentSong.get().getTime();
     }
 
-    public void addVote(User user, Vote valueOf) {
+    public void addVote(final User user, final Vote valueOf) {
         this.votes.put(user, valueOf);
     }
 
