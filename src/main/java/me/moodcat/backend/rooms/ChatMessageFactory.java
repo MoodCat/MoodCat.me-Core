@@ -21,11 +21,21 @@ public class ChatMessageFactory {
         this.userDAOProvider = userDAOProvider;
     }
 
+    /**
+     * Create a ChatMessage entity according to the ChatMessage instance
+     * provided by the backend.
+     * 
+     * @param room
+     *            The room the chat message was posted in.
+     * @param chatMessageInstance
+     *            The ChatMessage.
+     * @return The ChatMessage entity to store in the database.
+     */
     @Transactional
     public ChatMessage create(Room room, ChatMessageInstance chatMessageInstance) {
         final ChatMessage chatMessage = new ChatMessage();
-        final User user = userDAOProvider.get()
-                .findById(chatMessageInstance.getUserId());
+        final User user = userDAOProvider.get().findById(
+                chatMessageInstance.getUserId());
         chatMessage.setUser(user);
         chatMessage.setMessage(chatMessageInstance.getMessage());
         chatMessage.setTimestamp(chatMessageInstance.getTimestamp());

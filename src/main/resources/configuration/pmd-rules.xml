@@ -6,6 +6,8 @@
 	<description>
         MoodCat PMD rules to apply on the codebase.
     </description>
+    <exclude-pattern>.*/test/java/.*</exclude-pattern>
+    <exclude-pattern>.*/dev/java/.*</exclude-pattern>
 	<rule ref="rulesets/java/basic.xml"/>
     <rule ref="rulesets/java/braces.xml"/>
     <rule ref="rulesets/java/codesize.xml"/>

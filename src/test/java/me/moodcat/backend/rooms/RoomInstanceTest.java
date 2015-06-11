@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;

@@ -15,7 +15,7 @@ import com.mysema.query.jpa.impl.JPAQuery;
  *            The type to be saved.
  */
 @Slf4j
-public abstract class AbstractDAO<T> {
+public class AbstractDAO<T> {
 
     /**
      * Manager that can talk to the actual database.

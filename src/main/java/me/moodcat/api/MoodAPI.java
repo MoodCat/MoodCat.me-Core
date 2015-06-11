@@ -14,14 +14,14 @@ import me.moodcat.mood.Mood;
 @Produces(MediaType.APPLICATION_JSON)
 public class MoodAPI {
 
-	/**
-	 * Get all the moods defined.
-	 * 
-	 * @return The moods defined.
-	 */
-	@GET
-	public Mood[] getMoods() {
-		return Mood.values();
-	}
+    /**
+     * Get all the moods defined.
+     * 
+     * @return The moods defined.
+     */
+    @GET
+    public Mood[] getMoods() {
+        return Mood.values();
+    }
 
 }

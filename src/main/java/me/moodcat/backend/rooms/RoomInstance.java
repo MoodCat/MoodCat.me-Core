@@ -25,6 +25,7 @@ import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.persist.Transactional;
+
 import me.moodcat.database.entities.User;
 
 /**
@@ -115,7 +116,6 @@ public class RoomInstance {
             @Assisted final Room room) {
 
         Preconditions.checkNotNull(room);
-
         this.songInstanceFactory = songInstanceFactory;
         this.roomDAOProvider = roomDAOProvider;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
@@ -123,12 +123,9 @@ public class RoomInstance {
 
         this.id = room.getId();
         this.name = room.getName();
-
-        final Collection<ChatMessage> messages = room.getChatMessages();
         this.chatMessageIdGenerator = new ChatMessageIdGenerator(room);
-        this.messages = getChatMessageModels(messages);
-
-        this.currentSong = new AtomicReference<>();
+        this.messages = getChatMessageModels(room.getChatMessages());
+        this.currentSong = new AtomicReference<SongInstance>();
         this.hasChanged = new AtomicBoolean(false);
 
         this.scheduleSyncTimer();
@@ -139,8 +136,7 @@ public class RoomInstance {
     private static LinkedList<ChatMessageInstance> getChatMessageModels(
             final Collection<ChatMessage> messages) {
         return Lists.newLinkedList(messages.stream()
-                .map(ChatMessageInstance::create)
-                .collect(Collectors.toList()));
+                .map(ChatMessageInstance::create).collect(Collectors.toList()));
     }
 
     /**
@@ -175,8 +171,9 @@ public class RoomInstance {
         this.currentSong.set(songInstance);
         log.info("Room {} now playing {}", this.id, song);
 
-        final ScheduledFuture<?> future = this.unitOfWorkSchedulingService.scheduleAtFixedRate(
-                songInstance::incrementTime, 1L, 1L, TimeUnit.SECONDS);
+        final ScheduledFuture<?> future = this.unitOfWorkSchedulingService
+                .scheduleAtFixedRate(songInstance::incrementTime, 1L, 1L,
+                        TimeUnit.SECONDS);
 
         // Observer: Stop the increment time task when the song is finished
         songInstance.addObserver((observer, arg) -> future.cancel(false));
@@ -206,8 +203,8 @@ public class RoomInstance {
      * Sync room messages to the database.
      */
     private void scheduleSyncTimer() {
-        this.unitOfWorkSchedulingService.scheduleAtFixedRate(this::merge,
-                1, 1, TimeUnit.MINUTES);
+        this.unitOfWorkSchedulingService.scheduleAtFixedRate(this::merge, 1, 1,
+                TimeUnit.MINUTES);
     }
 
     /**
@@ -216,14 +213,16 @@ public class RoomInstance {
      * @param model
      *            the message to send.
      */
-    public ChatMessageModel sendMessage(final ChatMessageModel model, final User user) {
+    public ChatMessageModel sendMessage(final ChatMessageModel model,
+            final User user) {
         Preconditions.checkNotNull(model);
 
         model.setId(chatMessageIdGenerator.generateId());
         model.setTimestamp(System.currentTimeMillis());
         model.setAuthor(user.getName());
 
-        ChatMessageInstance chatMessage = new ChatMessageInstance(user.getId(), model);
+        ChatMessageInstance chatMessage = new ChatMessageInstance(user.getId(),
+                model);
         messages.addLast(chatMessage);
 
         if (messages.size() > MAXIMAL_NUMBER_OF_CHAT_MESSAGES) {
@@ -241,22 +240,25 @@ public class RoomInstance {
     protected void merge() {
         if (hasChanged.getAndSet(false)) {
             log.info("Merging changes in room {}", this);
-            this.unitOfWorkSchedulingService.performInUnitOfWork(() -> {
-                final RoomDAO roomDAO = this.roomDAOProvider.get();
-                final Room room = roomDAO.findById(id);
-                room.getChatMessages().addAll(messages.stream()
-                        .map(message -> chatMessageFactory.create(room, message))
-                        .collect(Collectors.toList()));
-                room.setCurrentSong(getCurrentSong());
+            this.unitOfWorkSchedulingService.performInUnitOfWork(this::mergeRoom);
+        }
+    }
 
-                try {
-                    return roomDAO.merge(room);
-                }
-                    catch (Exception e) {
-                        log.error("Failed to persist room {}", room);
-                        return null;
-                    }
-                });
+    private Room mergeRoom() {
+        final RoomDAO roomDAO = this.roomDAOProvider.get();
+        final Room room = roomDAO.findById(id);
+        room.getChatMessages().addAll(
+                messages.stream()
+                        .map(message -> chatMessageFactory
+                                .create(room, message))
+                        .collect(Collectors.toList()));
+        room.setCurrentSong(getCurrentSong());
+
+        try {
+            return roomDAO.merge(room);
+        } catch (Exception e) {
+            log.error("Failed to persist room {}", room);
+            return null;
         }
     }
 
@@ -266,8 +268,7 @@ public class RoomInstance {
      * @return The latest {@link #MAXIMAL_NUMBER_OF_CHAT_MESSAGES} messages.
      */
     public List<ChatMessageModel> getMessages() {
-        return this.messages.stream()
-                .map(ChatMessageInstance::transform)
+        return this.messages.stream().map(ChatMessageInstance::transform)
                 .collect(Collectors.toList());
     }
 

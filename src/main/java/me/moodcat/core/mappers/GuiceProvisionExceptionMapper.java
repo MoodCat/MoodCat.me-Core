@@ -10,25 +10,29 @@ import javax.ws.rs.ext.Provider;
 import java.util.UUID;
 
 /**
- * This ExceptionMapper maps {@link ProvisionException ProvisionExceptions} in such a way
- * that the client receives a descriptive JSON response and HTTP status code.
+ * This ExceptionMapper maps {@link ProvisionException ProvisionExceptions} in
+ * such a way that the client receives a descriptive JSON response and HTTP
+ * status code.
  */
 @Provider
-public class GuiceProvisionExceptionMapper extends AbstractExceptionMapper<ProvisionException> {
+public class GuiceProvisionExceptionMapper extends
+        AbstractExceptionMapper<ProvisionException> {
 
     private final NotAuthorizedExceptionMapper notAuthorizedExceptionMapper;
 
     @Inject
-    public GuiceProvisionExceptionMapper(final NotAuthorizedExceptionMapper notAuthorizedExceptionMapper) {
+    public GuiceProvisionExceptionMapper(
+            final NotAuthorizedExceptionMapper notAuthorizedExceptionMapper) {
         this.notAuthorizedExceptionMapper = notAuthorizedExceptionMapper;
     }
 
     @Override
-    protected Response createResponse(final ProvisionException exception, final UUID id) {
+    protected Response createResponse(final Throwable exception,
+            final UUID id) {
         Throwable cause = exception;
-        while(cause != null) {
-            if(cause instanceof NotAuthorizedException) {
-                return notAuthorizedExceptionMapper.createResponse((NotAuthorizedException) cause, id);
+        while (cause != null) {
+            if (cause instanceof NotAuthorizedException) {
+                return notAuthorizedExceptionMapper.createResponse(cause, id);
             }
             cause = cause.getCause();
         }

@@ -168,7 +168,7 @@ public class BulkInsertData {
             room.setCurrentSong(songs.get(random.nextInt(songs.size())));
             room.setName("ROOM_STUB #" + i);
             room.setVaVector(VAVector.createRandomVector());
-            room.setChatMessages(Collections.<ChatMessage> emptyList());
+            room.setChatMessages(Collections.<ChatMessage> emptySet());
             room.setRepeat(true);
             roomDAO.persist(room);
         }

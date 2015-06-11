@@ -10,7 +10,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import lombok.extern.slf4j.Slf4j;
 import me.moodcat.backend.UserBackend;
 import me.moodcat.core.mappers.NotAuthorizedExceptionMapper;
 import me.moodcat.database.entities.User;
@@ -26,14 +25,13 @@ import com.google.inject.name.Names;
  * OAuth token through its query parameters and the token can be verified against
  * the SoundCloud services.
  */
-@Slf4j
 @Provider
 @PreMatching
 public class AuthorizationFilter implements ContainerRequestFilter {
 
-    private static final String TOKEN_PARAMETER = "token";
+    protected static final String TOKEN_PARAMETER = "token";
 
-    public static final String CURRENT_USER_NAME = "current.user";
+    private static final String CURRENT_USER_NAME = "current.user";
 
     private final UserBackend userBackend;
 

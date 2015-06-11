@@ -11,7 +11,7 @@ import me.moodcat.database.entities.Room;
  */
 public class ChatMessageIdGenerator {
 
-    public static final int START_CHAT_MESSAGE_INDEX = 0;
+    private static final int START_CHAT_MESSAGE_INDEX = 0;
 
     private final AtomicInteger messageIndex;
 

@@ -9,7 +9,6 @@ import me.moodcat.backend.rooms.RoomInstanceFactory;
 import me.moodcat.backend.rooms.SongInstanceFactory;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.Room;
 
 /**

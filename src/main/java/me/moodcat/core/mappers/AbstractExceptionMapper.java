@@ -21,13 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractExceptionMapper<T extends Throwable> implements ExceptionMapper<T> {
 
     @Override
-    public Response toResponse(final T exception) {
+    public Response toResponse(final Throwable exception) {
         final UUID id = UUID.randomUUID();
         log.error(exception.getMessage() + " (" + id + ")", exception);
         return createResponse(exception, id);
     }
 
-    protected Response createResponse(T exception, UUID id) {
+    protected Response createResponse(Throwable exception, UUID id) {
         final ExceptionResponse exceptionResponse = createResponse(exception);
         exceptionResponse.setUuid(id.toString());
 
@@ -37,7 +37,7 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
                 .build();
     }
 
-    protected ExceptionResponse createResponse(final T exception) {
+    protected ExceptionResponse createResponse(final Throwable exception) {
         final ExceptionResponse exceptionResponse = new ExceptionResponse();
         exceptionResponse.setMessage(exception.getMessage());
         return exceptionResponse;

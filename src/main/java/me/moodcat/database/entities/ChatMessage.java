@@ -27,22 +27,12 @@ import java.io.Serializable;
 @ToString(of = {
         "id", "room", "message", "user"
 })
-@EqualsAndHashCode(of = { "id", "room" })
+@EqualsAndHashCode(of = {
+        "id", "room"
+})
 @NoArgsConstructor()
 @IdClass(ChatMessageId.class)
 public class ChatMessage implements Comparable<ChatMessage> {
-
-    /**
-     * Id Class for ChatMessage.
-     */
-    @Data
-    public static class ChatMessageId implements Serializable {
-
-        private Room room;
-
-        private Integer id;
-
-    }
 
     /**
      * The room the message was for.
@@ -109,6 +99,20 @@ public class ChatMessage implements Comparable<ChatMessage> {
     @Override
     public int compareTo(final ChatMessage other) {
         return getTimestamp().compareTo(other.getTimestamp());
+    }
+
+    /**
+     * Id Class for ChatMessage.
+     */
+    @Data
+    public static class ChatMessageId implements Serializable {
+
+        private static final long serialVersionUID = -1962128728359087383L;
+
+        private transient Room room;
+
+        private Integer id;
+
     }
 
 }

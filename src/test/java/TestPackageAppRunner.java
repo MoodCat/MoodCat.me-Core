@@ -14,6 +14,10 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
  * @author Jan-Willem Gmelig Meyling
  */
 public class TestPackageAppRunner {
+    
+    private TestPackageAppRunner() {
+        // You may only run the main method.
+    }
 
     public static void main(final String... args) throws Exception {
         SLF4JBridgeHandler.removeHandlersForRootLogger();

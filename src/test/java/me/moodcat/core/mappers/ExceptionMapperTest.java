@@ -13,10 +13,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class ExceptionMapperTest<T extends Throwable> {
 
-    private AbstractExceptionMapper<T> mapper;
+    protected AbstractExceptionMapper<T> mapper;
 
     @Mock
-    private T exception;
+    protected Throwable exception;
 
     protected ExceptionMapperTest(final AbstractExceptionMapper<T> mapper) {
         this.mapper = mapper;

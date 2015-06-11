@@ -7,9 +7,9 @@ import me.moodcat.soundcloud.models.MeModel;
  */
 public class SoundCloudIdentifier extends SoundCloudAPIConnector {
 
-    private final static String ME_ENDPOINT = "me.json";
+    private static final String ME_ENDPOINT = "me.json";
 
-    private final static String TOKEN_PARAM = "oauth_token";
+    private static final String TOKEN_PARAM = "oauth_token";
 
     /**
      * The /me resource allows you to get information about the authenticated user and easily access

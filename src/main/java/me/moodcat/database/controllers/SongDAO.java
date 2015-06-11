@@ -43,9 +43,8 @@ public class SongDAO extends AbstractDAO<Song> {
      */
     @Transactional
     public List<Song> listRandomsongs(final int limit) {
-        final NumberExpression<Double> x = song.valenceArousal.location.x();
         return query().from(song)
-                .where(x.eq(0.0)
+                .where(song.valenceArousal.location.x().eq(0.0)
                         .and(song.valenceArousal.location.y().eq(0.0)))
                 .orderBy(NumberExpression.random().asc())
                 .limit(limit)
