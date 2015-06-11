@@ -7,6 +7,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import com.mysema.query.types.OrderSpecifier;
+
 import me.moodcat.database.entities.User;
 
 /**
@@ -63,15 +65,30 @@ public class UserDAO extends AbstractDAO<User> {
     /**
      * Updates the user with the id userId with the set amount.
      * 
-     * @param userId
+     * @param soundCloudId
      *            The user to update.
      * @param amount
      *            The amount of points to award the user.
      */
-    public void incrementPoints(int userId, int amount) {
-        User usr = this.retrieveBySoundcloudId(userId);
+    public void incrementPoints(int soundCloudId, int amount) {
+        User usr = this.retrieveBySoundcloudId(soundCloudId);
         usr.increment(amount);
         this.merge(usr);
+    }
+
+    /**
+     * Retrieves a list of {limit} users, sorted on their score.
+     * 
+     * @param limit
+     *            The number of users to retrieve.
+     * @return A list of the most awarded users.
+     */
+    public List<User> getLeaderboard(final long limit) {
+        return this.query()
+                .from(user)
+                .orderBy(user.points.desc())
+                .limit(limit)
+                .list(user);
     }
 
 }

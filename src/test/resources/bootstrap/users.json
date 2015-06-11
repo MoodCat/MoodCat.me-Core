@@ -1,0 +1,66 @@
+{
+	"users":[
+		{
+			"id": 100,
+			"username": "Gijs",
+			"soundCloudUserId": 1,
+			"points": 666
+		},
+		{
+			"id": 101,
+			"username": "Tim",
+			"soundCloudUserId": 2,
+			"points": 420
+		},
+		{
+			"id": 102,
+			"username": "Jan-Willem",
+			"soundCloudUserId": 3,
+			"points": 69
+		},
+		{
+			"id": 103,
+			"username": "Eva",
+			"soundCloudUserId": 4,
+			"points": 42
+		},
+		{
+			"id": 104,
+			"username": "Jaap",
+			"soundCloudUserId": 5,
+			"points": 13
+		}
+		
+	],
+	"artists":[
+		{
+			"id": 1,
+			"name": "Fall Out Boy",
+			"songs": [
+				{
+					"id": 1,
+					"name": "Thanks for the Memories",
+					"artworkUrl": "https://i1.sndcdn.com/artworks-000057992801-cxjxj7-large.jpg",
+					"soundCloudId": 202330997,
+					"duration": 300000
+				}
+			]
+		}
+	],
+	"rooms": [
+		{
+			"id": 1,
+			"name": "No Merge Conflicts PL0x",
+			"position": 1,
+			"time": 0,
+			"songId" : 1,
+			"messages": [
+				{
+					"userId": 1,
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		}
+	]
+}
