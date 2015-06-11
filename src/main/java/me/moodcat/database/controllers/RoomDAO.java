@@ -66,21 +66,6 @@ public class RoomDAO extends AbstractDAO<Room> {
     }
 
     /**
-     * Get the last {@link #NUMBER_OF_CHAT_MESSAGE} of the room with the specified roomId.
-     *
-     * @param id
-     *            The id of the room to fetch the messages for
-     * @return A list of messages from this room
-     */
-    @Transactional
-    public List<ChatMessage> listMessages(final int id) {
-        return this.query().from(chatMessage)
-                .where(chatMessage.room.id.eq(id))
-                .limit(NUMBER_OF_CHAT_MESSAGE)
-                .list(chatMessage);
-    }
-
-    /**
      * Query rooms in space.
      * 
      * @param vector

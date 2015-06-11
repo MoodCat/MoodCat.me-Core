@@ -1,7 +1,16 @@
 package me.moodcat.api;
 
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
@@ -9,9 +18,9 @@ import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 import me.moodcat.mood.Mood;
 
 import org.junit.Before;
@@ -22,26 +31,25 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomAPITest {
 
     private static final long PLAYING_TIME = 5000;
 
-	@Mock
+    @Mock
     private RoomBackend roomBackend;
 
     @Mock
     private RoomDAO roomDAO;
+
+    @Mock
+    private Provider<User> currentUserProvider;
+
+    @Mock
+    private User user;
 
     @InjectMocks
     private RoomAPI roomAPI;
@@ -60,11 +68,11 @@ public class RoomAPITest {
     @Mock
     private Room otherRoom;
 
-    private List<ChatMessage> messagesList;
+    private List<ChatMessageModel> messagesList;
 
     @Spy
-    private ChatMessage message;
-    
+    private ChatMessageModel message;
+
     @Spy
     private Song song;
 
@@ -74,14 +82,17 @@ public class RoomAPITest {
         roomList.add(oneRoom);
         roomList.add(otherRoom);
 
+        when(user.getId()).thenReturn(1);
+        when(currentUserProvider.get()).thenReturn(user);
+
         when(oneRoom.getId()).thenReturn(1);
         when(oneRoom.getVaVector()).thenReturn(Mood.HAPPY.getVector());
 
         when(otherRoom.getId()).thenReturn(2);
         when(otherRoom.getVaVector()).thenReturn(Mood.ANGRY.getVector());
         when(song.getValenceArousal()).thenReturn(Mood.HAPPY.getVector());
-        
-        messagesList = new ArrayList<ChatMessage>();
+
+        messagesList = new ArrayList<ChatMessageModel>();
         messagesList.add(message);
 
         mockRoom(oneRoom, oneRoomInstance);
@@ -130,14 +141,15 @@ public class RoomAPITest {
     public void storeMessagePersistsDatabase() {
         this.roomAPI.postChatMessage(message, 1);
 
-        verify(roomBackend.getRoomInstance(1)).sendMessage(message);
+        verify(roomBackend.getRoomInstance(1)).sendMessage(message, user);
     }
-    
+
+
     @Test
     public void canRetrieveCurrentTime() {
-    	NowPlaying playing = this.roomAPI.getCurrentTime(1);
-    	
-    	assertEquals(PLAYING_TIME, playing.getTime());
-    	assertEquals(SongModel.transform(song), playing.getSong());
+        NowPlaying playing = this.roomAPI.getCurrentTime(1);
+
+        assertEquals(PLAYING_TIME, playing.getTime());
+        assertEquals(SongModel.transform(song), playing.getSong());
     }
 }

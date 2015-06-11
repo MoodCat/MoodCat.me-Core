@@ -10,7 +10,7 @@ import java.net.URLEncoder;
 /**
  * Connects to the SoundCloud API using its {@link #createClient()}.
  */
-public abstract class SoundCloudAPIConnector {
+public class SoundCloudAPIConnector {
 
     /**
      * The charset that is used to encode urls.
@@ -38,6 +38,10 @@ public abstract class SoundCloudAPIConnector {
      * Our client-id in order to talk to SoundCloud.
      */
     protected static final String CLIENT_ID = "b45b1aa10f1ac2941910a7f0d10f8e28";
+    
+    protected SoundCloudAPIConnector() {
+        // Only sub-classes may be instantiated.
+    }
 
     /**
      * Obtain a HTTP-client to start a request.

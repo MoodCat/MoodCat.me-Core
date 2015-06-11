@@ -73,7 +73,7 @@ public class MoodcatHandler extends ServletContextHandler {
         @Override
         protected List<Module> getModules(final ServletContext context) {
             final MoodcatServletModule module = new MoodcatServletModule(MoodcatHandler.this.app, rootFolder);
-            return ImmutableList.<Module> of(Modules.override(module).with(overrides));
+            return ImmutableList.<Module>of(Modules.override(module).with(overrides));
         }
 
         @Override

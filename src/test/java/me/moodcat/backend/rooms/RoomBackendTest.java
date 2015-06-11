@@ -4,21 +4,24 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
+import me.moodcat.database.entities.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,15 +57,18 @@ public class RoomBackendTest extends BackendTest {
     @Mock
     private UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
+    @Mock
+    private ChatMessageFactory chatMessageFactory;
+
     private RoomBackend roomBackend;
 
-    private ArrayList<ChatMessage> messages;
+    private ArrayList<ChatMessageModel> messages;
 
     private List<Song> songHistory;
 
     private List<Song> songFuture;
 
-    private static ChatMessage chatMessage = createChatMessage();
+    private static ChatMessageModel chatMessage = createChatMessage();
 
     private final static Song song1 = createSong(1);
 
@@ -70,7 +76,8 @@ public class RoomBackendTest extends BackendTest {
 
     @Before
     public void setUp() {
-        roomInstanceFactoryMock = new RoomInstanceFactoryMock(songDAOProvider, roomDAOProvider, unitOfWorkSchedulingService);
+        roomInstanceFactoryMock = new RoomInstanceFactoryMock(songDAOProvider, roomDAOProvider,
+                chatMessageFactory, unitOfWorkSchedulingService);
 
         rooms = Lists.newArrayList();
         rooms.add(room);
@@ -85,7 +92,7 @@ public class RoomBackendTest extends BackendTest {
         songFuture.add(song2);
 
         when(room.getId()).thenReturn(1);
-        when(room.getChatMessages()).thenReturn(messages);
+        when(room.getChatMessages()).thenReturn(Collections.emptySet());
         when(room.getPlayHistory()).thenReturn(songHistory);
         when(room.getPlayQueue()).thenReturn(songFuture);
 
@@ -98,7 +105,8 @@ public class RoomBackendTest extends BackendTest {
         when(unitOfWorkSchedulingService.performInUnitOfWork(any())).thenAnswer(invocationOnMock ->
                 invocationOnMock.getArgumentAt(0, Callable.class).call());
 
-        roomBackend = new RoomBackend(unitOfWorkSchedulingService, roomInstanceFactoryMock, roomDAOProvider);
+        roomBackend = new RoomBackend(unitOfWorkSchedulingService, roomInstanceFactoryMock,
+                roomDAOProvider);
         roomBackend.initializeRooms();
     }
 
@@ -109,16 +117,24 @@ public class RoomBackendTest extends BackendTest {
 
     @Test
     public void canSendMessage() {
-        final RoomInstance roomInstance = roomBackend.getRoomInstance(1);
-        roomInstance.sendMessage(chatMessage);
+        final RoomInstance instance = roomBackend.getRoomInstance(1);
 
-        assertTrue(roomInstance.getMessages().contains(chatMessage));
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1);
+
+        instance.sendMessage(chatMessage, user);
+
+        assertTrue(instance.getMessages().contains(chatMessage));
     }
 
     @Test
     public void canRetrieveMessages() {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
-        instance.sendMessage(chatMessage);
+
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1);
+
+        instance.sendMessage(chatMessage, user);
 
         assertTrue(instance.getMessages().contains(chatMessage));
     }
@@ -146,5 +162,5 @@ public class RoomBackendTest extends BackendTest {
 
         assertNotEquals(room.getPlayHistory(), room.getPlayQueue());
     }
-    
+
 }

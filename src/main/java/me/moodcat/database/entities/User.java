@@ -23,6 +23,8 @@ import javax.persistence.Table;
 })
 public class User {
 
+    private static final int AVATER_URL_MAX_LENGTH = 255;
+
     /**
      * The unique id of the user.
      *
@@ -54,6 +56,16 @@ public class User {
      */
     @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    /**
+     * The avatar of this user.
+     *
+     * @param avatarUrl
+     *            The avatar to set.
+     * @return The avatar of this user.
+     */
+    @Column(name = "avatar_url", nullable = true, unique = false, length = AVATER_URL_MAX_LENGTH)
+    private String avatarUrl;
 
     /**
      * SoundCloud OAuth access token.

@@ -1,6 +1,5 @@
 package me.moodcat.api;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
@@ -21,13 +21,15 @@ import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 import me.moodcat.mood.Mood;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 
 /**
@@ -36,11 +38,6 @@ import com.google.inject.persist.Transactional;
 @Path("/api/rooms/")
 @Produces(MediaType.APPLICATION_JSON)
 public class RoomAPI {
-
-    /**
-     * The number of miliseconds in a second, duh.
-     */
-    private static final int SECOND_OF_MILISECONDS = 1000;
 
     /**
      * The backend of the room.
@@ -52,11 +49,18 @@ public class RoomAPI {
      */
     private final RoomDAO roomDAO;
 
+    /**
+     * Current User provider.
+     */
+    private final Provider<User> currentUserProvider;
+
     @Inject
     @VisibleForTesting
-    public RoomAPI(final RoomBackend backend, final RoomDAO roomDAO) {
+    public RoomAPI(final RoomBackend backend, final RoomDAO roomDAO,
+            @Named("current.user") final Provider<User> currentUserProvider) {
         this.backend = backend;
         this.roomDAO = roomDAO;
+        this.currentUserProvider = currentUserProvider;
     }
 
     /**
@@ -128,7 +132,7 @@ public class RoomAPI {
      */
     @GET
     @Path("{id}/messages")
-    public Collection<ChatMessage> getMessages(@PathParam("id") final int roomId) {
+    public List<ChatMessageModel> getMessages(@PathParam("id") final int roomId) {
         return backend.getRoomInstance(roomId).getMessages();
     }
 
@@ -144,16 +148,14 @@ public class RoomAPI {
     @POST
     @Path("{id}/messages")
     @Consumes(MediaType.APPLICATION_JSON)
-    public ChatMessage postChatMessage(final ChatMessage msg, @PathParam("id") final int roomId) {
-        final RoomInstance roomInstance = backend.getRoomInstance(roomId);
-        msg.setTimestamp(System.currentTimeMillis() / SECOND_OF_MILISECONDS);
-        roomInstance.sendMessage(msg);
-        return msg;
+    public ChatMessageModel postChatMessage(final ChatMessageModel msg,
+            @PathParam("id") final int roomId) {
+        return backend.getRoomInstance(roomId).sendMessage(msg, currentUserProvider.get());
     }
 
     /**
      * Retrieve whats playing now.
-     * 
+     *
      * @param roomId
      *            The id of the room.
      * @return

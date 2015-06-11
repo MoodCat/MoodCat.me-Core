@@ -1,9 +1,11 @@
 package me.moodcat.database.bootstrapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
@@ -18,11 +20,10 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 
 /**
  * The {@code Bootstrapper} loads an environment for a test
@@ -33,8 +34,11 @@ import java.util.Map;
 public class Bootstrapper {
 
     private final Map<Integer, Artist> persistedArtists;
+
     private final Map<Integer, Song> persistedSongs;
+
     private final Map<Integer, Room> persistedRooms;
+
     private final Map<Integer, User> persistedUsers;
 
     /**
@@ -57,8 +61,8 @@ public class Bootstrapper {
 
     @Inject
     public Bootstrapper(final ObjectMapper objectMapper, final ArtistDAO artistDAO,
-                        final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO,
-                        final UserDAO userDAO) {
+            final RoomDAO roomDAO, final SongDAO songDAO, final ChatDAO chatDAO,
+            final UserDAO userDAO) {
         this.objectMapper = objectMapper;
         this.artistDAO = artistDAO;
         this.roomDAO = roomDAO;
@@ -142,6 +146,8 @@ public class Bootstrapper {
     @Data
     private static class BMessage {
 
+        private Integer id;
+
         private Integer userId;
 
         private String message;
@@ -181,7 +187,7 @@ public class Bootstrapper {
         Room room = new Room();
         room.setId(bRoom.getId());
         room.setName(bRoom.getName());
-        room.setChatMessages(Collections.<ChatMessage> emptyList());
+        room.setChatMessages(Collections.emptySet());
         room.setCurrentSong(persistedSongs.get(bRoom.getSongId()));
         room.setVaVector(room.getCurrentSong().getValenceArousal());
         Room persistedRoom = roomDAO.merge(room);
@@ -193,11 +199,12 @@ public class Bootstrapper {
     @Transactional
     protected ChatMessage createChatMessage(BMessage bMessage, Room room) {
         ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setId(bMessage.getId());
         chatMessage.setUser(persistedUsers.get(bMessage.getUserId()));
         chatMessage.setMessage(bMessage.getMessage());
         chatMessage.setTimestamp(bMessage.getTime());
         chatMessage.setRoom(room);
-        return chatDAO.persist(chatMessage);
+        return chatDAO.merge(chatMessage);
     }
 
     @Transactional
@@ -237,7 +244,9 @@ public class Bootstrapper {
 
     /**
      * Get a persisted artist
-     * @param id id for the artist
+     * 
+     * @param id
+     *            id for the artist
      * @return artist
      */
     public Artist getArtist(Integer id) {
@@ -246,7 +255,9 @@ public class Bootstrapper {
 
     /**
      * Get a persisted Room
-     * @param id id for the Room
+     * 
+     * @param id
+     *            id for the Room
      * @return Room
      */
     public Room getRoom(Integer id) {
@@ -256,7 +267,8 @@ public class Bootstrapper {
     /**
      * Get an artist
      *
-     * @param id id for the Song
+     * @param id
+     *            id for the Song
      * @return an artist
      */
     public Song getSong(Integer id) {

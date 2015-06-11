@@ -2,6 +2,7 @@ package me.moodcat.core.mappers;
 
 import java.util.UUID;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -20,19 +21,23 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractExceptionMapper<T extends Throwable> implements ExceptionMapper<T> {
 
     @Override
-    public Response toResponse(final T exception) {
+    public Response toResponse(final Throwable exception) {
         final UUID id = UUID.randomUUID();
         log.error(exception.getMessage() + " (" + id + ")", exception);
+        return createResponse(exception, id);
+    }
 
+    protected Response createResponse(Throwable exception, UUID id) {
         final ExceptionResponse exceptionResponse = createResponse(exception);
         exceptionResponse.setUuid(id.toString());
 
         return Response.status(getStatusCode())
+                .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(exceptionResponse)
                 .build();
     }
 
-    protected ExceptionResponse createResponse(final T exception) {
+    protected ExceptionResponse createResponse(final Throwable exception) {
         final ExceptionResponse exceptionResponse = new ExceptionResponse();
         exceptionResponse.setMessage(exception.getMessage());
         return exceptionResponse;

@@ -34,15 +34,15 @@ public class VAVector {
      */
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
-    static {
-        ZERO = new VAVector(0.0, 0.0);
-    }
-
     /**
      * The point that represents this vector.
      */
     @Type(type = "org.hibernate.spatial.GeometryType")
     private Point location;
+    
+    static {
+        ZERO = new VAVector(0.0, 0.0);
+    }
 
     /**
      * Constructor to create a vector. Asserts that the provided valence and arousal are in the
