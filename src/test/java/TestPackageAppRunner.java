@@ -1,11 +1,8 @@
-import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.core.App;
 import me.moodcat.database.bootstrapper.Bootstrapper;
-import me.moodcat.database.controllers.H2RoomDAO;
-import me.moodcat.database.controllers.RoomDAO;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -22,13 +19,7 @@ public class TestPackageAppRunner {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        final App app = new App(new AbstractModule() {
-			
-			@Override
-			protected void configure() {
-				bind(RoomDAO.class).to(H2RoomDAO.class);
-			}
-		});
+        final App app = new App();
         app.startServer();
 
         Injector injector = app.getInjector();
