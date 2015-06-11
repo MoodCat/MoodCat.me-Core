@@ -67,14 +67,6 @@ public class UserDAOTest {
 
     @Test
     @TestBootstrap("/bootstrap/users.json")
-    public void canRetrievePointsBySoundcloudId() {
-        final Integer score = 666;
-
-        assertEquals(score, userDAO.retrievePointsBySoundcloudId(1));
-    }
-
-    @Test
-    @TestBootstrap("/bootstrap/users.json")
     public void cangetLeaderboardStandardFilter() {
         final int standardFilter = 10;
         final int expectedNumberOfUsers = 5;
@@ -106,7 +98,7 @@ public class UserDAOTest {
         final int incrementAmount = 6;
         final int soundCloudId = 1;
 
-        int oldscore = userDAO.retrievePointsBySoundcloudId(soundCloudId);
+        int oldscore = userDAO.retrieveBySoundcloudId(soundCloudId).getPoints();
         userDAO.incrementPoints(soundCloudId, incrementAmount);
         assertEquals((oldscore + incrementAmount), userDAO.retrieveBySoundcloudId(soundCloudId)
                 .getPoints());

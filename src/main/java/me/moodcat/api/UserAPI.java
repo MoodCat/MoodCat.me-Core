@@ -66,7 +66,7 @@ public class UserAPI {
     @Path("{id}")
     @Transactional
     public UserModel getUser(@PathParam("id") final int userId) {
-        return UserModel.transform(userDAO.retrieveBySoundcloudId(userId));
+        return UserModel.transform(userDAO.findById(userId));
     }
 
     /**
@@ -92,7 +92,7 @@ public class UserAPI {
     @Path("{id}/points")
     @Transactional
     public Integer getPoints(@PathParam("id") final int userId) {
-        return userDAO.retrievePointsBySoundcloudId(userId);
+        return userDAO.findById(userId).getPoints();
     }
 
     /**

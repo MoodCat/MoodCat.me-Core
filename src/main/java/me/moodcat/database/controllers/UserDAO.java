@@ -7,8 +7,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import com.mysema.query.types.OrderSpecifier;
-
 import me.moodcat.database.entities.User;
 
 /**
@@ -36,8 +34,8 @@ public class UserDAO extends AbstractDAO<User> {
      */
     public User findById(final int id) {
         return ensureExists(query().from(user)
-            .where(user.id.eq(id))
-            .singleResult(user));
+                .where(user.id.eq(id))
+                .singleResult(user));
     }
 
     /**
@@ -51,19 +49,6 @@ public class UserDAO extends AbstractDAO<User> {
         return ensureExists(query().from(user)
                 .where(user.soundCloudUserId.eq(soundCloudId))
                 .singleResult(user));
-    }
-
-    /**
-     * Returns the amount of points the user has collected.
-     * 
-     * @param soundCloudId
-     *            The Id of the user we're searching for.
-     * @return The amount of points this user has.
-     */
-    public Integer retrievePointsBySoundcloudId(final Integer soundCloudId) {
-        return ensureExists(query().from(user)
-                .where(user.soundCloudUserId.eq(soundCloudId))
-                .singleResult(user)).getPoints();
     }
 
     /**
@@ -84,7 +69,7 @@ public class UserDAO extends AbstractDAO<User> {
      *            The amount of points to award the user.
      */
     public void incrementPoints(int soundCloudId, int amount) {
-        User usr = this.retrieveBySoundcloudId(soundCloudId);
+        User usr = this.findById(soundCloudId);
         usr.increment(amount);
         this.merge(usr);
     }
