@@ -18,16 +18,22 @@ public class MeModel {
     private Integer id;
 
     /**
-     * Username for the user.
+     *  Permalink for the user.
      */
     @JsonProperty("permalink")
     private String permalink;
 
     /**
-     * Name for the user.
+     * Username for the user.
      */
     @JsonProperty("username")
     private String username;
+
+    /**
+     * Name for the user.
+     */
+    @JsonProperty("full_name")
+    private String fullName;
 
     /**
      * Avatar URL.

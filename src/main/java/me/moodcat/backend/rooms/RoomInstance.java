@@ -221,6 +221,7 @@ public class RoomInstance {
 
         model.setId(chatMessageIdGenerator.generateId());
         model.setTimestamp(System.currentTimeMillis());
+        model.setAuthor(user.getName());
 
         ChatMessageInstance chatMessage = new ChatMessageInstance(user.getId(), model);
         messages.addLast(chatMessage);
