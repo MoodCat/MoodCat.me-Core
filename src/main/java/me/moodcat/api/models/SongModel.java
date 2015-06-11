@@ -77,7 +77,7 @@ public class SongModel {
      *
      * @param purchaseUrl
      *          The new purchaseURL to set.
-     * @return The url to the artwork image.
+     * @return The url to the purchase URL.
      */
     private String purchaseUrl;
 
