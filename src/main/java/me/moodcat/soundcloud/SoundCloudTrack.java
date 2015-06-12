@@ -83,6 +83,26 @@ public class SoundCloudTrack {
     private boolean downloadable;
 
     /**
+     * The purchase URL of the track.
+     *
+     * @param purchaseUrl
+     *          The purchase URL.
+     * @return The purchase URL.
+     */
+    @JsonProperty("purchase_url")
+    private String purchaseUrl;
+
+    /**
+     * The purchase title of the track.
+     *
+     * @param purchaseTitle
+     *          The purchase title.
+     * @return The purchase title.
+     */
+    @JsonProperty("purchase_title")
+    private String purchaseTitle;
+
+    /**
      * A SoundCloud user model.
      */
     @Data
