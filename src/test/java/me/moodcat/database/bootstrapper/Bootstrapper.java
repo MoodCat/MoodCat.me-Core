@@ -95,6 +95,10 @@ public class Bootstrapper {
 
         private String username;
 
+        private int soundCloudUserId;
+
+        private Integer points;
+
     }
 
     /**
@@ -177,6 +181,8 @@ public class Bootstrapper {
         final User user = new User();
         user.setId(bUser.getId());
         user.setName(bUser.getUsername());
+        user.setSoundCloudUserId(bUser.getSoundCloudUserId());
+        user.setPoints(bUser.getPoints());
         User persistedUser = userDAO.merge(user);
         persistedUsers.put(persistedUser.getId(), persistedUser);
         log.info("Bootstrapper created user {}", persistedUser);

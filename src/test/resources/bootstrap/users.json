@@ -1,10 +1,36 @@
 {
 	"users":[
 		{
-			"id": 1,
-			"username": "System",
-			"points": 10
+			"id": 100,
+			"username": "Gijs",
+			"soundCloudUserId": 1,
+			"points": 666
+		},
+		{
+			"id": 101,
+			"username": "Tim",
+			"soundCloudUserId": 2,
+			"points": 420
+		},
+		{
+			"id": 102,
+			"username": "Jan-Willem",
+			"soundCloudUserId": 3,
+			"points": 69
+		},
+		{
+			"id": 103,
+			"username": "Eva",
+			"soundCloudUserId": 4,
+			"points": 42
+		},
+		{
+			"id": 104,
+			"username": "Jaap",
+			"soundCloudUserId": 5,
+			"points": 13
 		}
+		
 	],
 	"artists":[
 		{
@@ -30,37 +56,7 @@
 			"songId" : 1,
 			"messages": [
 				{
-					"id": 1,
-					"userId": 1,
-					"message": "Welcome to Moodcat!",
-					"time": 1432799172510
-				}
-			]
-		},
-		{
-			"id": 2,
-			"name": "Silver ass wankers",
-			"position": 2,
-			"time": 0,
-			"songId" : 1,
-			"messages": [
-				{
-					"id": 1,
-					"userId": 1,
-					"message": "Welcome to Moodcat!",
-					"time": 1432799172510
-				}
-			]
-		},
-		{
-			"id": 3,
-			"name": "Better room",
-			"position": 3,
-			"time": 0,
-			"songId" : 1,
-			"messages": [
-				{
-					"id": 1,
+				  	"id": 1,
 					"userId": 1,
 					"message": "Welcome to Moodcat!",
 					"time": 1432799172510
