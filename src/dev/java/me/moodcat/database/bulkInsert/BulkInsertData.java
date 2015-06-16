@@ -111,7 +111,6 @@ public class BulkInsertData {
      * @throws SoundCloudException
      *             when the SoundCloud API was not called successfully.
      */
-    @Transactional
     public void insertData() throws IOException, SoundCloudException {
         final SongDAO songDAO = songDAOProvider.get();
         final Map<String, Artist> artistMap = new HashMap<>();
@@ -137,6 +136,7 @@ public class BulkInsertData {
      * @param artistMap
      *            the map with already persisted arists.
      */
+    @Transactional
     private Artist getOrPersistArtist(final String username, final Map<String, Artist> artistMap) {
         final ArtistDAO artistDAO = artistDAOProvider.get();
         Artist artist;
