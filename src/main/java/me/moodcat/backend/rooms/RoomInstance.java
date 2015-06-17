@@ -207,6 +207,7 @@ public class RoomInstance {
         final List<Song> playQueue = room.getPlayQueue();
         if (playQueue.isEmpty()) {
             playQueue.addAll(history);
+            history.clear();
         }
 
         playNext(playQueue.remove(0));

@@ -1,6 +1,7 @@
 package me.moodcat.backend.rooms;
 
 import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -187,6 +188,9 @@ public class RoomBackendTest extends BackendTest {
     @Test
     public void playSongCreatesQueueWhenRepeating() {
         when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
+
+        Song mockedSong = mock(Song.class);
+        when(room.getPlayHistory()).thenReturn(Lists.newArrayList(mockedSong));
         room.setRepeat(true);
 
         final RoomInstance instance = roomBackend.getRoomInstance(1);
@@ -194,30 +198,46 @@ public class RoomBackendTest extends BackendTest {
         instance.playNext();
         instance.merge();
 
-        assertNotEquals(room.getPlayHistory(), room.getPlayQueue());
+        assertFalse(room.getPlayQueue().isEmpty());
     }
-    
+
+    @Test
+    public void playSongRemovesHistoryWhenRepeating() {
+        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
+
+        Song mockedSong = mock(Song.class);
+        when(room.getPlayHistory()).thenReturn(Lists.newArrayList(mockedSong));
+        room.setRepeat(true);
+
+        final RoomInstance instance = roomBackend.getRoomInstance(1);
+
+        instance.playNext();
+        instance.merge();
+
+        assertTrue(room.getPlayHistory().isEmpty());
+    }
+
     @Test
     public void playSongProcessVotesAndAddsRoomToExclusionWhenTooManyDislikes() {
         Song mockedSong = mock(Song.class);
         when(room.getCurrentSong()).thenReturn(mockedSong);
-        
+
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         instance.addVote(user, Vote.DISLIKE);
         instance.playNext();
-        
+
         verify(mockedSong).addExclusionRoom(room);
     }
-    
+
     @Test
     public void playSongProcessVotesDoesNotAddRoomToExclusionWhenNotEngouhDislikes() {
         Song mockedSong = Mockito.mock(Song.class);
         when(room.getCurrentSong()).thenReturn(mockedSong);
-        
+
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         instance.addVote(user, Vote.LIKE);
         instance.playNext();
-        
+
         verify(mockedSong, never()).addExclusionRoom(room);
     }
 
