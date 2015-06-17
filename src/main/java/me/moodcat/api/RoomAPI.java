@@ -199,8 +199,6 @@ public class RoomAPI {
      * @param vote
      *            The vote.
      * @return The song object, if the process was succesful.
-     * @throws InvalidVoteException
-     *             Thrown if an invalid vote was cast.
      */
     @POST
     @Path("{id}/vote/{vote}")
