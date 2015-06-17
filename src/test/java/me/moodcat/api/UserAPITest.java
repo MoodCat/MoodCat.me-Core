@@ -51,7 +51,6 @@ public class UserAPITest {
         users.add(anotherUser);
         
         when(oneUser.getId()).thenReturn(1);
-        when(oneUser.getPoints()).thenReturn(10);
         
         when(userDAO.getAll()).thenReturn(users);
         when(userDAO.findById(1)).thenReturn(oneUser);
@@ -59,6 +58,7 @@ public class UserAPITest {
         
         when(currentUserProvider.get()).thenReturn(me);
         when(me.getId()).thenReturn(4);
+        when(me.getPoints()).thenReturn(10);
     }
     
     @Test
@@ -78,14 +78,14 @@ public class UserAPITest {
     
     @Test
     public void getPoints() {
-        assertEquals(10, userAPI.getPoints(1).intValue());
+        assertEquals(10, userAPI.getPoints().intValue());
     }
 
     @Test
     public void incrementPoints() {
-        userAPI.addPoints(1, 10);
+        userAPI.addPoints(10);
         
-        verify(userDAO).incrementPoints(1, 10);
+        verify(userDAO).incrementPoints(me, 10);
     }
     
     @Test

@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import me.moodcat.api.filters.AwardPoints;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
@@ -38,6 +39,8 @@ import com.google.inject.persist.Transactional;
 @Path("/api/rooms/")
 @Produces(MediaType.APPLICATION_JSON)
 public class RoomAPI {
+
+    private static final int VOTES_POINTS_AWARD = 2;
 
     /**
      * The backend of the room.
@@ -203,6 +206,7 @@ public class RoomAPI {
     @POST
     @Path("{id}/vote/{vote}")
     @Transactional
+    @AwardPoints(VOTES_POINTS_AWARD)
     public RoomModel voteSong(@PathParam("id") final int roomId,
             @PathParam("vote") final String vote) {
         final RoomInstance roomInstance = this.backend.getRoomInstance(roomId);
