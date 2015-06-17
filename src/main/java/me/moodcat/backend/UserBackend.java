@@ -57,8 +57,15 @@ public class UserBackend {
 
         try {
             final User user = userDAO.findBySoundcloudId(soundCloudId);
-            user.setAccessToken(token);
-            return userDAO.merge(user);
+            String previousToken = user.getAccessToken();
+
+            if (!previousToken.equals(token)) {
+                user.setAccessToken(token);
+                userDAO.merge(user);
+            }
+
+            return user;
+
         } catch (EntityNotFoundException e) {
             User user = createUser(soundCloudId, me);
             user.setAccessToken(token);
