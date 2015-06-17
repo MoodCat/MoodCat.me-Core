@@ -9,11 +9,13 @@ import lombok.SneakyThrows;
 import com.google.common.base.Preconditions;
 import com.google.inject.AbstractModule;
 import com.google.inject.persist.jpa.JpaPersistModule;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Guice AbstractModule that installs the JpaPersistModule for the current Persistence unit.
  * The properties are loaded from the resource which allows a different configuration under test.
  */
+@Slf4j
 public class DbModule extends AbstractModule {
 
     /**
@@ -49,6 +51,7 @@ public class DbModule extends AbstractModule {
             final Properties properties = new Properties();
             Preconditions.checkNotNull(stream, "Persistence properties not found");
             properties.load(stream);
+            log.info("Using database {}", properties.getProperty("javax.persistence.jdbc.url"));
             return properties;
         }
 

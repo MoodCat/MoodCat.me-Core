@@ -1,11 +1,13 @@
 package me.moodcat.database.entities;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -14,10 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
 
-import me.moodcat.database.entities.ChatMessage.ChatMessageId;
-
-import java.io.Serializable;
-
 /**
  * A chat message for a room.
  */
@@ -25,13 +23,12 @@ import java.io.Serializable;
 @Entity
 @Table(name = "chatmessage")
 @ToString(of = {
-        "id", "room", "message", "user"
+        "compoundId", "room", "message", "user"
 })
 @EqualsAndHashCode(of = {
-        "id", "room"
+        "compoundId", "room"
 })
-@NoArgsConstructor()
-@IdClass(ChatMessageId.class)
+@NoArgsConstructor
 public class ChatMessage implements Comparable<ChatMessage> {
 
     /**
@@ -41,21 +38,19 @@ public class ChatMessage implements Comparable<ChatMessage> {
      *            The room to set.
      * @return The room that the message was posted into.
      */
-    @Id
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = false)
+    @MapsId("roomId")
     private Room room;
 
     /**
      * Global chatmessage id.
      *
-     * @param id
+     * @param compoundId
      *            The new id of this chatmessage.
      * @return The id of this chatmessage.
      */
-    @Id
-    @Column(name = "id")
-    private int id;
+    @EmbeddedId
+    private ChatMessageEmbeddable compoundId;
 
     /**
      * The actual message.
@@ -101,18 +96,16 @@ public class ChatMessage implements Comparable<ChatMessage> {
         return getTimestamp().compareTo(other.getTimestamp());
     }
 
-    /**
-     * Id Class for ChatMessage.
-     */
-    @Data
-    public static class ChatMessageId implements Serializable {
-
-        private static final long serialVersionUID = -1962128728359087383L;
-
-        private transient Room room;
-
-        private Integer id;
-
+    public void setId(int id) {
+        ChatMessageEmbeddable embeddable = getCompoundId();
+        if(embeddable == null) {
+            embeddable = new ChatMessageEmbeddable();
+            setCompoundId(embeddable);
+        }
+        embeddable.setId(id);
     }
 
+    public int getId() {
+        return getCompoundId().getId();
+    }
 }

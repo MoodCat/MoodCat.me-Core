@@ -64,7 +64,6 @@ public class SongInstance extends Observable {
         this.lastUpdate = new AtomicLong(System.currentTimeMillis());
     }
 
-    @Transactional
     public Song getSong() {
         return this.songDAOProvider.get().findById(songId);
     }
