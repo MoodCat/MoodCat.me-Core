@@ -269,25 +269,28 @@ public class RoomInstance {
      */
     protected void merge() {
         if (hasChanged.getAndSet(false)) {
-            log.info("Merging changes in room {}", this);
+            log.info("Merging changes in room {}", this.getId());
             this.unitOfWorkSchedulingService.performInUnitOfWork(this::mergeRoom);
         }
     }
 
+    @Transactional
     private Room mergeRoom() {
-        final RoomDAO roomDAO = this.roomDAOProvider.get();
-        final Room room = roomDAO.findById(id);
-        room.getChatMessages().addAll(
-                messages.stream()
-                        .map(message -> chatMessageFactory
-                                .create(room, message))
-                        .collect(Collectors.toList()));
-        room.setCurrentSong(getCurrentSong());
-
         try {
+            final RoomDAO roomDAO = this.roomDAOProvider.get();
+            final Room room = roomDAO.findById(id);
+
+            Collection<ChatMessage> newMessages = messages.stream()
+                .map(message -> chatMessageFactory
+                    .create(room, message))
+                .collect(Collectors.toList());
+
+            room.getChatMessages().addAll(newMessages);
+            room.setCurrentSong(getCurrentSong());
+
             return roomDAO.merge(room);
-        } catch (Exception e) {
-            log.error("Failed to persist room {}", room);
+        } catch (Throwable e) {
+            log.error(String.format("Failed to persist room %s, due to error: %s", this.getId(), e.getMessage()), e);
             return null;
         }
     }
@@ -307,7 +310,6 @@ public class RoomInstance {
      *
      * @return the current song.
      */
-    @Transactional
     public Song getCurrentSong() {
         return this.currentSong.get().getSong();
     }

@@ -11,7 +11,6 @@ import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Song;
 
 import com.google.common.base.Preconditions;
-import com.google.inject.persist.Transactional;
 
 /**
  * A song that is currently playing in a room.
@@ -64,7 +63,6 @@ public class SongInstance extends Observable {
         this.lastUpdate = new AtomicLong(System.currentTimeMillis());
     }
 
-    @Transactional
     public Song getSong() {
         return this.songDAOProvider.get().findById(songId);
     }

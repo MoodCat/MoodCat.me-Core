@@ -9,6 +9,7 @@ import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudIdentifier;
 import me.moodcat.soundcloud.models.MeModel;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -52,17 +53,30 @@ public class UserBackend {
 
     @Transactional
     private User findOrRegisterUser(final MeModel me, final String token) {
+        Preconditions.checkNotNull(token);
+        
         final UserDAO userDAO = this.userDAOProvider.get();
         final int soundCloudId = me.getId();
 
         try {
             final User user = userDAO.findBySoundcloudId(soundCloudId);
-            user.setAccessToken(token);
-            return userDAO.merge(user);
+            
+            mergePreviousToken(token, userDAO, user);
+
+            return user;
         } catch (EntityNotFoundException e) {
             User user = createUser(soundCloudId, me);
             user.setAccessToken(token);
             return userDAO.persist(user);
+        }
+    }
+
+    private void mergePreviousToken(final String token, final UserDAO userDAO, final User user) {
+        final String previousToken = user.getAccessToken();
+
+        if (!token.equals(previousToken)) {
+            user.setAccessToken(token);
+            userDAO.merge(user);
         }
     }
 
