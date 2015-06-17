@@ -98,10 +98,11 @@ public class UserDAOTest {
         final int incrementAmount = 6;
         final int soundCloudId = 1;
 
-        int oldscore = userDAO.findBySoundcloudId(soundCloudId).getPoints();
-        userDAO.incrementPoints(soundCloudId, incrementAmount);
-        assertEquals((oldscore + incrementAmount), userDAO.findBySoundcloudId(soundCloudId)
-                .getPoints());
+        final User user = userDAO.findBySoundcloudId(soundCloudId);
+        int oldscore = user.getPoints();
+        
+        userDAO.incrementPoints(user, incrementAmount);
+        assertEquals((oldscore + incrementAmount), user.getPoints());
     }
 
     @Test

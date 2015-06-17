@@ -83,9 +83,9 @@ public class UserAPITest {
 
     @Test
     public void incrementPoints() {
-        userAPI.addPoints(1, 10);
+        userAPI.addPoints(10);
         
-        verify(userDAO).incrementPoints(1, 10);
+        verify(userDAO).incrementPoints(me, 10);
     }
     
     @Test

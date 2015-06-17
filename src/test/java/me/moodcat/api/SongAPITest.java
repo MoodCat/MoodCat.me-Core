@@ -2,13 +2,16 @@ package me.moodcat.api;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import me.moodcat.api.SongAPI.ClassificationRequest;
 import me.moodcat.api.SongAPI.InvalidClassificationException;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.inject.Provider;
+
 @RunWith(MockitoJUnitRunner.class)
 public class SongAPITest {
 
@@ -30,12 +35,21 @@ public class SongAPITest {
 
     @Mock
     private SongDAO songDAO;
+    
+    @Mock
+    private UserDAO userDAO;
+    
+    @Mock
+    private Provider<User> currentUserProvider;
 
     @InjectMocks
     private SongAPI songAPI;
 
     @Mock
     private Song song;
+    
+    @Mock
+    private User user;
 
     @Captor
     private ArgumentCaptor<VAVector> vectorCaptor;
@@ -50,6 +64,8 @@ public class SongAPITest {
 
         when(songDAO.findById(Matchers.eq(SONG_ID))).thenReturn(song);
         when(songDAO.findBySoundCloudId(Matchers.eq(SOUNCLOUD_ID))).thenReturn(song);
+        
+        when(currentUserProvider.get()).thenReturn(user);
     }
 
     @Test
@@ -93,6 +109,18 @@ public class SongAPITest {
     	songAPI.getSongById(SONG_ID);
     	
     	verify(songDAO).findById(SONG_ID);
+    }
+    
+    @Test
+    public void classificationApproachesSong() throws InvalidClassificationException {
+        final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
+
+        songAPI.approachSong(SOUNCLOUD_ID, request);
+
+        verify(songDAO).merge(song);
+        verify(song).setValenceArousal(eq(new VAVector(1.0, 0.0)));
+        
+        verify(userDAO).incrementPoints(user, SongAPI.CLASSIFICATION_POINTS_AWARD);
     }
 
 }

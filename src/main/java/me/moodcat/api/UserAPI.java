@@ -104,11 +104,10 @@ public class UserAPI {
      *            The amount of points to be awarded.
      */
     @POST
-    @Path("{id}/points")
+    @Path("points")
     @Transactional
-    public void addPoints(@PathParam("id") final int userId,
-            @QueryParam("amount") @DefaultValue("0") final int amount) {
-        userDAO.incrementPoints(userId, amount);
+    public void addPoints(@QueryParam("amount") @DefaultValue("0") final int amount) {
+        userDAO.incrementPoints(currentUserProvider.get(), amount);
     }
 
     @GET

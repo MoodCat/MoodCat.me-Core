@@ -61,17 +61,16 @@ public class UserDAO extends AbstractDAO<User> {
     }
 
     /**
-     * Updates the user with the id userId with the set amount.
+     * Updates the user the set amount.
      * 
-     * @param soundCloudId
+     * @param user
      *            The user to update.
      * @param amount
      *            The amount of points to award the user.
      */
-    public void incrementPoints(int soundCloudId, int amount) {
-        User usr = this.findById(soundCloudId);
-        usr.increment(amount);
-        this.merge(usr);
+    public void incrementPoints(User user, int amount) {
+        user.increment(amount);
+        this.merge(user);
     }
 
     /**
