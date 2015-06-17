@@ -3,8 +3,6 @@ package me.moodcat.database.entities;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
@@ -96,12 +94,20 @@ public class ChatMessage implements Comparable<ChatMessage> {
         return getTimestamp().compareTo(other.getTimestamp());
     }
 
+    /**
+     * Set the id of the message.
+     * 
+     * @param id
+     *            The new id of the message.
+     */
     public void setId(int id) {
         ChatMessageEmbeddable embeddable = getCompoundId();
-        if(embeddable == null) {
+
+        if (embeddable == null) {
             embeddable = new ChatMessageEmbeddable();
             setCompoundId(embeddable);
         }
+        
         embeddable.setId(id);
     }
 

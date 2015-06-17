@@ -1,16 +1,19 @@
 package me.moodcat.backend.rooms;
 
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -21,6 +24,7 @@ import me.moodcat.backend.Vote;
 import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
@@ -28,12 +32,14 @@ import me.moodcat.database.entities.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -99,7 +105,7 @@ public class RoomBackendTest extends BackendTest {
         songFuture.add(song2);
 
         when(room.getId()).thenReturn(1);
-        when(room.getChatMessages()).thenReturn(Collections.emptySet());
+        when(room.getChatMessages()).thenReturn(Sets.newHashSet());
         when(room.getPlayHistory()).thenReturn(songHistory);
         when(room.getPlayQueue()).thenReturn(songFuture);
 
@@ -145,7 +151,28 @@ public class RoomBackendTest extends BackendTest {
 
         assertTrue(instance.getMessages().contains(chatMessage));
     }
-
+    
+    @Test
+    public void canStoreMessages() {
+        final RoomInstance instance = roomBackend.getRoomInstance(1);
+        final ChatMessageModel model = mock(ChatMessageModel.class);
+        final ChatMessage message = mock(ChatMessage.class);
+        
+        when(chatMessageFactory.create(eq(room), argThat(new ArgumentMatcher<ChatMessageInstance>() {
+            @Override
+            public boolean matches(Object argument) {
+                return ((ChatMessageInstance) argument).getModel().equals(model);
+            }
+        }))).thenReturn(message);
+        
+        instance.sendMessage(model, mock(User.class));
+        
+        instance.merge();
+        
+        verify(roomDAO).merge(eq(room));
+        assertThat(room.getChatMessages(), contains(message));
+    }
+    
     @Test
     public void canPlayNextSong() {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
