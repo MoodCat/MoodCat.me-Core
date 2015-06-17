@@ -137,6 +137,25 @@ public class RoomAPI {
     }
 
     /**
+     * Get all the message of the room that happened later than where posted after the chatmessage
+     * with the corresponding messageId.
+     * 
+     * @param roomId
+     *            The room the messages were placed in.
+     * @param chatMessageId
+     *            The message id we want to obtain later messages of.
+     * @return A list of messages that happened later than the provided chatMessageId. Can be empty.
+     */
+    @GET
+    @Path("{id}/messages/{chatMessageId}")
+    public List<ChatMessageModel> getMessages(@PathParam("id") final int roomId,
+            @PathParam("chatMessageId") final int chatMessageId) {
+        return backend.getRoomInstance(roomId).getMessages().stream()
+                .filter((message) -> message.getId() > chatMessageId)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Post a message to a room.
      *
      * @param msg
@@ -191,7 +210,7 @@ public class RoomAPI {
         final RoomInstance roomInstance = this.backend.getRoomInstance(roomId);
 
         Vote voteValue = Vote.valueOf(vote.toUpperCase());
-            
+
         roomInstance.addVote(currentUserProvider.get(), voteValue);
 
         return transform(roomInstance);
