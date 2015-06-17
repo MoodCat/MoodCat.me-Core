@@ -44,6 +44,8 @@ public class MoodcatServletModule extends ServletModule {
 
     private static final String MAPPER_PACKAGE_NAME = "me.moodcat.core.mappers";
 
+    private static final String FILTER_PACKAGE_NAME = "me.moodcat.api.filters";
+
     private static final int THREAD_POOL_SIZE = 4;
 
     private final App app;
@@ -68,7 +70,6 @@ public class MoodcatServletModule extends ServletModule {
         // Bind the database module
         this.bindDatabaseModule();
         this.bindAPI();
-        this.bindExceptionMappers();
         this.bindFactories();
         // Bind eager singletons
         this.bind(UnitOfWorkSchedulingService.class).asEagerSingleton();
@@ -97,11 +98,8 @@ public class MoodcatServletModule extends ServletModule {
 
     private void bindAPI() {
         this.bindClassesAnnotatedWithInPackage(API_PACKAGE_NAME, Path.class);
-    }
-
-    private void bindExceptionMappers() {
         this.bindClassesAnnotatedWithInPackage(MAPPER_PACKAGE_NAME, Provider.class);
-        this.bind(AuthorizationFilter.class);
+        this.bindClassesAnnotatedWithInPackage(FILTER_PACKAGE_NAME, Provider.class);
     }
 
     private void bindClassesAnnotatedWithInPackage(final String packageName,

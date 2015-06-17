@@ -119,8 +119,6 @@ public class SongAPITest {
 
         verify(songDAO).merge(song);
         verify(song).setValenceArousal(eq(new VAVector(1.0, 0.0)));
-        
-        verify(userDAO).incrementPoints(user, SongAPI.CLASSIFICATION_POINTS_AWARD);
     }
 
 }

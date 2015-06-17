@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import com.google.inject.persist.Transactional;
 import me.moodcat.database.entities.User;
 
 /**
@@ -32,6 +33,7 @@ public class UserDAO extends AbstractDAO<User> {
      *            id for the user
      * @return The user entity
      */
+    @Transactional
     public User findById(final int id) {
         return ensureExists(query().from(user)
                 .where(user.id.eq(id))
@@ -45,6 +47,7 @@ public class UserDAO extends AbstractDAO<User> {
      *            Soundcloud id for the user
      * @return The user entity
      */
+    @Transactional
     public User findBySoundcloudId(final Integer soundCloudId) {
         return ensureExists(query().from(user)
                 .where(user.soundCloudUserId.eq(soundCloudId))
@@ -56,6 +59,7 @@ public class UserDAO extends AbstractDAO<User> {
      * 
      * @return A list of all users.
      */
+    @Transactional
     public List<User> getAll() {
         return this.query().from(user).list(user);
     }
@@ -80,6 +84,7 @@ public class UserDAO extends AbstractDAO<User> {
      *            The number of users to retrieve.
      * @return A list of the most awarded users.
      */
+    @Transactional
     public List<User> getLeaderboard(final long limit) {
         return this.query()
                 .from(user)

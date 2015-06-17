@@ -83,28 +83,25 @@ public class UserAPI {
 
     /**
      * The amount of points a user with id {id} has.
-     * 
-     * @param userId
-     *            The user id we need the points for.
+     *
      * @return The amount of points the user has.
      */
     @GET
-    @Path("{id}/points")
+    @Path("me/points")
     @Transactional
-    public Integer getPoints(@PathParam("id") final int userId) {
-        return userDAO.findById(userId).getPoints();
+    public Integer getPoints() {
+        return currentUserProvider.get().getPoints();
     }
 
     /**
      * The amount of points a user with id userId has earned.
      * 
-     * @param userId
-     *            The user to update.
+
      * @param amount
      *            The amount of points to be awarded.
      */
     @POST
-    @Path("points")
+    @Path("me/points")
     @Transactional
     public void addPoints(@QueryParam("amount") @DefaultValue("0") final int amount) {
         userDAO.incrementPoints(currentUserProvider.get(), amount);
