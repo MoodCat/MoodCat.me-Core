@@ -1,6 +1,7 @@
 package me.moodcat.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
+import me.moodcat.backend.Vote;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
@@ -22,6 +24,7 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +76,9 @@ public class RoomAPITest {
 
     @Spy
     private ChatMessageModel message;
+    
+    @Spy
+    private ChatMessageModel anotherMessage;
 
     @Mock
     private Song song;
@@ -98,6 +104,10 @@ public class RoomAPITest {
 
         messagesList = new ArrayList<ChatMessageModel>();
         messagesList.add(message);
+        messagesList.add(anotherMessage);
+        
+        when(message.getId()).thenReturn(1);
+        when(anotherMessage.getId()).thenReturn(2);
 
         mockRoom(oneRoom, oneRoomInstance);
         mockRoom(otherRoom, otherRoomInstance);
@@ -141,6 +151,11 @@ public class RoomAPITest {
     public void retrieveMessages() {
         assertEquals(messagesList, this.roomAPI.getMessages(1));
     }
+    
+    @Test
+    public void retrieveMessagesFromLatestChatMessages() {
+        assertEquals(Lists.newArrayList(anotherMessage), this.roomAPI.getMessages(1, 1));
+    }
 
     @Test
     public void storeMessagePersistsDatabase() {
@@ -161,5 +176,21 @@ public class RoomAPITest {
     @Test(expected = IllegalArgumentException.class)
     public void bogusVoteThrowsException() {
         roomAPI.voteSong(SOUNCLOUD_ID, "bogus");
+    }
+    
+    @Test
+    public void processLike() {
+        this.testEqualVote("LIKE", Vote.LIKE);
+    }
+    
+    @Test
+    public void processDislike() {
+        this.testEqualVote("DISLIKE", Vote.DISLIKE);
+    }
+    
+    private void testEqualVote(String vote, Vote expectedType) {
+        roomAPI.voteSong(1, vote);
+        
+        verify(oneRoomInstance).addVote(eq(user), eq(expectedType));
     }
 }
