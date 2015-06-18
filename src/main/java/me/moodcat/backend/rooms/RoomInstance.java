@@ -219,7 +219,9 @@ public class RoomInstance {
         if (playQueue.isEmpty()) {
             VAVector vector = this.roomDAOProvider.get().findById(id).getVaVector();
             playQueue.addAll(this.songDAOProvider.get().findForDistance(vector, NUMBER_OF_SELECTED_SONGS));
-            history.clear();
+            
+            int historyLength = history.size();
+            room.setPlayHistory(history.subList(Math.max(0, historyLength - NUMBER_OF_SELECTED_SONGS), historyLength));
         }
 
         playNext(playQueue.remove(0));

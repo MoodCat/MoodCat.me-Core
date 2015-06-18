@@ -193,22 +193,6 @@ public class RoomBackendTest extends BackendTest {
     }
 
     @Test
-    public void playSongRemovesHistoryWhenRepeating() {
-        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
-
-        Song mockedSong = mock(Song.class);
-        when(room.getPlayHistory()).thenReturn(Lists.newArrayList(mockedSong));
-        room.setRepeat(true);
-
-        final RoomInstance instance = roomBackend.getRoomInstance(1);
-
-        instance.playNext();
-        instance.merge();
-
-        assertTrue(room.getPlayHistory().isEmpty());
-    }
-
-    @Test
     public void playSongProcessVotesAndAddsRoomToExclusionWhenTooManyDislikes() {
         Song mockedSong = mock(Song.class);
         when(room.getCurrentSong()).thenReturn(mockedSong);

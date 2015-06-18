@@ -20,7 +20,7 @@ public class RoomInstanceFactoryMock implements RoomInstanceFactory {
     private final Provider<RoomDAO> roomDAOProvider;
     private final ChatMessageFactory chatMessageFactory;
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
-    private Provider<SongDAO> songDAOProvider;
+    private final Provider<SongDAO> songDAOProvider;
 
     @Inject
     public RoomInstanceFactoryMock(final Provider<SongDAO> songDAOProvider,
