@@ -13,8 +13,6 @@ public @interface AwardPoints {
 
     /**
      * Amount of points to award.
-     *
-     * @return The amount.
      */
     int value() default 0;
 

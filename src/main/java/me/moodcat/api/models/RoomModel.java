@@ -1,11 +1,14 @@
 package me.moodcat.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Data;
 
 /**
  * The model of the room.
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoomModel {
 
     /**
