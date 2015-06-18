@@ -17,6 +17,8 @@ import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.Vote;
 import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -37,6 +39,8 @@ import me.moodcat.database.entities.User;
 @Slf4j
 public class RoomInstance {
 
+    private static final int NUMBER_OF_SELECTED_SONGS = 25;
+
     /**
      * Number of chat messages to cache for each room.
      */
@@ -51,6 +55,11 @@ public class RoomInstance {
      * {@link Provider} for a {@link RoomDAO}.
      */
     private final Provider<RoomDAO> roomDAOProvider;
+    
+    /**
+     * {@link Provider} for a {@link SongDAO}.
+     */
+    private final Provider<SongDAO> songDAOProvider;
 
     /**
      * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work.
@@ -119,6 +128,7 @@ public class RoomInstance {
     @AssistedInject
     public RoomInstance(final SongInstanceFactory songInstanceFactory,
             final Provider<RoomDAO> roomDAOProvider,
+            final Provider<SongDAO> songDAOProvider,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
             final ChatMessageFactory chatMessageFactory,
             @Assisted final Room room) {
@@ -126,6 +136,7 @@ public class RoomInstance {
         Preconditions.checkNotNull(room);
         this.songInstanceFactory = songInstanceFactory;
         this.roomDAOProvider = roomDAOProvider;
+        this.songDAOProvider = songDAOProvider;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
         this.chatMessageFactory = chatMessageFactory;
         this.votes = Maps.newConcurrentMap();
@@ -206,7 +217,8 @@ public class RoomInstance {
     private void processNextSong(final Room room, final List<Song> history) {
         final List<Song> playQueue = room.getPlayQueue();
         if (playQueue.isEmpty()) {
-            playQueue.addAll(history);
+            VAVector vector = this.roomDAOProvider.get().findById(id).getVaVector();
+            playQueue.addAll(this.songDAOProvider.get().findForDistance(vector, NUMBER_OF_SELECTED_SONGS));
             history.clear();
         }
 

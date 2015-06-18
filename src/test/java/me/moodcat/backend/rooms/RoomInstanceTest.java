@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
+import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -31,6 +32,9 @@ public class RoomInstanceTest {
 
 	@Mock
 	private Provider<RoomDAO> roomDAOProvider;
+	
+	@Mock
+    private Provider<SongDAO> songDAOProvider;
 
 	@Mock
 	private UnitOfWorkSchedulingService unitOfWorkSchedulingService;
@@ -48,7 +52,7 @@ public class RoomInstanceTest {
         when(chatMessageFactory.create(any(), any())).thenReturn(mock(ChatMessage.class));
 
 		instance = new RoomInstance(songInstanceFactory, roomDAOProvider,
-				unitOfWorkSchedulingService, chatMessageFactory, room);
+				songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, room);
 	}
 
 	@Test
