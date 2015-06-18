@@ -13,7 +13,6 @@ import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.servlet.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
-import me.moodcat.api.filters.AuthorizationFilter;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstanceFactory;
