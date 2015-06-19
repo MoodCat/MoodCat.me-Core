@@ -18,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -96,6 +97,7 @@ public class Room {
     /**
      * The chat messages in the room.
      */
+    @OrderBy("timestamp asc")
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private Set<ChatMessage> chatMessages;
 
