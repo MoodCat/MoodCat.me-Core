@@ -1,7 +1,6 @@
 package me.moodcat.api.models;
 
 import lombok.Data;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**

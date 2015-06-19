@@ -185,7 +185,7 @@ public class SongAPI {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    protected static class ClassificationRequest {
+    public static class ClassificationRequest {
 
         /**
          * The valence for the song.
