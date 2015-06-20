@@ -157,9 +157,24 @@ public class RoomAPITest {
 
     @Test
     public void storeMessagePersistsDatabase() {
+        message.setMessage("Hello World!");
+        
         this.roomAPI.postChatMessage(message, 1);
 
         verify(roomBackend.getRoomInstance(1)).sendMessage(message, user);
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void sendingTooLongMessageThrowsException() {
+        StringBuilder builder = new StringBuilder();
+        
+        for (int i = 0; i < 1000; i++) {
+            builder.append('w');
+        }
+        
+        message.setMessage(builder.toString());
+        
+        this.roomAPI.postChatMessage(message, 1);
     }
 
 

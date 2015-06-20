@@ -41,7 +41,7 @@ public class RoomInstance {
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
-
+    
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
      */
@@ -248,9 +248,7 @@ public class RoomInstance {
             final User user) {
         Preconditions.checkNotNull(model);
 
-        model.setId(chatMessageIdGenerator.generateId());
-        model.setTimestamp(System.currentTimeMillis());
-        model.setAuthor(user.getName());
+        updateAndSetModel(model, user);
 
         ChatMessageInstance chatMessage = new ChatMessageInstance(user.getId(),
                 model);
@@ -263,6 +261,12 @@ public class RoomInstance {
         hasChanged.set(true);
         log.info("Sending message {} in room {}", chatMessage, this);
         return model;
+    }
+
+    private void updateAndSetModel(final ChatMessageModel model, final User user) {
+        model.setId(chatMessageIdGenerator.generateId());
+        model.setTimestamp(System.currentTimeMillis());
+        model.setAuthor(user.getName());
     }
 
     /**

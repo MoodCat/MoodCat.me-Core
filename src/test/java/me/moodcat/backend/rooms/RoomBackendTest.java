@@ -156,7 +156,8 @@ public class RoomBackendTest extends BackendTest {
     @Test
     public void canStoreMessages() {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
-        final ChatMessageModel model = mock(ChatMessageModel.class);
+        final ChatMessageModel model = new ChatMessageModel();
+        model.setMessage("message");
         final ChatMessage message = mock(ChatMessage.class);
         
         when(chatMessageFactory.create(eq(room), argThat(new ArgumentMatcher<ChatMessageInstance>() {
