@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
 import me.moodcat.database.controllers.RoomDAO;
@@ -83,6 +84,11 @@ public class BulkInsertData {
     private final Random random;
 
     /**
+     * Name generator to generate room names.
+     */
+    private final NameGenerator nameGenerator;
+
+    /**
      * Object to bulk insert a list of given songs into the databse.
      *
      * @param artistDAOProvider
@@ -93,6 +99,7 @@ public class BulkInsertData {
      *            the room provider.
      */
     @Inject
+    @SneakyThrows
     public BulkInsertData(final Provider<ArtistDAO> artistDAOProvider,
             final Provider<SongDAO> songDAOProvider,
             final Provider<RoomDAO> roomDAOProvider) {
@@ -101,6 +108,7 @@ public class BulkInsertData {
         this.roomDAOProvider = roomDAOProvider;
         soundCloudExtract = new SoundCloudExtract();
         this.random = new Random();
+        nameGenerator = new NameGenerator();
     }
 
     /**
@@ -166,7 +174,12 @@ public class BulkInsertData {
             room.setPlayHistory(getRandomSongList(songs));
             room.setPlayQueue(getRandomSongList(songs));
             room.setCurrentSong(songs.get(random.nextInt(songs.size())));
-            room.setName("ROOM_STUB #" + i);
+            try {
+                room.setName(nameGenerator.generate());
+            } catch (IOException e) {
+                log.error("Couldn't generate name for room {}", i, e);
+                room.setName("ROOM_STUB #" + i);
+            }
             room.setVaVector(VAVector.createRandomVector());
             room.setChatMessages(Collections.<ChatMessage> emptySet());
             room.setRepeat(true);
