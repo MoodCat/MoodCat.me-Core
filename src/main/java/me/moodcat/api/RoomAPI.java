@@ -40,6 +40,8 @@ import com.google.inject.persist.Transactional;
 @Produces(MediaType.APPLICATION_JSON)
 public class RoomAPI {
 
+    private static final int MAXIMUM_CHAT_MESSAGE_LENGTH = 255;
+
     private static final int VOTES_POINTS_AWARD = 2;
 
     /**
@@ -172,6 +174,11 @@ public class RoomAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public ChatMessageModel postChatMessage(final ChatMessageModel msg,
             @PathParam("id") final int roomId) {
+        if (msg.getMessage().length() > MAXIMUM_CHAT_MESSAGE_LENGTH) {
+            throw new IllegalArgumentException("The chat message may not be longer than "
+                    + MAXIMUM_CHAT_MESSAGE_LENGTH + " characters.");
+        }
+        
         return backend.getRoomInstance(roomId).sendMessage(msg, currentUserProvider.get());
     }
 

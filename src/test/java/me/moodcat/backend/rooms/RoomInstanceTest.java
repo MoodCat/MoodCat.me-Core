@@ -63,21 +63,5 @@ public class RoomInstanceTest {
 		assertEquals(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES, instance
 				.getMessages().size());
 	}
-	
-	@Test
-	public void messagesAreTruncatedTo255() {
-	    ChatMessageModel model = new ChatMessageModel();
-	    
-	    StringBuilder builder = new StringBuilder();
-	    
-	    for (int i = 0; i < 1000; i++) {
-	        builder = builder.append('w');
-	    }
-	    
-	    model.setMessage(builder.toString());
-	    
-	    model = instance.sendMessage(model, mock(User.class));
-	    
-	    assertEquals(255, model.getMessage().length());
-	}
+
 }

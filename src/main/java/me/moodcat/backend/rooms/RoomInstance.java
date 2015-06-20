@@ -42,8 +42,6 @@ public class RoomInstance {
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
     
-    private static final int MAXIMUM_CHAT_MESSAGE_LENGTH = 255;
-
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
      */
@@ -266,10 +264,6 @@ public class RoomInstance {
     }
 
     private void updateAndSetModel(final ChatMessageModel model, final User user) {
-        String message = model.getMessage();
-        int endIndex = Math.min(MAXIMUM_CHAT_MESSAGE_LENGTH, message.length());
-        
-        model.setMessage(message.substring(0, endIndex));
         model.setId(chatMessageIdGenerator.generateId());
         model.setTimestamp(System.currentTimeMillis());
         model.setAuthor(user.getName());
