@@ -1,5 +1,8 @@
 package me.moodcat.backend.rooms;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -13,6 +16,7 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.Vote;
@@ -41,7 +45,7 @@ public class RoomInstance {
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
-    
+
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
      */
@@ -56,6 +60,11 @@ public class RoomInstance {
      * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
+
+    /**
+     * The profanity checker to filter out 'bad' chatmessages.
+     */
+    private final ProfanityChecker profanityChecker = new ProfanityChecker();
 
     /**
      * The room index.
@@ -97,11 +106,12 @@ public class RoomInstance {
      * Has changed flag.
      */
     private final AtomicBoolean hasChanged;
-    
+
     /**
      * The votes of the users for the current song.
      */
     private final Map<User, Vote> votes;
+
 
     /**
      * ChatRoomInstance's constructur, will create a roomInstance from a room
@@ -162,9 +172,9 @@ public class RoomInstance {
             throw new IllegalStateException("Room should be playing a song");
         }
         history.add(previousSong);
-        
+
         processVotes(previousSong);
-        
+
         processNextSong(room, history);
         this.merge();
     }
@@ -187,22 +197,22 @@ public class RoomInstance {
 
         hasChanged.set(true);
     }
-    
+
     private void processVotes(final Song previousSong) {
         int nettoVotes = this.votes.values().stream()
                 .mapToInt(Vote::getValue)
                 .sum();
-        
+
         if (nettoVotes < 0) {
             final RoomDAO roomDAO = this.roomDAOProvider.get();
             final Room room = roomDAO.findById(id);
-            
+
             previousSong.addExclusionRoom(room);
         }
-        
+
         this.votes.clear();
     }
-    
+
     private void processNextSong(final Room room, final List<Song> history) {
         final List<Song> playQueue = room.getPlayQueue();
         if (playQueue.isEmpty()) {
@@ -246,6 +256,7 @@ public class RoomInstance {
      */
     public ChatMessageModel sendMessage(final ChatMessageModel model,
             final User user) {
+        model.setMessage(profanityChecker.clearProfanity(model.getMessage()));
         Preconditions.checkNotNull(model);
 
         updateAndSetModel(model, user);
@@ -287,7 +298,7 @@ public class RoomInstance {
 
             Collection<ChatMessage> newMessages = messages.stream()
                 .map(message -> chatMessageFactory
-                    .create(room, message))
+                        .create(room, message))
                 .collect(Collectors.toList());
 
             room.getChatMessages().addAll(newMessages);
