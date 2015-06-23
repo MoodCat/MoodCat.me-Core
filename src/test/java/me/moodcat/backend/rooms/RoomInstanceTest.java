@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
@@ -39,6 +41,9 @@ public class RoomInstanceTest {
     private ChatMessageFactory chatMessageFactory;
 
 	@Mock
+	private ProfanityChecker profanityChecker;
+
+	@Mock
 	private Room room;
 
 	@Before
@@ -48,7 +53,7 @@ public class RoomInstanceTest {
         when(chatMessageFactory.create(any(), any())).thenReturn(mock(ChatMessage.class));
 
 		instance = new RoomInstance(songInstanceFactory, roomDAOProvider,
-				unitOfWorkSchedulingService, chatMessageFactory, room);
+				unitOfWorkSchedulingService, chatMessageFactory, profanityChecker, room);
 	}
 
 	@Test

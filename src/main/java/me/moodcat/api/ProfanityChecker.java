@@ -1,5 +1,7 @@
 package me.moodcat.api;
 
+import com.google.inject.Singleton;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,6 +10,7 @@ import java.util.Arrays;
 /**
  * Utility to match messages against a set of patterns to filter out profanity.
  */
+@Singleton
 public class ProfanityChecker {
 
     /**

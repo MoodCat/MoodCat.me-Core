@@ -64,7 +64,7 @@ public class RoomInstance {
     /**
      * The profanity checker to filter out 'bad' chatmessages.
      */
-    private final ProfanityChecker profanityChecker = new ProfanityChecker();
+    private final ProfanityChecker profanityChecker;
 
     /**
      * The room index.
@@ -131,9 +131,11 @@ public class RoomInstance {
             final Provider<RoomDAO> roomDAOProvider,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
             final ChatMessageFactory chatMessageFactory,
+            final ProfanityChecker profanityChecker,
             @Assisted final Room room) {
 
         Preconditions.checkNotNull(room);
+        this.profanityChecker = profanityChecker;
         this.songInstanceFactory = songInstanceFactory;
         this.roomDAOProvider = roomDAOProvider;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
