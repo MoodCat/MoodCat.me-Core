@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
@@ -71,6 +72,9 @@ public class RoomBackendTest extends BackendTest {
     @Mock
     private ChatMessageFactory chatMessageFactory;
 
+    @Mock
+    private ProfanityChecker profanityChecker;
+
     private RoomBackend roomBackend;
 
     private ArrayList<ChatMessageModel> messages;
@@ -91,7 +95,7 @@ public class RoomBackendTest extends BackendTest {
     @Before
     public void setUp() {
         roomInstanceFactoryMock = new RoomInstanceFactoryMock(songDAOProvider, roomDAOProvider,
-                chatMessageFactory, unitOfWorkSchedulingService);
+                chatMessageFactory, unitOfWorkSchedulingService, profanityChecker);
 
         rooms = Lists.newArrayList();
         rooms.add(room);
