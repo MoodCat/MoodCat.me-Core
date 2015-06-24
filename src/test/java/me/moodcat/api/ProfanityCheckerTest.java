@@ -35,22 +35,22 @@ public class ProfanityCheckerTest {
 
     @Test
     public void testProfanityWord() {
-        assertEquals(profanityChecker.clearProfanity(PROFANITY_WORD), PROFANITY_WORD_CENSORED);
+        assertEquals(PROFANITY_WORD_CENSORED, profanityChecker.clearProfanity(PROFANITY_WORD));
     }
 
     @Test
     public void testProfanityString() {
-        assertEquals(profanityChecker.clearProfanity(PROFANITY_STRING), PROFANITY_STRING_CENSORED);
+        assertEquals(PROFANITY_STRING_CENSORED, profanityChecker.clearProfanity(PROFANITY_STRING));
     }
 
     @Test
     public void testProfanityCapitals() {
-        assertEquals(profanityChecker.clearProfanity(PROFANITY_CAPITALS), PROFANITY_CAPITALS_CENSORED);
+        assertEquals(PROFANITY_CAPITALS_CENSORED, profanityChecker.clearProfanity(PROFANITY_CAPITALS));
     }
 
     @Test
     public void testProfanityLeet() {
-        assertEquals(profanityChecker.clearProfanity(PROFANITY_LEET), PROFANITY_LEET_CENSORED);
+        assertEquals(PROFANITY_LEET_CENSORED, profanityChecker.clearProfanity(PROFANITY_LEET));
     }
 
 }

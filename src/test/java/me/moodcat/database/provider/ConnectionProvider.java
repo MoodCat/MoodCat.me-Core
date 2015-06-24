@@ -11,6 +11,8 @@ import java.sql.SQLException;
  */
 public class ConnectionProvider extends C3P0ConnectionProvider {
 
+    private static final long serialVersionUID = -1332406974241438558L;
+
     @Override
     public Connection getConnection() throws SQLException {
         final Connection connection = super.getConnection();
