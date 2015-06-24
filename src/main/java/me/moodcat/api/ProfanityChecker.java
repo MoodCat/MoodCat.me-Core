@@ -16,7 +16,7 @@ public class ProfanityChecker {
     /**
      * The files with patterns of words to filter.
      */
-    final static String PROFANITY_PATTERN_FILE = "./src/main/resources/profanity/patterns.txt";
+    private static final String PROFANITY_PATTERN_FILE = "./src/main/resources/profanity/patterns.txt";
 
     /**
      * The list of patterns.
