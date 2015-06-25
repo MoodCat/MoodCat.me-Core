@@ -21,6 +21,7 @@ import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -30,13 +31,15 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.persist.Transactional;
 
-import me.moodcat.database.entities.User;
-
 /**
  * The instance object of the rooms.
  */
 @Slf4j
 public class RoomInstance {
+
+    private static final int MESSAGE_FLOODING_TIMEOUT = 10;
+
+    private static final int MESSAGE_FLOODING_MESSAGE_AMOUNT = 4;
 
     /**
      * Number of chat messages to cache for each room.
@@ -255,8 +258,8 @@ public class RoomInstance {
      */
     public ChatMessageModel sendMessage(final ChatMessageModel model,
             final User user) {
-        model.setMessage(profanityChecker.clearProfanity(model.getMessage()));
         Preconditions.checkNotNull(model);
+        verifyNonSpamming(user);
 
         updateAndSetModel(model, user);
 
@@ -273,10 +276,28 @@ public class RoomInstance {
         return model;
     }
 
+    private void verifyNonSpamming(final User user) {
+        // Our system is allowed to send messages
+        if (user.getId().equals(1)) {
+            return;
+        }
+        
+        final long currentTime = System.currentTimeMillis();
+        
+        if (messages.stream().filter((message) -> {
+            return message.getUserId() == user.getId()
+                    && message.getTimestamp() + TimeUnit.SECONDS.toMillis(MESSAGE_FLOODING_TIMEOUT) > currentTime;
+                }).count() > MESSAGE_FLOODING_MESSAGE_AMOUNT) {
+            throw new IllegalArgumentException("You can not post" + MESSAGE_FLOODING_MESSAGE_AMOUNT
+                    + "messages within " + MESSAGE_FLOODING_TIMEOUT + " seconds");
+        }
+    }
+
     private void updateAndSetModel(final ChatMessageModel model, final User user) {
         model.setId(chatMessageIdGenerator.generateId());
         model.setTimestamp(System.currentTimeMillis());
         model.setAuthor(user.getName());
+        model.setMessage(profanityChecker.clearProfanity(model.getMessage()));
     }
 
     /**

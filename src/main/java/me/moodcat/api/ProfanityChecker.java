@@ -29,7 +29,8 @@ public class ProfanityChecker {
     public ProfanityChecker() {
         try {
             profanityPatterns = new String(Files.readAllBytes(Paths
-                    .get(PROFANITY_PATTERN_FILE))).split("\n");
+                    .get(PROFANITY_PATTERN_FILE)))
+                .replaceAll("\\r", "").split("\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

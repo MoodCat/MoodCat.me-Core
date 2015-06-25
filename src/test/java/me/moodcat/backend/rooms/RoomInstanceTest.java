@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
@@ -57,15 +56,31 @@ public class RoomInstanceTest {
 
 	@Test
 	public void whenTooManyMessagesRemoveOneFromList() {
+	    User mock = mock(User.class);
+	    when(mock.getId()).thenReturn(1);
+	    
 		for (int i = 0; i < RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES + 1; i++) {
 		    ChatMessageModel model = new ChatMessageModel();
 		    model.setMessage(String.valueOf(i));
 		    
-			instance.sendMessage(model, mock(User.class));
+			instance.sendMessage(model, mock);
 		}
 
 		assertEquals(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES, instance
 				.getMessages().size());
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void whenOneUserSendsMessagesTooFastThrowsException() {
+	    ChatMessageModel model = new ChatMessageModel();
+        model.setMessage("Spam");
+        
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1337);
+	    
+        for (int i = 0; i < 6; i++) {
+	    instance.sendMessage(model, user);
+        }
+    }
 
 }
