@@ -80,7 +80,7 @@ public class RoomAPI {
     @GET
     @Transactional
     public List<RoomModel> getRooms(@QueryParam("mood") final List<String> moods,
-            @QueryParam("limit") @DefaultValue("25") final int limit) {
+            @QueryParam("limit") @DefaultValue("5") final int limit) {
         final VAVector targetVector = Mood.createTargetVector(moods);
 
         return roomDAO.queryRooms(targetVector, limit)
