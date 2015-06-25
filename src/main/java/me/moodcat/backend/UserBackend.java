@@ -84,7 +84,7 @@ public class UserBackend {
         final User user = new User();
         user.setSoundCloudUserId(soundCloudId);
         user.setAvatarUrl(me.getAvatarUrl());
-        user.setName(me.getFullName());
+        user.setName(me.getUsername());
         return user;
     }
 

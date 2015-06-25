@@ -2,6 +2,7 @@ package me.moodcat.backend.mocks;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import me.moodcat.api.ProfanityChecker;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.rooms.ChatMessageFactory;
 import me.moodcat.backend.rooms.RoomInstance;
@@ -21,22 +22,25 @@ public class RoomInstanceFactoryMock implements RoomInstanceFactory {
     private final ChatMessageFactory chatMessageFactory;
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
     private final Provider<SongDAO> songDAOProvider;
+    private final ProfanityChecker profanityChecker;
 
     @Inject
     public RoomInstanceFactoryMock(final Provider<SongDAO> songDAOProvider,
                                    final Provider<RoomDAO> roomDAOProvider,
                                    final ChatMessageFactory chatMessageFactory,
-                                   final UnitOfWorkSchedulingService unitOfWorkSchedulingService) {
+                                   final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
+                                   final ProfanityChecker profanityChecker) {
         this.songInstanceFactory = new SongInstanceFactoryMock(songDAOProvider);
         this.songDAOProvider = songDAOProvider;
         this.roomDAOProvider = roomDAOProvider;
         this.chatMessageFactory = chatMessageFactory;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
+        this.profanityChecker = profanityChecker;
     }
 
     @Override
     public RoomInstance create(final Room room) {
         return new RoomInstance(songInstanceFactory, roomDAOProvider,
-            songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, room);
+            songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, profanityChecker, room);
     }
 }

@@ -9,6 +9,7 @@ import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.persist.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.Vote;
@@ -39,11 +40,15 @@ public class RoomInstance {
 
     public static final int NUMBER_OF_SELECTED_SONGS = 25;
 
+    private static final int MESSAGE_FLOODING_TIMEOUT = 10;
+
+    private static final int MESSAGE_FLOODING_MESSAGE_AMOUNT = 4;
+
     /**
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
-    
+
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
      */
@@ -63,6 +68,11 @@ public class RoomInstance {
      * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
+
+    /**
+     * The profanity checker to filter out 'bad' chatmessages.
+     */
+    private final ProfanityChecker profanityChecker;
 
     /**
      * The room index.
@@ -104,11 +114,12 @@ public class RoomInstance {
      * Has changed flag.
      */
     private final AtomicBoolean hasChanged;
-    
+
     /**
      * The votes of the users for the current song.
      */
     private final Map<User, Vote> votes;
+
 
     /**
      * ChatRoomInstance's constructur, will create a roomInstance from a room
@@ -129,9 +140,11 @@ public class RoomInstance {
             final Provider<SongDAO> songDAOProvider,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
             final ChatMessageFactory chatMessageFactory,
+            final ProfanityChecker profanityChecker,
             @Assisted final Room room) {
 
         Preconditions.checkNotNull(room);
+        this.profanityChecker = profanityChecker;
         this.songInstanceFactory = songInstanceFactory;
         this.roomDAOProvider = roomDAOProvider;
         this.songDAOProvider = songDAOProvider;
@@ -169,12 +182,12 @@ public class RoomInstance {
         if (previousSong == null) {
             throw new IllegalStateException("Room should be playing a song");
         }
-
         updateHistory(room, previousSong);
 
         processVotes(previousSong);
         
         processNextSong(room);
+
         this.merge();
     }
 
@@ -213,22 +226,22 @@ public class RoomInstance {
 
         hasChanged.set(true);
     }
-    
+
     private void processVotes(final Song previousSong) {
         int nettoVotes = this.votes.values().stream()
                 .mapToInt(Vote::getValue)
                 .sum();
-        
+
         if (nettoVotes < 0) {
             final RoomDAO roomDAO = this.roomDAOProvider.get();
             final Room room = roomDAO.findById(id);
-            
+
             previousSong.addExclusionRoom(room);
         }
-        
+
         this.votes.clear();
     }
-    
+
     private void processNextSong(final Room room) {
         final List<Song> playQueue = room.getPlayQueue();
         if (playQueue.isEmpty()) {
@@ -280,6 +293,7 @@ public class RoomInstance {
     public ChatMessageModel sendMessage(final ChatMessageModel model,
             final User user) {
         Preconditions.checkNotNull(model);
+        verifyNonSpamming(user);
 
         updateAndSetModel(model, user);
 
@@ -296,10 +310,28 @@ public class RoomInstance {
         return model;
     }
 
+    private void verifyNonSpamming(final User user) {
+        // Our system is allowed to send messages
+        if (user.getId().equals(1)) {
+            return;
+        }
+        
+        final long currentTime = System.currentTimeMillis();
+        
+        if (messages.stream().filter((message) -> {
+            return message.getUserId() == user.getId()
+                    && message.getTimestamp() + TimeUnit.SECONDS.toMillis(MESSAGE_FLOODING_TIMEOUT) > currentTime;
+                }).count() > MESSAGE_FLOODING_MESSAGE_AMOUNT) {
+            throw new IllegalArgumentException("You can not post" + MESSAGE_FLOODING_MESSAGE_AMOUNT
+                    + "messages within " + MESSAGE_FLOODING_TIMEOUT + " seconds");
+        }
+    }
+
     private void updateAndSetModel(final ChatMessageModel model, final User user) {
         model.setId(chatMessageIdGenerator.generateId());
         model.setTimestamp(System.currentTimeMillis());
         model.setAuthor(user.getName());
+        model.setMessage(profanityChecker.clearProfanity(model.getMessage()));
     }
 
     /**
@@ -325,7 +357,7 @@ public class RoomInstance {
 
             Collection<ChatMessage> newMessages = messages.stream()
                 .map(message -> chatMessageFactory
-                    .create(room, message))
+                        .create(room, message))
                 .collect(Collectors.toList());
 
             room.getChatMessages().addAll(newMessages);
