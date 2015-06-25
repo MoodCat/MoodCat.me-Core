@@ -30,7 +30,7 @@ public class TestPackageAppRunner {
 
         // Bootstrap the database
         final Bootstrapper bootstrappper = injector.getInstance(Bootstrapper.class);
-        bootstrappper.parseFromResource("/bootstrap/fall-out-boy.json");
+        bootstrappper.parseFromResource("/bootstrap/test-bootstrapper.json");
 
         // Init inserted rooms
         final RoomBackend roomBackend = injector.getInstance(RoomBackend.class);

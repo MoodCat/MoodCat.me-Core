@@ -182,7 +182,6 @@ public class BulkInsertData {
             }
             room.setVaVector(VAVector.createRandomVector());
             room.setChatMessages(Collections.<ChatMessage> emptySet());
-            room.setRepeat(true);
             roomDAO.persist(room);
         }
     }

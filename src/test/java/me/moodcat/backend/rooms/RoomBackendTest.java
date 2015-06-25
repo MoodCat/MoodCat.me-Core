@@ -26,6 +26,7 @@ import me.moodcat.backend.Vote;
 import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -35,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
@@ -113,12 +115,16 @@ public class RoomBackendTest extends BackendTest {
         when(room.getChatMessages()).thenReturn(Sets.newHashSet());
         when(room.getPlayHistory()).thenReturn(songHistory);
         when(room.getPlayQueue()).thenReturn(songFuture);
+        VAVector roomVector = new VAVector(0.5, 0.5);
+        when(room.getVaVector()).thenReturn(roomVector);
 
         when(roomDAOProvider.get()).thenReturn(roomDAO);
         when(songDAOProvider.get()).thenReturn(songDAO);
 
         when(roomDAO.listRooms()).thenReturn(rooms);
         when(roomDAO.findById(room.getId())).thenReturn(room);
+        
+        when(songDAO.findForDistance(eq(roomVector), Matchers.anyLong())).thenReturn(songFuture);
 
         when(unitOfWorkSchedulingService.performInUnitOfWork(any())).thenAnswer(invocationOnMock ->
                 invocationOnMock.getArgumentAt(0, Callable.class).call());
@@ -188,38 +194,6 @@ public class RoomBackendTest extends BackendTest {
         instance.merge();
 
         assertNotEquals(song, room.getCurrentSong());
-    }
-
-    @Test
-    public void playSongCreatesQueueWhenRepeating() {
-        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
-
-        Song mockedSong = mock(Song.class);
-        when(room.getPlayHistory()).thenReturn(Lists.newArrayList(mockedSong));
-        room.setRepeat(true);
-
-        final RoomInstance instance = roomBackend.getRoomInstance(1);
-
-        instance.playNext();
-        instance.merge();
-
-        assertFalse(room.getPlayQueue().isEmpty());
-    }
-
-    @Test
-    public void playSongRemovesHistoryWhenRepeating() {
-        when(room.getPlayQueue()).thenReturn(Lists.newArrayList());
-
-        Song mockedSong = mock(Song.class);
-        when(room.getPlayHistory()).thenReturn(Lists.newArrayList(mockedSong));
-        room.setRepeat(true);
-
-        final RoomInstance instance = roomBackend.getRoomInstance(1);
-
-        instance.playNext();
-        instance.merge();
-
-        assertTrue(room.getPlayHistory().isEmpty());
     }
 
     @Test

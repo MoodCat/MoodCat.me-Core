@@ -89,12 +89,6 @@ public class Room {
     private List<Song> playHistory;
 
     /**
-     * Development flag to temporarily repeat the current song in a room.
-     */
-    @Column(name = "repeat")
-    private boolean repeat;
-
-    /**
      * The chat messages in the room.
      */
     @OrderBy("timestamp asc")

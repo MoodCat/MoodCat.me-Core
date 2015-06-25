@@ -21,6 +21,7 @@ public class RoomInstanceFactoryMock implements RoomInstanceFactory {
     private final Provider<RoomDAO> roomDAOProvider;
     private final ChatMessageFactory chatMessageFactory;
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
+    private final Provider<SongDAO> songDAOProvider;
     private final ProfanityChecker profanityChecker;
 
     @Inject
@@ -30,6 +31,7 @@ public class RoomInstanceFactoryMock implements RoomInstanceFactory {
                                    final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
                                    final ProfanityChecker profanityChecker) {
         this.songInstanceFactory = new SongInstanceFactoryMock(songDAOProvider);
+        this.songDAOProvider = songDAOProvider;
         this.roomDAOProvider = roomDAOProvider;
         this.chatMessageFactory = chatMessageFactory;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
@@ -39,6 +41,6 @@ public class RoomInstanceFactoryMock implements RoomInstanceFactory {
     @Override
     public RoomInstance create(final Room room) {
         return new RoomInstance(songInstanceFactory, roomDAOProvider,
-            unitOfWorkSchedulingService, chatMessageFactory, profanityChecker, room);
+            songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, profanityChecker, room);
     }
 }

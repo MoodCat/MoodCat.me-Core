@@ -1,0 +1,73 @@
+{
+	"users":[
+		{
+			"id": 1,
+			"username": "System",
+			"points": 10,
+			"accessToken": "asdf"
+		}
+	],
+	"artists":[
+		{
+			"id": 1,
+			"name": "Fall Out Boy",
+			"songs": [
+				{
+					"id": 1,
+					"name": "UMEK ft. Jameisha Trice - Live The Life (Original Mix)",
+					"artworkUrl": "https://i1.sndcdn.com/avatars-000068253027-pymmbo-large.jpg",
+					"soundCloudId": 202330997,
+					"duration": 433777
+				},
+			  {
+					"id": 2,
+					"name": "Laidback Luke feat. Wynter Gordon - Speak Up (Original Mix)",
+					"artworkUrl": "https://i1.sndcdn.com/avatars-000106544003-cd8lsp-large.jpg",
+					"soundCloudId": 37217830,
+					"duration": 128597
+			  },
+			  {
+					"id": 3,
+					"name": "Ice Cream Truck",
+					"artworkUrl": "https://i1.sndcdn.com/artworks-000023012410-oe3mg2-large.jpg",
+					"soundCloudId": 45754970,
+					"duration": 174956
+			  }
+			]
+		}
+	],
+	"rooms": [
+		{
+			"id": 1,
+			"name": "No Merge Conflicts PL0x",
+			"position": 1,
+			"time": 0,
+			"songId" : 1,
+			"playQueue": [2, 3],
+			"messages": [
+				{
+					"id": 1,
+					"userId": 1,
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		},
+		{
+			"id": 2,
+			"name": "Merge Conflicts PL0x",
+			"position": 2,
+			"time": 0,
+			"songId" : 2,
+			"playQueue": [3, 1],
+			"messages": [
+				{
+					"id": 1,
+					"userId": 1,
+					"message": "Welcome to Moodcat!",
+					"time": 1432799172510
+				}
+			]
+		}
+	]
+}

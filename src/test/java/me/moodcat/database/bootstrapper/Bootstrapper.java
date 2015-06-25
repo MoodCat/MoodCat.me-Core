@@ -1,11 +1,9 @@
 package me.moodcat.database.bootstrapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
@@ -20,10 +18,12 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The {@code Bootstrapper} loads an environment for a test
@@ -146,6 +146,10 @@ public class Bootstrapper {
 
         private int songId;
 
+        private List<Integer> playHistory;
+
+        private List<Integer> playQueue;
+
         private List<BMessage> messages;
     }
 
@@ -198,11 +202,24 @@ public class Bootstrapper {
         room.setName(bRoom.getName());
         room.setChatMessages(Collections.emptySet());
         room.setCurrentSong(persistedSongs.get(bRoom.getSongId()));
+        room.setPlayHistory(findSongs(bRoom.getPlayHistory()));
+        room.setPlayQueue(findSongs(bRoom.getPlayQueue()));
         room.setVaVector(room.getCurrentSong().getValenceArousal());
         Room persistedRoom = roomDAO.merge(room);
         bRoom.getMessages().forEach(bSong -> createChatMessage(bSong, persistedRoom));
         persistedRooms.put(bRoom.getId(), persistedRoom);
         log.info("Bootstrapper created room {}", persistedRoom);
+    }
+
+    private List<Song> findSongs(final List<Integer> songIds) {
+        if(songIds == null) {
+            return Collections.emptyList();
+        }
+        else {
+            return songIds.stream()
+                .map(persistedSongs::get)
+                .collect(Collectors.toList());
+        }
     }
 
     @Transactional
