@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
@@ -79,8 +78,9 @@ public class RoomInstanceTest {
         User user = mock(User.class);
         when(user.getId()).thenReturn(1337);
 	    
+        for (int i = 0; i < 6; i++) {
 	    instance.sendMessage(model, user);
-	    instance.sendMessage(model, user);
-	}
+        }
+    }
 
 }

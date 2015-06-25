@@ -21,6 +21,7 @@ import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -30,15 +31,15 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import com.google.inject.persist.Transactional;
 
-import me.moodcat.database.entities.User;
-
 /**
  * The instance object of the rooms.
  */
 @Slf4j
 public class RoomInstance {
 
-    private static final int MESSAGE_FLOODING_TIMEOUT = 5;
+    private static final int MESSAGE_FLOODING_TIMEOUT = 10;
+
+    private static final int MESSAGE_FLOODING_MESSAGE_AMOUNT = 4;
 
     /**
      * Number of chat messages to cache for each room.
@@ -281,13 +282,14 @@ public class RoomInstance {
             return;
         }
         
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         
         if (messages.stream().filter((message) -> {
             return message.getUserId() == user.getId()
                     && message.getTimestamp() + TimeUnit.SECONDS.toMillis(MESSAGE_FLOODING_TIMEOUT) > currentTime;
-        }).count() > 0) {
-            throw new IllegalArgumentException("You can not post within " + MESSAGE_FLOODING_TIMEOUT + " seconds");
+                }).count() > MESSAGE_FLOODING_MESSAGE_AMOUNT) {
+            throw new IllegalArgumentException("You can not post" + MESSAGE_FLOODING_MESSAGE_AMOUNT
+                    + "messages within " + MESSAGE_FLOODING_TIMEOUT + " seconds");
         }
     }
 
