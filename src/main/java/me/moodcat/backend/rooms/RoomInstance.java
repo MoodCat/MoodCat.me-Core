@@ -1,16 +1,12 @@
 package me.moodcat.backend.rooms;
 
-import java.util.Collection;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.persist.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.api.models.ChatMessageModel;
@@ -22,16 +18,18 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Provider;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import com.google.inject.persist.Transactional;
-
 import me.moodcat.database.entities.User;
+
+import java.util.Collection;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * The instance object of the rooms.
@@ -39,7 +37,7 @@ import me.moodcat.database.entities.User;
 @Slf4j
 public class RoomInstance {
 
-    private static final int NUMBER_OF_SELECTED_SONGS = 25;
+    public static final int NUMBER_OF_SELECTED_SONGS = 25;
 
     /**
      * Number of chat messages to cache for each room.
@@ -166,18 +164,35 @@ public class RoomInstance {
     public void playNext() {
         final RoomDAO roomDAO = this.roomDAOProvider.get();
         final Room room = roomDAO.findById(id);
-        final List<Song> history = room.getPlayHistory();
         final Song previousSong = room.getCurrentSong();
 
         if (previousSong == null) {
             throw new IllegalStateException("Room should be playing a song");
         }
-        history.add(previousSong);
-        
+
+        updateHistory(room, previousSong);
+
         processVotes(previousSong);
         
-        processNextSong(room, history);
+        processNextSong(room);
         this.merge();
+    }
+
+    private void updateHistory(Room room, Song previousSong) {
+        List<Song> history = copyHistory(room);
+        history.add(previousSong);
+        history = clampHistory(history);
+        room.setPlayHistory(history);
+    }
+
+    private List<Song>  clampHistory(final List<Song> history) {
+        final int historySize = history.size();
+        final int beginIndex = Math.max(0, historySize - NUMBER_OF_SELECTED_SONGS);
+        return history.subList(beginIndex, historySize);
+    }
+
+    private List<Song> copyHistory(final Room room) {
+        return Lists.newArrayList(room.getPlayHistory());
     }
 
     @Transactional
@@ -214,14 +229,18 @@ public class RoomInstance {
         this.votes.clear();
     }
     
-    private void processNextSong(final Room room, final List<Song> history) {
+    private void processNextSong(final Room room) {
         final List<Song> playQueue = room.getPlayQueue();
         if (playQueue.isEmpty()) {
-            VAVector vector = this.roomDAOProvider.get().findById(id).getVaVector();
+            VAVector vector = this.getRoom().getVaVector();
             playQueue.addAll(this.songDAOProvider.get().findForDistance(vector, NUMBER_OF_SELECTED_SONGS));
-            
-            int historyLength = history.size();
-            room.setPlayHistory(history.subList(Math.max(0, historyLength - NUMBER_OF_SELECTED_SONGS), historyLength));
+        }
+
+        if(playQueue.isEmpty()) {
+            // If something is terribly broken, and the query fails, just add the history
+            List<Song> history = room.getPlayHistory();
+            playQueue.addAll(history);
+            history.clear();
         }
 
         playNext(playQueue.remove(0));
@@ -249,7 +268,7 @@ public class RoomInstance {
      */
     private void scheduleSyncTimer() {
         this.unitOfWorkSchedulingService.scheduleAtFixedRate(this::merge, 1, 1,
-                TimeUnit.MINUTES);
+            TimeUnit.MINUTES);
     }
 
     /**
@@ -293,11 +312,16 @@ public class RoomInstance {
         }
     }
 
+    private Room getRoom() {
+        final RoomDAO roomDAO = this.roomDAOProvider.get();
+        return roomDAO.findById(id);
+    }
+
     @Transactional
-    private Room mergeRoom() {
+    protected Room mergeRoom() {
         try {
             final RoomDAO roomDAO = this.roomDAOProvider.get();
-            final Room room = roomDAO.findById(id);
+            final Room room = getRoom();
 
             Collection<ChatMessage> newMessages = messages.stream()
                 .map(message -> chatMessageFactory

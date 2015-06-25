@@ -1,9 +1,9 @@
 package me.moodcat.backend.rooms;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
+import lombok.Getter;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
@@ -12,15 +12,26 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-
+import me.moodcat.util.DataUtil;
+import me.moodcat.util.ProviderProxy;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.inject.Provider;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomInstanceTest {
@@ -31,10 +42,18 @@ public class RoomInstanceTest {
 	private SongInstanceFactory songInstanceFactory;
 
 	@Mock
-	private Provider<RoomDAO> roomDAOProvider;
-	
+	@Getter
+	private RoomDAO roomDAO;
+
+	@Spy
+	private Provider<RoomDAO> roomDAOProvider = new ProviderProxy<>(this::getRoomDAO);
+
 	@Mock
-    private Provider<SongDAO> songDAOProvider;
+	@Getter
+	private SongDAO songDAO;
+
+	@Spy
+    private Provider<SongDAO> songDAOProvider = new ProviderProxy<>(this::getSongDAO);
 
 	@Mock
 	private UnitOfWorkSchedulingService unitOfWorkSchedulingService;
@@ -42,15 +61,26 @@ public class RoomInstanceTest {
     @Mock
     private ChatMessageFactory chatMessageFactory;
 
-	@Mock
+	private Song song;
+
 	private Room room;
+
+	private final static DataUtil dataUtil = new DataUtil();
 
 	@Before
 	public void setUp() {
-		when(room.getCurrentSong()).thenReturn(mock(Song.class));
-		when(songInstanceFactory.create(any())).thenReturn(mock(SongInstance.class));
-        when(chatMessageFactory.create(any(), any())).thenReturn(mock(ChatMessage.class));
+		room = dataUtil.createRoom();
+		song = room.getCurrentSong();
 
+		when(roomDAO.findById(room.getId())).thenReturn(room);
+
+		when(songInstanceFactory.create(any())).thenAnswer(a -> {
+			final SongInstance songInstance = mock(SongInstance.class);
+			when(songInstance.getSong()).thenReturn(a.getArgumentAt(0, Song.class));
+			return songInstance;
+		});
+
+        when(chatMessageFactory.create(any(), any())).thenReturn(mock(ChatMessage.class));
 		instance = new RoomInstance(songInstanceFactory, roomDAOProvider,
 				songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, room);
 	}
@@ -66,6 +96,72 @@ public class RoomInstanceTest {
 
 		assertEquals(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES, instance
 				.getMessages().size());
+	}
+
+	@Test
+	public void testReplayHistoryOnNoResults() {
+		when(songDAO.findForDistance(room.getVaVector(), RoomInstance.NUMBER_OF_SELECTED_SONGS))
+			.thenReturn(Collections.emptyList());
+
+		assertThat(room.getPlayHistory(), Matchers.empty());
+		assertThat(room.getPlayQueue(), Matchers.empty());
+		assertEquals(song, room.getCurrentSong());
+
+		instance.playNext();
+
+		assertThat(room.getPlayHistory(), Matchers.empty());
+		assertThat(room.getPlayQueue(), Matchers.empty());
+		assertEquals(song, room.getCurrentSong());
+	}
+
+
+	@Test
+	public void testReplayHistoryOnResults() {
+		Song newSong = dataUtil.createSong();
+		stubFindForDistance(room, newSong);
+
+		assertThat(room.getPlayHistory(), Matchers.empty());
+		assertThat(room.getPlayQueue(), Matchers.empty());
+		assertEquals(song, room.getCurrentSong());
+
+		instance.playNext();
+		instance.mergeRoom();
+
+		assertThat(room.getPlayHistory(), Matchers.contains(song));
+		assertThat(room.getPlayQueue(), Matchers.empty());
+		assertEquals(newSong, room.getCurrentSong());
+	}
+
+	@Test
+	public void testLimitHistory() {
+		List<Song> history = ImmutableList.copyOf(Stream.generate(dataUtil::createSong)
+			.limit(RoomInstance.NUMBER_OF_SELECTED_SONGS)
+			.iterator());
+
+		room.setPlayHistory(history);
+
+		Song newSong = dataUtil.createSong();
+		stubFindForDistance(room, newSong);
+
+		assertThat(room.getPlayQueue(), Matchers.empty());
+		assertEquals(song, room.getCurrentSong());
+
+		instance.playNext();
+		instance.mergeRoom();
+
+		List<Song> expectedHistory = Stream
+			.concat(history.stream().skip(1), Stream.of(song))
+			.collect(Collectors.toList());
+
+
+		assertEquals(expectedHistory, room.getPlayHistory());
+		assertThat(room.getPlayQueue(), Matchers.empty());
+		assertEquals(newSong, room.getCurrentSong());
+	}
+
+	private void stubFindForDistance(Room room, Song... songs) {
+		when(songDAO.findForDistance(room.getVaVector(), RoomInstance.NUMBER_OF_SELECTED_SONGS))
+			.thenReturn(Lists.newArrayList(songs));
 	}
 
 }
