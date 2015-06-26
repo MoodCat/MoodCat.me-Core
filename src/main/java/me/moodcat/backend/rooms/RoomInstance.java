@@ -350,24 +350,18 @@ public class RoomInstance {
     }
 
     @Transactional
-    protected Room mergeRoom() {
-        try {
-            final RoomDAO roomDAO = this.roomDAOProvider.get();
-            final Room room = getRoom();
+    protected void mergeRoom() {
+        final RoomDAO roomDAO = this.roomDAOProvider.get();
+        final Room room = getRoom();
 
-            Collection<ChatMessage> newMessages = messages.stream()
-                .map(message -> chatMessageFactory
-                        .create(room, message))
-                .collect(Collectors.toList());
+        Collection<ChatMessage> newMessages = messages.stream()
+            .map(message -> chatMessageFactory.create(room, message))
+            .collect(Collectors.toList());
 
-            room.getChatMessages().addAll(newMessages);
-            room.setCurrentSong(getCurrentSong());
+        room.getChatMessages().addAll(newMessages);
+        room.setCurrentSong(getCurrentSong());
 
-            return roomDAO.merge(room);
-        } catch (Throwable e) {
-            log.error(String.format("Failed to persist room %s, due to error: %s", this.getId(), e.getMessage()), e);
-            return null;
-        }
+        roomDAO.merge(room);
     }
 
     /**

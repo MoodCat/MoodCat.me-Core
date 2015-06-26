@@ -1,18 +1,17 @@
 package me.moodcat.backend.rooms;
 
-import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.UnitOfWorkSchedulingService;
-import me.moodcat.database.controllers.RoomDAO;
-
-import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
-import org.eclipse.jetty.util.component.LifeCycle;
-
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
+import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.database.controllers.RoomDAO;
+import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
+import org.eclipse.jetty.util.component.LifeCycle;
+
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * The backend of rooms, initializes room instances and keeps track of time and messages.
@@ -96,13 +95,12 @@ public class RoomBackend extends AbstractLifeCycleListener {
     /**
      * Initialize the rooms from the db.
      */
-    public void initializeRooms() {
-        unitOfWorkSchedulingService.performInUnitOfWork(() -> {
+    public Future<?> initializeRooms() {
+        return unitOfWorkSchedulingService.performInUnitOfWork(() -> {
             final RoomDAO roomDAO = roomDAOProvider.get();
             roomDAO.listRooms().stream()
                     .map(roomInstanceFactory::create)
                     .forEach(roomInstance -> roomInstances.put(roomInstance.getId(), roomInstance));
-            return roomInstances;
         });
     }
 

@@ -3,6 +3,7 @@ package me.moodcat.util;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.UnitOfWork;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.Callable;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.Callable;
  * @param <V>
  *            return type of the unit of work.
  */
+@Slf4j
 public class CallableInUnitOfWork<V> implements Callable<V> {
 
     /**
@@ -39,6 +41,9 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         try {
             work.begin();
             return callable.call();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            throw t;
         } finally {
             work.end();
         }
