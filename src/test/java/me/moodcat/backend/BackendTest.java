@@ -1,12 +1,13 @@
 package me.moodcat.backend;
 
-import java.math.BigInteger;
-import java.util.Random;
-
 import me.moodcat.api.models.ChatMessageModel;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
+
+import java.math.BigInteger;
+import java.util.Random;
 
 /**
  * Abstract {@code BackendTest} for some shared logic for testing backends.
@@ -33,6 +34,7 @@ public abstract class BackendTest {
         song.setArtist(artist);
         song.setName(randomString());
         song.setArtworkUrl(randomString());
+        song.setValenceArousal(VAVector.createRandomVector());
         song.setDuration((random.nextInt() + 1) * 1000);
         return song;
     }

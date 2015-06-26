@@ -48,6 +48,7 @@ public class RoomInstance {
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
+    public static final double CLASSIFY_GROW_FACTOR = 1.02;
 
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
@@ -237,6 +238,15 @@ public class RoomInstance {
             final Room room = roomDAO.findById(id);
 
             previousSong.addExclusionRoom(room);
+        }
+        else if (nettoVotes > 0) {
+            final VAVector vaVector = previousSong.getValenceArousal();
+            final VAVector adjusted = new VAVector(
+                Math.min(1, Math.max(-1, vaVector.getValence() * CLASSIFY_GROW_FACTOR)),
+                Math.min(1, Math.max(-1, vaVector.getArousal() * CLASSIFY_GROW_FACTOR))
+            );
+            previousSong.setValenceArousal(adjusted);
+            songDAOProvider.get().merge(previousSong);
         }
 
         this.votes.clear();

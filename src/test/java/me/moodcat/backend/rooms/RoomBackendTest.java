@@ -1,23 +1,8 @@
 package me.moodcat.backend.rooms;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.inject.Provider;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
@@ -31,20 +16,31 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomBackendTest extends BackendTest {
@@ -90,9 +86,11 @@ public class RoomBackendTest extends BackendTest {
 
     private static ChatMessageModel chatMessage = createChatMessage();
 
-    private final static Song song1 = createSong(1);
+    @Spy
+    private Song song1 = createSong(1);
 
-    private final static Song song2 = createSong(2);
+    @Spy
+    private Song song2 = createSong(2);
 
     @Before
     public void setUp() {
@@ -210,14 +208,13 @@ public class RoomBackendTest extends BackendTest {
 
     @Test
     public void playSongProcessVotesDoesNotAddRoomToExclusionWhenNotEngouhDislikes() {
-        Song mockedSong = Mockito.mock(Song.class);
-        when(room.getCurrentSong()).thenReturn(mockedSong);
+        when(room.getCurrentSong()).thenReturn(song1);
 
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         instance.addVote(user, Vote.LIKE);
         instance.playNext();
 
-        verify(mockedSong, never()).addExclusionRoom(room);
+        verify(song1, never()).addExclusionRoom(room);
     }
 
 }
