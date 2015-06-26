@@ -1,19 +1,16 @@
 package me.moodcat.backend;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import me.moodcat.util.CallableInUnitOfWork;
-import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
-
-import org.eclipse.jetty.util.component.LifeCycle;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import lombok.extern.slf4j.Slf4j;
+import me.moodcat.util.CallableInUnitOfWork;
+import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
+import org.eclipse.jetty.util.component.LifeCycle;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * The UnitOfWorkSchedulingService can be used to schedule tasks in a
@@ -53,7 +50,7 @@ public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor imp
     }
 
     /**
-     * Perform a {@link Callable} in a {@link com.google.inject.persist.UnitOfWork} and
+     * Perform a {@code Callable} in a {@link com.google.inject.persist.UnitOfWork} and
      * wait for its result.
      *
      * @param callable
@@ -62,9 +59,22 @@ public class UnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor imp
      *            Return type of the callable
      * @return return value of the callable
      */
-    @SneakyThrows
-    public <T> T performInUnitOfWork(final Callable<T> callable) {
-        return submitInUnitOfWork(callable).get();
+    public <T> Future<T> performInUnitOfWork(final Callable<T> callable) {
+        return submitInUnitOfWork(callable);
+    }
+
+    /**
+     * Perform a {@code Runnable} in a {@link com.google.inject.persist.UnitOfWork} and
+     * wait for its result.
+     *
+     * @param runnable
+     *          Runnable to run
+     */
+    public Future<?> performInUnitOfWork(final Runnable runnable) {
+        return performInUnitOfWork(() -> {
+            runnable.run();
+            return null;
+        });
     }
 
     @Override

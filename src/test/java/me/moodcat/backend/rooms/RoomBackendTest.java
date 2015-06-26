@@ -1,27 +1,11 @@
 package me.moodcat.backend.rooms;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.inject.Provider;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
-import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.Vote;
 import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
@@ -31,7 +15,8 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-
+import me.moodcat.util.MockedUnitOfWorkSchedulingService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,9 +27,21 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomBackendTest extends BackendTest {
@@ -68,8 +65,8 @@ public class RoomBackendTest extends BackendTest {
 
     private RoomInstanceFactoryMock roomInstanceFactoryMock;
 
-    @Mock
-    private UnitOfWorkSchedulingService unitOfWorkSchedulingService;
+    @Spy
+    private MockedUnitOfWorkSchedulingService unitOfWorkSchedulingService = new MockedUnitOfWorkSchedulingService();
 
     @Mock
     private ChatMessageFactory chatMessageFactory;
@@ -95,7 +92,10 @@ public class RoomBackendTest extends BackendTest {
     private final static Song song2 = createSong(2);
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
+        unitOfWorkSchedulingService.lifeCycleStarting(null);
+        unitOfWorkSchedulingService.lifeCycleStarted(null);
+
         roomInstanceFactoryMock = new RoomInstanceFactoryMock(songDAOProvider, roomDAOProvider,
                 chatMessageFactory, unitOfWorkSchedulingService, profanityChecker);
 
@@ -126,12 +126,15 @@ public class RoomBackendTest extends BackendTest {
         
         when(songDAO.findForDistance(eq(roomVector), Matchers.anyLong())).thenReturn(songFuture);
 
-        when(unitOfWorkSchedulingService.performInUnitOfWork(any())).thenAnswer(invocationOnMock ->
-                invocationOnMock.getArgumentAt(0, Callable.class).call());
-
         roomBackend = new RoomBackend(unitOfWorkSchedulingService, roomInstanceFactoryMock,
                 roomDAOProvider);
-        roomBackend.initializeRooms();
+        roomBackend.initializeRooms().get();
+    }
+
+    @After
+    public void tearDown() {
+        unitOfWorkSchedulingService.lifeCycleStopping(null);
+        unitOfWorkSchedulingService.lifeCycleStopped(null);
     }
 
     @Test
@@ -164,7 +167,7 @@ public class RoomBackendTest extends BackendTest {
     }
     
     @Test
-    public void canStoreMessages() {
+    public void canStoreMessages() throws InterruptedException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         final ChatMessageModel model = new ChatMessageModel();
         model.setMessage("message");
@@ -180,19 +183,21 @@ public class RoomBackendTest extends BackendTest {
         instance.sendMessage(model, mock(User.class));
         
         instance.merge();
-        
+
+        Thread.sleep(500);
         verify(roomDAO).merge(eq(room));
         assertThat(room.getChatMessages(), contains(message));
     }
     
     @Test
-    public void canPlayNextSong() {
+    public void canPlayNextSong() throws InterruptedException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
 
         final Song song = room.getCurrentSong();
         instance.playNext();
         instance.merge();
 
+        Thread.sleep(500);
         assertNotEquals(song, room.getCurrentSong());
     }
 
