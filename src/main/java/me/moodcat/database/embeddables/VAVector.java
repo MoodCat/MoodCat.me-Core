@@ -1,19 +1,17 @@
 package me.moodcat.database.embeddables;
 
-import java.util.List;
-import java.util.Random;
-
-import javax.persistence.Embeddable;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-
-import org.hibernate.annotations.Type;
-
+import com.google.common.base.Preconditions;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.Embeddable;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Valence/Arousal vector class.

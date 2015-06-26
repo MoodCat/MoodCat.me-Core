@@ -17,6 +17,8 @@ import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.Vote;
+import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -25,6 +27,7 @@ import me.moodcat.database.entities.User;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
@@ -43,6 +46,11 @@ public class RoomInstance {
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
+    
+    /**
+     * How much the vector should approach the room vector.
+     */
+    public static final double CLASSIFY_GROW_FACTOR = 0.02;
 
     private static final int MESSAGE_FLOODING_TIMEOUT = 10;
 
@@ -88,6 +96,8 @@ public class RoomInstance {
      * Keep track of the message index.
      */
     private final ChatMessageIdGenerator chatMessageIdGenerator;
+    
+    private Provider<SongDAO> songDAOProvider;
 
     /**
      * The cached messages in order to speed up retrieval.
@@ -114,13 +124,14 @@ public class RoomInstance {
             final RoomInstanceInUnitOfWorkFactory roomInstanceInUnitOfWorkFactory,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
             final ProfanityChecker profanityChecker,
+            final Provider<SongDAO> songDAOProvider,
             @Assisted final Room room) {
-
         Preconditions.checkNotNull(room);
         this.profanityChecker = profanityChecker;
         this.songInstanceFactory = songInstanceFactory;
         this.roomInstanceInUnitOfWorkFactory = roomInstanceInUnitOfWorkFactory;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
+        this.songDAOProvider = songDAOProvider;
         this.votes = Maps.newConcurrentMap();
 
         this.id = room.getId();
@@ -187,9 +198,26 @@ public class RoomInstance {
 
         if (nettoVotes < 0) {
             instance.excludeRoomFromSong();
+        } else if (nettoVotes > 0) {
+            Song previousSong = instance.getCurrentSong();
+            
+            final VAVector adjusted = adjustSongVectorToRoomVector(instance.getVector(),
+                previousSong.getValenceArousal());
+            
+            previousSong.setValenceArousal(adjusted);
+            songDAOProvider.get().merge(previousSong);
         }
 
         this.votes.clear();
+    }
+
+    private VAVector adjustSongVectorToRoomVector(final VAVector roomVector, final VAVector songVector) {
+        final VAVector adjustment = roomVector.subtract(songVector);
+        
+        return new VAVector(
+            Math.min(1, Math.max(-1, songVector.getValence() + adjustment.getValence() * CLASSIFY_GROW_FACTOR)),
+            Math.min(1, Math.max(-1, songVector.getArousal() + adjustment.getArousal() * CLASSIFY_GROW_FACTOR))
+        );
     }
 
     /**

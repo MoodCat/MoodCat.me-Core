@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
@@ -40,11 +42,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 
@@ -52,11 +51,11 @@ import com.google.inject.Inject;
 @UseModules(RoomBackendTest.RoomBackendTestModule.class)
 public class RoomBackendTest extends BackendTest {
 
-    private static UserDAO userDAO = Mockito.mock(UserDAO.class);
+    private static UserDAO userDAO = mock(UserDAO.class);
 
-    private static RoomDAO roomDAO = Mockito.mock(RoomDAO.class);
+    private static RoomDAO roomDAO = mock(RoomDAO.class);
 
-    private static SongDAO songDAO = Mockito.mock(SongDAO.class);
+    private static SongDAO songDAO = mock(SongDAO.class);
 
     public static class RoomBackendTestModule extends AbstractModule {
 
@@ -97,9 +96,11 @@ public class RoomBackendTest extends BackendTest {
 
     private final static ChatMessageModel chatMessage = createChatMessage(user);
 
-    private final static Song song1 = createSong(1);
+    @Spy
+    private Song song1 = createSong(1);
 
-    private final static Song song2 = createSong(2);
+    @Spy
+    private Song song2 = createSong(2);
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
@@ -200,7 +201,7 @@ public class RoomBackendTest extends BackendTest {
 
     @Test
     public void playSongProcessVotesAndAddsRoomToExclusionWhenTooManyDislikes()
-            throws InterruptedException, ExecutionException {
+        throws InterruptedException, ExecutionException {
         Song mockedSong = mock(Song.class);
         when(room.getCurrentSong()).thenReturn(mockedSong);
 
@@ -213,14 +214,13 @@ public class RoomBackendTest extends BackendTest {
 
     @Test
     public void playSongProcessVotesDoesNotAddRoomToExclusionWhenNotEngouhDislikes() {
-        Song mockedSong = Mockito.mock(Song.class);
-        when(room.getCurrentSong()).thenReturn(mockedSong);
+        when(room.getCurrentSong()).thenReturn(song1);
 
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         instance.addVote(user, Vote.LIKE);
         instance.playNext();
 
-        verify(mockedSong, never()).addExclusionRoom(room);
+        verify(song1, never()).addExclusionRoom(room);
     }
 
 }
