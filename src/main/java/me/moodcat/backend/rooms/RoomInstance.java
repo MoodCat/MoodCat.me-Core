@@ -398,7 +398,16 @@ public class RoomInstance {
         return this.currentSong.get().getTime();
     }
 
+    /**
+     * Check if a user has already voted.
+     *
+     * @param user Check if user has already voted.
+     * @param valueOf Vote value.
+     */
     public void addVote(final User user, final Vote valueOf) {
+        if(this.votes.containsKey(user)) {
+            throw new IllegalArgumentException("User should only vote once!");
+        }
         this.votes.put(user, valueOf);
     }
 
