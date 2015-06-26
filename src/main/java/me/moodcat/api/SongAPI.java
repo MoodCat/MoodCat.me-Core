@@ -17,12 +17,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.moodcat.api.filters.AwardPoints;
 import me.moodcat.api.models.SongModel;
+import me.moodcat.database.controllers.ClassificationDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.Classification;
 import me.moodcat.database.entities.Song;
+import me.moodcat.database.entities.User;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 
 /**
@@ -31,7 +36,7 @@ import com.google.inject.persist.Transactional;
 @Path("/api/songs")
 @Produces(MediaType.APPLICATION_JSON)
 public class SongAPI {
-    
+
     /**
      * The points a user gains when he classifies a song.
      */
@@ -60,10 +65,17 @@ public class SongAPI {
      */
     private final SongDAO songDAO;
 
+    private final ClassificationDAO classificationDAO;
+
+    private final Provider<User> currentUserProvider;
+
     @Inject
     @VisibleForTesting
-    public SongAPI(final SongDAO songDAO) {
+    public SongAPI(final SongDAO songDAO, final ClassificationDAO classificationDAO,
+            @Named("current.user") final Provider<User> currentUserProvider) {
         this.songDAO = songDAO;
+        this.classificationDAO = classificationDAO;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @GET
@@ -119,14 +131,42 @@ public class SongAPI {
     public ClassificationRequest classifySong(@PathParam("id") final int id,
             final ClassificationRequest classification)
             throws InvalidClassificationException {
+
+        final User user = this.currentUserProvider.get();
         final Song song = this.songDAO.findBySoundCloudId(id);
+        final VAVector classificationVector = new VAVector(
+                classification.getValence(),
+                classification.getArousal());
+
+        if (classificationDAO.exists(user, song)) {
+            /*
+             * This should not happen, because after the initial classification
+             * the song will not be available for classification (and this endpoint
+             * should throw an IllegalArgumentException instead). However, this
+             * endpoint is currently also abused for the classification game.
+             * In order to prevent users to abuse this to gain points with fake
+             * classifications on the same song, we ignore duplicate classifications.
+             */
+            return classification;
+        }
+
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
+        song.setValenceArousal(adjustSongVector(classificationVector, song));
 
-        song.setValenceArousal(adjustSongVector(classification, song));
+        this.persistClassification(user, song, classificationVector);
         this.songDAO.merge(song);
 
         return classification;
+    }
+
+    private void persistClassification(final User user, final Song song,
+            final VAVector classificationVector) {
+        final Classification classificationEntity = new Classification();
+        classificationEntity.setValenceArousal(classificationVector);
+        classificationEntity.setSong(song);
+        classificationEntity.setUser(user);
+        this.classificationDAO.persist(classificationEntity);
     }
 
     /**
@@ -148,6 +188,7 @@ public class SongAPI {
             final ClassificationRequest classification)
             throws InvalidClassificationException {
         final Song song = this.songDAO.findBySoundCloudId(id);
+
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
 
@@ -164,12 +205,7 @@ public class SongAPI {
         }
     }
 
-    private VAVector adjustSongVector(final ClassificationRequest classification, final Song song) {
-        final VAVector classificationVector = new VAVector(
-
-                classification.getValence(),
-                classification.getArousal());
-
+    private VAVector adjustSongVector(final VAVector classificationVector, final Song song) {
         final VAVector songVector = song.getValenceArousal();
 
         final VAVector scaledDistance = classificationVector.subtract(songVector)

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import me.moodcat.api.SongAPI.ClassificationRequest;
 import me.moodcat.api.SongAPI.InvalidClassificationException;
+import me.moodcat.database.controllers.ClassificationDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.embeddables.VAVector;
@@ -35,19 +36,22 @@ public class SongAPITest {
 
     @Mock
     private SongDAO songDAO;
-    
+
     @Mock
     private UserDAO userDAO;
-    
+
     @Mock
     private Provider<User> currentUserProvider;
+
+    @Mock
+    private ClassificationDAO classificationDAO;
 
     @InjectMocks
     private SongAPI songAPI;
 
     @Mock
     private Song song;
-    
+
     @Mock
     private User user;
 
@@ -64,7 +68,7 @@ public class SongAPITest {
 
         when(songDAO.findById(Matchers.eq(SONG_ID))).thenReturn(song);
         when(songDAO.findBySoundCloudId(Matchers.eq(SOUNCLOUD_ID))).thenReturn(song);
-        
+
         when(currentUserProvider.get()).thenReturn(user);
     }
 
@@ -89,28 +93,28 @@ public class SongAPITest {
 
         songAPI.classifySong(SOUNCLOUD_ID, request);
     }
-    
+
     @Test
     public void canRetrieveAllSongs() {
-    	songAPI.getSongs();
-    	
-    	verify(songDAO).listSongs();
+        songAPI.getSongs();
+
+        verify(songDAO).listSongs();
     }
-    
+
     @Test
     public void canSupplyRandomVectorsForClassification() {
-    	songAPI.toClassify();
-    	
-    	verify(songDAO).listRandomsongs(anyInt());
+        songAPI.toClassify();
+
+        verify(songDAO).listRandomsongs(anyInt());
     }
-    
+
     @Test
     public void canRetrieveSongById() {
-    	songAPI.getSongById(SONG_ID);
-    	
-    	verify(songDAO).findById(SONG_ID);
+        songAPI.getSongById(SONG_ID);
+
+        verify(songDAO).findById(SONG_ID);
     }
-    
+
     @Test
     public void classificationApproachesSong() throws InvalidClassificationException {
         final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
