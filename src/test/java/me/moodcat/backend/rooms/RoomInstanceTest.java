@@ -15,6 +15,7 @@ import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.Vote;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.controllers.UserDAO;
@@ -196,6 +197,19 @@ public class RoomInstanceTest extends BackendTest {
 
     private void stubFindForDistance(Room room, Song... songs) {
         when(songDAO.findNewSongsFor(room)).thenReturn(Lists.newArrayList(songs));
+    }
+
+    @Test
+    public void testVote() {
+        User user = Mockito.mock(User.class);
+        instance.addVote(user, Vote.LIKE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDuplicateVote() {
+        User user = Mockito.mock(User.class);
+        instance.addVote(user, Vote.LIKE);
+        instance.addVote(user, Vote.DISLIKE);
     }
 
 }

@@ -331,6 +331,9 @@ public class RoomInstance {
      *            Vote value.
      */
     public void addVote(final User user, final Vote valueOf) {
+        if (this.votes.containsKey(user)) {
+            throw new IllegalArgumentException("User should only vote once!");
+        }
         this.votes.put(user, valueOf);
     }
 
