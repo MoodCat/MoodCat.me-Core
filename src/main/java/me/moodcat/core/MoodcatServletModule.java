@@ -1,35 +1,29 @@
 package me.moodcat.core;
 
-import java.io.File;
-import java.lang.annotation.Annotation;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Provides;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
+import com.google.inject.persist.PersistFilter;
+import com.google.inject.servlet.RequestScoped;
+import com.google.inject.servlet.ServletModule;
+import lombok.extern.slf4j.Slf4j;
+import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
+import me.moodcat.backend.rooms.RoomBackend;
+import me.moodcat.backend.rooms.RoomBackendModule;
+import me.moodcat.database.DbModule;
+import me.moodcat.database.entities.User;
+import org.eclipse.jetty.util.component.LifeCycle;
+import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
+import org.reflections.Reflections;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
-
-import com.google.inject.Provides;
-import com.google.inject.name.Named;
-import com.google.inject.servlet.RequestScoped;
-import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.UnitOfWorkSchedulingService;
-import me.moodcat.backend.rooms.RoomBackend;
-import me.moodcat.backend.rooms.RoomInstanceFactory;
-import me.moodcat.backend.rooms.SongInstanceFactory;
-import me.moodcat.database.DbModule;
-
-import me.moodcat.database.entities.User;
-
-import org.eclipse.jetty.util.component.LifeCycle;
-import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
-import org.reflections.Reflections;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.google.inject.name.Names;
-import com.google.inject.persist.PersistFilter;
-import com.google.inject.servlet.ServletModule;
+import java.io.File;
+import java.lang.annotation.Annotation;
 
 /**
  * The MoodcatServletModule is the Dependency Injection module for the
@@ -69,9 +63,9 @@ public class MoodcatServletModule extends ServletModule {
         // Bind the database module
         this.bindDatabaseModule();
         this.bindAPI();
-        this.bindFactories();
+        this.install(new RoomBackendModule());
         // Bind eager singletons
-        this.bind(UnitOfWorkSchedulingService.class).asEagerSingleton();
+        this.bind(UnitOfWorkSchedulingServiceImpl.class).asEagerSingleton();
         this.bind(RoomBackend.class).asEagerSingleton();
     }
 
@@ -81,11 +75,6 @@ public class MoodcatServletModule extends ServletModule {
             .toInstance(this.rootFolder);
         this.bindConstant().annotatedWith(Names.named("thread.pool.size")).to(THREAD_POOL_SIZE);
         this.bind(LifeCycle.class).toInstance(this.app.getServer());
-    }
-
-    private void bindFactories() {
-        this.install(new FactoryModuleBuilder().build(SongInstanceFactory.class));
-        this.install(new FactoryModuleBuilder().build(RoomInstanceFactory.class));
     }
 
     private void bindDatabaseModule() {

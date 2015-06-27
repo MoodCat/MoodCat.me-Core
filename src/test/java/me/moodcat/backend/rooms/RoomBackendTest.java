@@ -2,30 +2,33 @@ package me.moodcat.backend.rooms;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.inject.Provider;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
+import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.backend.Vote;
-import me.moodcat.backend.mocks.RoomInstanceFactoryMock;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
+import me.moodcat.database.entities.ChatMessageEmbeddable;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
+import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
 import me.moodcat.util.MockedUnitOfWorkSchedulingService;
+import org.jukito.UseModules;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,37 +39,41 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JukitoRunnerSupportingMockAnnotations.class)
+@UseModules(RoomBackendTest.RoomBackendTestModule.class)
 public class RoomBackendTest extends BackendTest {
 
-    @Mock
-    private Provider<RoomDAO> roomDAOProvider;
+    private static UserDAO userDAO = Mockito.mock(UserDAO.class);
 
-    @Mock
-    private Provider<SongDAO> songDAOProvider;
+    private static RoomDAO roomDAO = Mockito.mock(RoomDAO.class);
 
-    @Mock
-    private RoomDAO roomDAO;
+    private static SongDAO songDAO = Mockito.mock(SongDAO.class);
 
-    @Mock
-    private SongDAO songDAO;
+    public static class RoomBackendTestModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            install(new RoomBackendModule());
+            bind(SongDAO.class).toInstance(songDAO);
+            bind(RoomDAO.class).toInstance(roomDAO);
+            bind(UserDAO.class).toInstance(userDAO);
+            bind(UnitOfWorkSchedulingService.class).to(MockedUnitOfWorkSchedulingService.class);
+        }
+    }
 
     @Spy
     private Room room;
 
     private List<Room> rooms;
 
-    private RoomInstanceFactoryMock roomInstanceFactoryMock;
-
-    @Spy
-    private MockedUnitOfWorkSchedulingService unitOfWorkSchedulingService = new MockedUnitOfWorkSchedulingService();
+    @Inject
+    private MockedUnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
     @Mock
     private ChatMessageFactory chatMessageFactory;
@@ -74,6 +81,7 @@ public class RoomBackendTest extends BackendTest {
     @Mock
     private ProfanityChecker profanityChecker;
 
+    @Inject
     private RoomBackend roomBackend;
 
     private ArrayList<ChatMessageModel> messages;
@@ -82,10 +90,9 @@ public class RoomBackendTest extends BackendTest {
 
     private List<Song> songFuture;
 
-    @Mock
-    private User user;
+    private final static User user = createUser();
 
-    private static ChatMessageModel chatMessage = createChatMessage();
+    private final static ChatMessageModel chatMessage = createChatMessage(user);
 
     private final static Song song1 = createSong(1);
 
@@ -93,12 +100,6 @@ public class RoomBackendTest extends BackendTest {
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
-        unitOfWorkSchedulingService.lifeCycleStarting(null);
-        unitOfWorkSchedulingService.lifeCycleStarted(null);
-
-        roomInstanceFactoryMock = new RoomInstanceFactoryMock(songDAOProvider, roomDAOProvider,
-                chatMessageFactory, unitOfWorkSchedulingService, profanityChecker);
-
         rooms = Lists.newArrayList();
         rooms.add(room);
 
@@ -106,11 +107,12 @@ public class RoomBackendTest extends BackendTest {
         messages.add(chatMessage);
 
         songHistory = Lists.newArrayList();
-        room.setCurrentSong(song1);
 
         songFuture = Lists.newArrayList();
         songFuture.add(song2);
 
+        room.setCurrentSong(song1);
+        room.setExclusions(Lists.newArrayList());
         when(room.getId()).thenReturn(1);
         when(room.getChatMessages()).thenReturn(Sets.newHashSet());
         when(room.getPlayHistory()).thenReturn(songHistory);
@@ -118,23 +120,18 @@ public class RoomBackendTest extends BackendTest {
         VAVector roomVector = new VAVector(0.5, 0.5);
         when(room.getVaVector()).thenReturn(roomVector);
 
-        when(roomDAOProvider.get()).thenReturn(roomDAO);
-        when(songDAOProvider.get()).thenReturn(songDAO);
-
+        when(userDAO.findById(user.getId())).thenReturn(user);
         when(roomDAO.listRooms()).thenReturn(rooms);
         when(roomDAO.findById(room.getId())).thenReturn(room);
         
         when(songDAO.findForDistance(eq(roomVector), Matchers.anyLong())).thenReturn(songFuture);
 
-        roomBackend = new RoomBackend(unitOfWorkSchedulingService, roomInstanceFactoryMock,
-                roomDAOProvider);
         roomBackend.initializeRooms().get();
     }
 
     @After
     public void tearDown() {
-        unitOfWorkSchedulingService.lifeCycleStopping(null);
-        unitOfWorkSchedulingService.lifeCycleStopped(null);
+        unitOfWorkSchedulingService.shutdownNow();
     }
 
     @Test
@@ -167,50 +164,47 @@ public class RoomBackendTest extends BackendTest {
     }
     
     @Test
-    public void canStoreMessages() throws InterruptedException {
+    public void canStoreMessages() throws InterruptedException, ExecutionException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         final ChatMessageModel model = new ChatMessageModel();
         model.setMessage("message");
-        final ChatMessage message = mock(ChatMessage.class);
-        
-        when(chatMessageFactory.create(eq(room), argThat(new ArgumentMatcher<ChatMessageInstance>() {
-            @Override
-            public boolean matches(Object argument) {
-                return ((ChatMessageInstance) argument).getModel().equals(model);
-            }
-        }))).thenReturn(message);
-        
-        instance.sendMessage(model, mock(User.class));
-        
-        instance.merge();
 
-        Thread.sleep(500);
-        verify(roomDAO).merge(eq(room));
-        assertThat(room.getChatMessages(), contains(message));
+        instance.sendMessage(model, user);
+        instance.merge().get();
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setRoom(room);
+        chatMessage.setMessage(model.getMessage());
+        chatMessage.setTimestamp(model.getTimestamp());
+        chatMessage.setCompoundId(new ChatMessageEmbeddable(room.getId(), model.getId()));
+        chatMessage.setUser(user);
+
+        verify(roomDAO, atLeast(1)).merge(eq(room));
+        assertThat(room.getChatMessages(), contains(chatMessage));
     }
     
     @Test
-    public void canPlayNextSong() throws InterruptedException {
+    public void canPlayNextSong() throws InterruptedException, ExecutionException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
 
         final Song song = room.getCurrentSong();
         instance.playNext();
-        instance.merge();
+        instance.merge().get();
 
-        Thread.sleep(500);
         assertNotEquals(song, room.getCurrentSong());
     }
 
     @Test
-    public void playSongProcessVotesAndAddsRoomToExclusionWhenTooManyDislikes() {
+    public void playSongProcessVotesAndAddsRoomToExclusionWhenTooManyDislikes()
+        throws InterruptedException, ExecutionException {
         Song mockedSong = mock(Song.class);
         when(room.getCurrentSong()).thenReturn(mockedSong);
 
         final RoomInstance instance = roomBackend.getRoomInstance(1);
         instance.addVote(user, Vote.DISLIKE);
-        instance.playNext();
+        instance.playNext().get();
 
-        verify(mockedSong).addExclusionRoom(room);
+        verify(room).addExclusion(mockedSong);
     }
 
     @Test

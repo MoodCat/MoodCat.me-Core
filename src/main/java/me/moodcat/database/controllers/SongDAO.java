@@ -1,24 +1,24 @@
 package me.moodcat.database.controllers;
 
-import static me.moodcat.database.entities.QSong.song;
-
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
-import me.moodcat.database.embeddables.VAVector;
-import me.moodcat.database.entities.Song;
-
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import com.mysema.query.types.expr.NumberExpression;
+import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.Room;
+import me.moodcat.database.entities.Song;
+
+import javax.persistence.EntityManager;
+import java.util.List;
+
+import static me.moodcat.database.entities.QSong.song;
 
 /**
  * Used to retrieve songs from the database.
  */
 public class SongDAO extends AbstractDAO<Song> {
 
-    private static final double VECTOR_DISTANCE_DELTA = 0.1;
+    private static final int AMOUNT_OF_SONGS = 5;
+	private static final double VECTOR_DISTANCE_DELTA = 0.1;
 
     @Inject
     public SongDAO(final EntityManager entityManager) {
@@ -62,8 +62,8 @@ public class SongDAO extends AbstractDAO<Song> {
     @Transactional
     public Song findByName(final String name) {
         return ensureExists(this.query().from(song)
-                .where(song.name.equalsIgnoreCase(name))
-                .singleResult(song));
+            .where(song.name.equalsIgnoreCase(name))
+            .singleResult(song));
     }
 
     /**
@@ -110,4 +110,21 @@ public class SongDAO extends AbstractDAO<Song> {
                 .limit(limit)
                 .list(song);
     }
+
+    /**
+     * Find songs for a room.
+     * 
+     * @param fetchingRoom
+     * 			  Room to search for.
+     * @return List of songs
+     */
+    @Transactional
+    public List<Song> findNewSongsFor(final Room fetchingRoom) {
+        return query().from(song)
+            .where(song.exclusions.contains(fetchingRoom).not())
+            .orderBy(song.valenceArousal.location.distance(fetchingRoom.getVaVector().getLocation()).asc())
+            .limit(AMOUNT_OF_SONGS)
+            .list(song);
+    }
+
 }

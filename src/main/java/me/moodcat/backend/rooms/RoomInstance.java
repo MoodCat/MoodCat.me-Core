@@ -3,19 +3,15 @@ package me.moodcat.backend.rooms;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
-import com.google.inject.persist.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
 import me.moodcat.backend.Vote;
-import me.moodcat.database.controllers.RoomDAO;
-import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -26,7 +22,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,17 +51,7 @@ public class RoomInstance {
     private final SongInstanceFactory songInstanceFactory;
 
     /**
-     * {@link Provider} for a {@link RoomDAO}.
-     */
-    private final Provider<RoomDAO> roomDAOProvider;
-    
-    /**
-     * {@link Provider} for a {@link SongDAO}.
-     */
-    private final Provider<SongDAO> songDAOProvider;
-
-    /**
-     * {@link UnitOfWorkSchedulingService} to schedule tasks in a unit of work.
+     * {@link UnitOfWorkSchedulingServiceImpl} to schedule tasks in a unit of work.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
@@ -89,6 +75,11 @@ public class RoomInstance {
      */
     @Getter
     private final String name;
+
+    /**
+     * The {@link RoomInstanceInUnitOfWorkFactory}.
+     */
+    private final RoomInstanceInUnitOfWorkFactory roomInstanceInUnitOfWorkFactory;
 
     /**
      * Keep track of the message index.
@@ -120,24 +111,21 @@ public class RoomInstance {
      */
     private final Map<User, Vote> votes;
 
-
     /**
-     * ChatRoomInstance's constructur, will create a roomInstance from a room
-     * and start the timer for the current song.
      *
      * @param songInstanceFactory
      *            SongInstanceFactory to create Songs.
-     * @param roomDAOProvider
-     *            Provider to get RoomDAOs when in a Unit of Work.
+     * @param roomInstanceInUnitOfWorkFactory
      * @param unitOfWorkSchedulingService
      *            Scheduling service to run tasks in a Unit of Work.
+     * @param chatMessageFactory
+     * @param profanityChecker
      * @param room
      *            the room used to create the roomInstance.
      */
     @AssistedInject
     public RoomInstance(final SongInstanceFactory songInstanceFactory,
-            final Provider<RoomDAO> roomDAOProvider,
-            final Provider<SongDAO> songDAOProvider,
+            final RoomInstanceInUnitOfWorkFactory roomInstanceInUnitOfWorkFactory,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
             final ChatMessageFactory chatMessageFactory,
             final ProfanityChecker profanityChecker,
@@ -146,8 +134,7 @@ public class RoomInstance {
         Preconditions.checkNotNull(room);
         this.profanityChecker = profanityChecker;
         this.songInstanceFactory = songInstanceFactory;
-        this.roomDAOProvider = roomDAOProvider;
-        this.songDAOProvider = songDAOProvider;
+        this.roomInstanceInUnitOfWorkFactory = roomInstanceInUnitOfWorkFactory;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
         this.chatMessageFactory = chatMessageFactory;
         this.votes = Maps.newConcurrentMap();
@@ -160,120 +147,82 @@ public class RoomInstance {
         this.hasChanged = new AtomicBoolean(false);
 
         this.scheduleSyncTimer();
-        this.playNext(room.getCurrentSong());
+        this.startPlaying(room.getCurrentSong());
         log.info("Initialized room instance {}", this);
     }
 
     private static LinkedList<ChatMessageInstance> getChatMessageModels(
             final Collection<ChatMessage> messages) {
         return Lists.newLinkedList(messages.stream()
-                .map(ChatMessageInstance::create).collect(Collectors.toList()));
+            .map(ChatMessageInstance::create).collect(Collectors.toList()));
+    }
+
+    /**
+     * Interact with a {@link RoomInstanceInUnitOfWork}.
+     */
+    @FunctionalInterface
+    interface RoomInstanceInUnitOfWorkHandler {
+
+        /**
+         * Interact with the {@link RoomInstanceInUnitOfWork} in a {@code UnitOfWork}.
+         *
+         * @param roomInstance
+         *      {@code RoomInstanceInUnitOfWork} to work with.
+         */
+        @RunInUnitOfWork
+        void handle(RoomInstanceInUnitOfWork roomInstance);
+
+    }
+
+    protected Future<?> interactWithRoom(RoomInstanceInUnitOfWorkHandler handler) {
+        return unitOfWorkSchedulingService.performInUnitOfWork(() -> {
+            RoomInstanceInUnitOfWork instance = roomInstanceInUnitOfWorkFactory.create(id);
+            handler.handle(instance);
+        });
     }
 
     /**
      * Play a next song. Will fetch from the history if no songs can be found.
      */
-    @Transactional
-    public void playNext() {
-        final RoomDAO roomDAO = this.roomDAOProvider.get();
-        final Room room = roomDAO.findById(id);
-        final Song previousSong = room.getCurrentSong();
-
-        if (previousSong == null) {
-            throw new IllegalStateException("Room should be playing a song");
-        }
-        updateHistory(room, previousSong);
-
-        processVotes(previousSong);
-        
-        processNextSong(room);
-
-        this.merge();
+    public Future<?> playNext() {
+        return interactWithRoom(instance -> {
+            processVotes(instance);
+            Song song = instance.nextSong();
+            startPlaying(song);
+            instance.merge();
+        });
     }
 
-    private void updateHistory(Room room, Song previousSong) {
-        List<Song> history = copyHistory(room);
-        history.add(previousSong);
-        history = clampHistory(history);
-        room.setPlayHistory(history);
-    }
-
-    private List<Song>  clampHistory(final List<Song> history) {
-        final int historySize = history.size();
-        final int beginIndex = Math.max(0, historySize - NUMBER_OF_SELECTED_SONGS);
-        return history.subList(beginIndex, historySize);
-    }
-
-    private List<Song> copyHistory(final Room room) {
-        return Lists.newArrayList(room.getPlayHistory());
-    }
-
-    @Transactional
-    protected void playNext(final Song song) {
-        assert song != null;
+    /**
+     * Start playing a song. Should only be called in a {@code UnitOfWork}.
+     * Used in the constructor to start playing the initial song.
+     * Then used in the {@link RoomInstance#playNext()} to start playing
+     * new songs.
+     *
+     * @param song
+     *      Song to be played.
+     */
+    @RunInUnitOfWork
+    protected void startPlaying(final Song song) {
         final SongInstance songInstance = songInstanceFactory.create(song);
         this.currentSong.set(songInstance);
         log.info("Room {} now playing {}", this.id, song);
 
-        final ScheduledFuture<?> future = this.unitOfWorkSchedulingService
-                .scheduleAtFixedRate(songInstance::incrementTime, 1L, 1L,
-                        TimeUnit.SECONDS);
-
-        // Observer: Stop the increment time task when the song is finished
-        songInstance.addObserver((observer, arg) -> future.cancel(false));
         // Observer: Play the next song when the song is finished
-        songInstance.addObserver((observer, arg) -> playNext());
-
-        hasChanged.set(true);
+        songInstance.addObserver(this::playNext);
     }
 
-    private void processVotes(final Song previousSong) {
+    @RunInUnitOfWork
+    private void processVotes(final RoomInstanceInUnitOfWork instance) {
         int nettoVotes = this.votes.values().stream()
                 .mapToInt(Vote::getValue)
                 .sum();
 
         if (nettoVotes < 0) {
-            final RoomDAO roomDAO = this.roomDAOProvider.get();
-            final Room room = roomDAO.findById(id);
-
-            previousSong.addExclusionRoom(room);
+            instance.excludeRoomFromSong();
         }
 
         this.votes.clear();
-    }
-
-    private void processNextSong(final Room room) {
-        final List<Song> playQueue = room.getPlayQueue();
-        if (playQueue.isEmpty()) {
-            VAVector vector = this.getRoom().getVaVector();
-            playQueue.addAll(this.songDAOProvider.get().findForDistance(vector, NUMBER_OF_SELECTED_SONGS));
-        }
-
-        if(playQueue.isEmpty()) {
-            // If something is terribly broken, and the query fails, just add the history
-            List<Song> history = room.getPlayHistory();
-            playQueue.addAll(history);
-            history.clear();
-        }
-
-        playNext(playQueue.remove(0));
-        hasChanged.set(true);
-    }
-
-    /**
-     * Add all the songs to the queue.
-     *
-     * @param songs
-     *            The songs to add to the queue.
-     */
-    @Transactional
-    public void queue(final Collection<Song> songs) {
-        Preconditions.checkNotNull(songs);
-
-        final RoomDAO roomDAO = this.roomDAOProvider.get();
-        final Room room = roomDAO.findById(id);
-        room.getPlayQueue().addAll(songs);
-        hasChanged.set(true);
     }
 
     /**
@@ -322,8 +271,8 @@ public class RoomInstance {
             return message.getUserId() == user.getId()
                     && message.getTimestamp() + TimeUnit.SECONDS.toMillis(MESSAGE_FLOODING_TIMEOUT) > currentTime;
                 }).count() > MESSAGE_FLOODING_MESSAGE_AMOUNT) {
-            throw new IllegalArgumentException("You can not post" + MESSAGE_FLOODING_MESSAGE_AMOUNT
-                    + "messages within " + MESSAGE_FLOODING_TIMEOUT + " seconds");
+            throw new IllegalArgumentException(String.format("You can not post %d messages within %d seconds",
+                MESSAGE_FLOODING_MESSAGE_AMOUNT, MESSAGE_FLOODING_TIMEOUT ));
         }
     }
 
@@ -337,31 +286,15 @@ public class RoomInstance {
     /**
      * Merge the changes of the instance in the database.
      */
-    protected void merge() {
+    protected Future<?> merge() {
         if (hasChanged.getAndSet(false)) {
             log.info("Merging changes in room {}", this.getId());
-            this.unitOfWorkSchedulingService.performInUnitOfWork(this::mergeRoom);
+            return interactWithRoom(instance -> {
+                instance.persistMessages(messages);
+                instance.merge();
+            });
         }
-    }
-
-    private Room getRoom() {
-        final RoomDAO roomDAO = this.roomDAOProvider.get();
-        return roomDAO.findById(id);
-    }
-
-    @Transactional
-    protected void mergeRoom() {
-        final RoomDAO roomDAO = this.roomDAOProvider.get();
-        final Room room = getRoom();
-
-        Collection<ChatMessage> newMessages = messages.stream()
-            .map(message -> chatMessageFactory.create(room, message))
-            .collect(Collectors.toList());
-
-        room.getChatMessages().addAll(newMessages);
-        room.setCurrentSong(getCurrentSong());
-
-        roomDAO.merge(room);
+        return interactWithRoom(RoomInstanceInUnitOfWork::merge);
     }
 
     /**
@@ -392,6 +325,14 @@ public class RoomInstance {
         return this.currentSong.get().getTime();
     }
 
+    /**
+     * Add a vote.
+     *
+     * @param user
+     *      User that votes.
+     * @param valueOf
+     *      Vote value.
+     */
     public void addVote(final User user, final Vote valueOf) {
         this.votes.put(user, valueOf);
     }

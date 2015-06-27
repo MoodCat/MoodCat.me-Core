@@ -1,19 +1,23 @@
 package me.moodcat.util;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
-import org.eclipse.jetty.util.component.LifeCycle;
-import org.mockito.Mockito;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * @author Jan-Willem Gmelig Meyling
  */
-public class MockedUnitOfWorkSchedulingService extends UnitOfWorkSchedulingService {
+@Singleton
+public class MockedUnitOfWorkSchedulingService extends ScheduledThreadPoolExecutor implements
+    UnitOfWorkSchedulingService {
 
+    @Inject
     public MockedUnitOfWorkSchedulingService() {
-        super(null, 4, Mockito.mock(LifeCycle.class));
+        super(4);
     }
 
     @Override
@@ -25,4 +29,5 @@ public class MockedUnitOfWorkSchedulingService extends UnitOfWorkSchedulingServi
     public Future<?> performInUnitOfWork(Runnable runnable) {
         return super.submit(runnable);
     }
+
 }

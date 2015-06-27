@@ -72,6 +72,22 @@ public class Room {
     private List<Song> playQueue;
 
     /**
+     * The amount of votes received. Can become negative if more people voted it negative than
+     * positive.
+     *
+     * @param numberOfPositiveVotes
+     *            The new amount of votes to set.
+     * @return The amount of netto votes that this song received.
+     */
+    @ManyToMany(fetch = LAZY, cascade = ALL)
+    @JoinTable(name = "song_exclusions", joinColumns = {
+        @JoinColumn(name = "room_id", referencedColumnName = "id")
+    }, inverseJoinColumns = {
+        @JoinColumn(name = "song_id", referencedColumnName = "id")
+    })
+    private List<Song> exclusions;
+
+    /**
      * The name of the room.
      */
     @Column(name = "name")
@@ -94,5 +110,15 @@ public class Room {
     @OrderBy("timestamp asc")
     @OneToMany(fetch = LAZY, cascade = ALL, mappedBy = "room")
     private Set<ChatMessage> chatMessages;
+
+    /**
+     * Add a song exclusion for this room.
+     *
+     * @param exclusion
+     *      Song to be excluded.
+     */
+    public void addExclusion(final Song exclusion) {
+        getExclusions().add(exclusion);
+    }
 
 }
