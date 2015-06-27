@@ -152,8 +152,17 @@ public class SongAPI {
 
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
-        song.setValenceArousal(adjustSongVector(classificationVector, song));
 
+        final VAVector vector;
+        if (song.getValenceArousal().distance(VAVector.ZERO) < 1e-2) {
+            // If near origin set the vector
+            vector = classificationVector;
+        } else {
+            // otherwise adjust the vector
+            vector = adjustSongVector(classificationVector, song);
+        }
+
+        song.setValenceArousal(vector);
         this.persistClassification(user, song, classificationVector);
         this.songDAO.merge(song);
 
