@@ -189,8 +189,9 @@ public class RoomBackendTest extends BackendTest {
     @Test
     public void canPlayNextSong() throws InterruptedException, ExecutionException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
-
         final Song song = room.getCurrentSong();
+        songHistory.add(createSong());
+
         instance.playNext();
         instance.merge().get();
 

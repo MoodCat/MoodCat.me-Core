@@ -140,14 +140,14 @@ public class SongAPI {
 
         if (classificationDAO.exists(user, song)) {
             /*
-             * This should not happen, because after the initial classification
+             * TODO This should not happen, because after the initial classification
              * the song will not be available for classification (and this endpoint
              * should throw an IllegalArgumentException instead). However, this
              * endpoint is currently also abused for the classification game.
              * In order to prevent users to abuse this to gain points with fake
              * classifications on the same song, we ignore duplicate classifications.
              */
-            return classification;
+            throw new IllegalArgumentException("Already classified this song");
         }
 
         assertDimensionIsValid(classification.getValence());
