@@ -1,5 +1,25 @@
 package me.moodcat.core;
 
+import java.io.File;
+import java.lang.annotation.Annotation;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.Path;
+import javax.ws.rs.ext.Provider;
+
+import lombok.extern.slf4j.Slf4j;
+import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
+import me.moodcat.backend.rooms.RoomBackend;
+import me.moodcat.backend.rooms.RoomBackendModule;
+import me.moodcat.database.DbModule;
+import me.moodcat.database.entities.User;
+
+import org.eclipse.jetty.util.component.LifeCycle;
+import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
+import org.reflections.Reflections;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Provides;
 import com.google.inject.name.Named;
@@ -7,23 +27,6 @@ import com.google.inject.name.Names;
 import com.google.inject.persist.PersistFilter;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletModule;
-import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
-import me.moodcat.backend.rooms.RoomBackend;
-import me.moodcat.backend.rooms.RoomBackendModule;
-import me.moodcat.database.DbModule;
-import me.moodcat.database.entities.User;
-import org.eclipse.jetty.util.component.LifeCycle;
-import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
-import org.reflections.Reflections;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.Path;
-import javax.ws.rs.ext.Provider;
-import java.io.File;
-import java.lang.annotation.Annotation;
 
 /**
  * The MoodcatServletModule is the Dependency Injection module for the
@@ -72,7 +75,7 @@ public class MoodcatServletModule extends ServletModule {
     private void bindConstants() {
         // Provide a way to access the resources folder from other classes
         this.bind(File.class).annotatedWith(Names.named("root.folder"))
-            .toInstance(this.rootFolder);
+                .toInstance(this.rootFolder);
         this.bindConstant().annotatedWith(Names.named("thread.pool.size")).to(THREAD_POOL_SIZE);
         this.bind(LifeCycle.class).toInstance(this.app.getServer());
     }
@@ -91,7 +94,7 @@ public class MoodcatServletModule extends ServletModule {
     }
 
     private void bindClassesAnnotatedWithInPackage(final String packageName,
-                                                   final Class<? extends Annotation> annotation) {
+            final Class<? extends Annotation> annotation) {
         final Reflections reflections = new Reflections(packageName);
 
         for (final Class<?> clazz : reflections.getTypesAnnotatedWith(annotation)) {

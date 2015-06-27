@@ -1,11 +1,11 @@
 package me.moodcat.backend;
 
-import com.google.inject.ImplementedBy;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+
+import com.google.inject.ImplementedBy;
 
 /**
  * @author Jan-Willem Gmelig Meyling
@@ -30,7 +30,7 @@ public interface UnitOfWorkSchedulingService extends ExecutorService, ScheduledE
      * wait for its result.
      *
      * @param runnable
-     *          Runnable to run
+     *            Runnable to run
      */
     Future<?> performInUnitOfWork(Runnable runnable);
 

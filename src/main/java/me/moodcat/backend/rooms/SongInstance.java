@@ -1,27 +1,26 @@
 package me.moodcat.backend.rooms;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.inject.Provider;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
-import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.UnitOfWorkSchedulingService;
-import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
-import me.moodcat.database.controllers.SongDAO;
-import me.moodcat.database.entities.Song;
-
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
+import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.entities.Song;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+
 /**
  * A song that is currently playing in a room.
  */
-@Slf4j
-public class SongInstance{
+public class SongInstance {
 
     /**
      * SongDAO provider for the context.
@@ -63,7 +62,6 @@ public class SongInstance{
      */
     private final List<StopObserver> observers;
 
-
     @FunctionalInterface
     public interface StopObserver {
 
@@ -84,8 +82,8 @@ public class SongInstance{
      */
     @AssistedInject
     public SongInstance(final Provider<SongDAO> songDAOProvider,
-                        final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
-                        @Assisted final Song song) {
+            final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
+            @Assisted final Song song) {
         assert songDAOProvider != null;
         Preconditions.checkNotNull(song);
         this.songDAOProvider = songDAOProvider;
@@ -99,7 +97,7 @@ public class SongInstance{
         this.lastUpdate = new AtomicLong(System.currentTimeMillis());
 
         final ScheduledFuture<?> future = this.unitOfWorkSchedulingService
-            .scheduleAtFixedRate(this::incrementTime, 1L, 1L, TimeUnit.SECONDS);
+                .scheduleAtFixedRate(this::incrementTime, 1L, 1L, TimeUnit.SECONDS);
 
         // Observer: Stop the increment time task when the song is finished
         this.addObserver(() -> future.cancel(false));
@@ -110,7 +108,7 @@ public class SongInstance{
      * Add stoped observer.
      *
      * @param stopObserver
-     *      Observer to be called when this song stops.
+     *            Observer to be called when this song stops.
      */
     public void addObserver(final StopObserver stopObserver) {
         this.observers.add(stopObserver);
@@ -120,7 +118,7 @@ public class SongInstance{
      * Get the song for this song instance.
      *
      * @return
-     *      The song that is playing
+     *         The song that is playing
      */
     public Song getSong() {
         return this.songDAOProvider.get().findById(songId);
@@ -130,7 +128,7 @@ public class SongInstance{
      * Stop this song instance.
      */
     public void stop() {
-        if(!this.stopped.getAndSet(true)) {
+        if (!this.stopped.getAndSet(true)) {
             this.observers.forEach(StopObserver::stopped);
         }
     }
@@ -139,12 +137,12 @@ public class SongInstance{
      * Method used to increment the time of the current song by one second.
      */
     protected void incrementTime() {
-        if(!this.stopped.get()) {
+        if (!this.stopped.get()) {
             final long now = System.currentTimeMillis();
             final long then = lastUpdate.getAndSet(now);
             final long cur = currentTime.addAndGet(now - then);
 
-            if(cur > duration) {
+            if (cur > duration) {
                 this.stop();
             }
         }

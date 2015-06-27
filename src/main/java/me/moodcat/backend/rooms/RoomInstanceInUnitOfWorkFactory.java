@@ -9,7 +9,7 @@ public interface RoomInstanceInUnitOfWorkFactory {
      * Create a new {@link RoomInstance}.
      *
      * @param id
-     *          Room to instantiate a RoomInstanceInUnitOfWork for.
+     *            Room to instantiate a RoomInstanceInUnitOfWork for.
      * @return instantiated RoomInstance.
      */
     RoomInstanceInUnitOfWork create(Integer id);

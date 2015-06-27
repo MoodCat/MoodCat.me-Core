@@ -1,9 +1,16 @@
 package me.moodcat.backend.rooms;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
@@ -16,6 +23,7 @@ import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
 import me.moodcat.util.MockedUnitOfWorkSchedulingService;
+
 import org.hamcrest.Matchers;
 import org.jukito.UseModules;
 import org.junit.After;
@@ -24,16 +32,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 
 @RunWith(JukitoRunnerSupportingMockAnnotations.class)
 @UseModules(RoomInstanceTest.RoomInstanceTestModule.class)
@@ -46,6 +48,7 @@ public class RoomInstanceTest extends BackendTest {
     private static SongDAO songDAO = Mockito.mock(SongDAO.class);
 
     public static class RoomInstanceTestModule extends AbstractModule {
+
         @Override
         protected void configure() {
             install(new RoomBackendModule());
@@ -97,7 +100,8 @@ public class RoomInstanceTest extends BackendTest {
             instance.sendMessage(model, createUser());
         }
 
-        assertThat(instance.getMessages(), Matchers.iterableWithSize(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES));
+        assertThat(instance.getMessages(),
+                Matchers.iterableWithSize(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -109,14 +113,14 @@ public class RoomInstanceTest extends BackendTest {
         when(user.getId()).thenReturn(1337);
 
         for (int i = 0; i < 6; i++) {
-        instance.sendMessage(model, user);
+            instance.sendMessage(model, user);
         }
     }
 
     @Test
     public void testReplayHistoryOnNoResults() {
         when(songDAO.findForDistance(room.getVaVector(), RoomInstance.NUMBER_OF_SELECTED_SONGS))
-            .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
 
         assertThat(room.getPlayHistory(), Matchers.empty());
         assertThat(room.getPlayQueue(), Matchers.empty());
@@ -128,7 +132,6 @@ public class RoomInstanceTest extends BackendTest {
         assertThat(room.getPlayQueue(), Matchers.empty());
         assertEquals(song, room.getCurrentSong());
     }
-
 
     @Test
     public void testPlayNextSongFromResults() throws ExecutionException, InterruptedException {
@@ -168,8 +171,8 @@ public class RoomInstanceTest extends BackendTest {
     @Test
     public void testLimitHistory() throws ExecutionException, InterruptedException {
         List<Song> history = ImmutableList.copyOf(Stream.generate(BackendTest::createSong)
-            .limit(RoomInstance.NUMBER_OF_SELECTED_SONGS)
-            .iterator());
+                .limit(RoomInstance.NUMBER_OF_SELECTED_SONGS)
+                .iterator());
 
         room.setPlayHistory(history);
 
@@ -183,9 +186,8 @@ public class RoomInstanceTest extends BackendTest {
         instance.merge().get();
 
         List<Song> expectedHistory = Stream
-            .concat(history.stream().skip(1), Stream.of(song))
-            .collect(Collectors.toList());
-
+                .concat(history.stream().skip(1), Stream.of(song))
+                .collect(Collectors.toList());
 
         assertEquals(expectedHistory, room.getPlayHistory());
         assertThat(room.getPlayQueue(), Matchers.empty());

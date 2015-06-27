@@ -1,28 +1,32 @@
 package me.moodcat.util;
 
-import com.google.inject.Injector;
+import java.lang.reflect.InvocationTargetException;
+
 import org.jukito.JukitoRunner;
 import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.lang.reflect.InvocationTargetException;
-
+import com.google.inject.Injector;
 
 /**
- * Calls {@link MockitoAnnotations#initMocks(Object)} on the test to run like {@link MockitoJUnitRunner} does,
+ * Calls {@link MockitoAnnotations#initMocks(Object)} on the test to run like
+ * {@link MockitoJUnitRunner} does,
  * so the test class doesn't need to do it itself in a {@literal @}Before annotated method to have
  * its {@literal @}Mock annotated fields provided with mocks.
+ * 
  * @author jfrantzius
- *
  */
 public class JukitoRunnerSupportingMockAnnotations extends JukitoRunner {
 
-    public JukitoRunnerSupportingMockAnnotations(Class<?> klass) throws InitializationError, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public JukitoRunnerSupportingMockAnnotations(Class<?> klass) throws InitializationError,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
         super(klass);
     }
 
-    public JukitoRunnerSupportingMockAnnotations(Class<?> klass, Injector injector) throws InitializationError, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public JukitoRunnerSupportingMockAnnotations(Class<?> klass, Injector injector)
+            throws InitializationError, InvocationTargetException, InstantiationException,
+            IllegalAccessException {
         super(klass, injector);
     }
 

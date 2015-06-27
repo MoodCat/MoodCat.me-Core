@@ -1,20 +1,23 @@
 package me.moodcat.database.entities;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import java.io.Serializable;
 
 /**
  * Id Class for ChatMessage.
  */
 @Data
 @Embeddable
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(of = {
+    "id"
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatMessageEmbeddable implements Serializable {

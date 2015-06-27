@@ -1,7 +1,9 @@
 package me.moodcat.backend;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.math.BigInteger;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Artist;
@@ -9,9 +11,8 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 
-import java.math.BigInteger;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Abstract {@code BackendTest} for some shared logic for testing backends.

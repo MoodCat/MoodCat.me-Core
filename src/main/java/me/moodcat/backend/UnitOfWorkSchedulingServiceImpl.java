@@ -1,17 +1,19 @@
 package me.moodcat.backend;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.util.CallableInUnitOfWork;
 import me.moodcat.util.CallableInUnitOfWork.CallableInUnitOfWorkFactory;
 import me.moodcat.util.DefaultLifceCycleListener;
+
 import org.eclipse.jetty.util.component.LifeCycle;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 /**
  * The UnitOfWorkSchedulingService can be used to schedule tasks in a
@@ -22,15 +24,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 @Slf4j
 @Singleton
 public class UnitOfWorkSchedulingServiceImpl extends ScheduledThreadPoolExecutor implements
-    UnitOfWorkSchedulingService, DefaultLifceCycleListener {
+        UnitOfWorkSchedulingService, DefaultLifceCycleListener {
 
     private final CallableInUnitOfWork.CallableInUnitOfWorkFactory callableInUnitOfWorkFactory;
 
     @Inject
     public UnitOfWorkSchedulingServiceImpl(
-        final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
-        @Named("thread.pool.size") final int corePoolSize,
-        final LifeCycle lifeCycle) {
+            final CallableInUnitOfWorkFactory callableInUnitOfWorkFactory,
+            @Named("thread.pool.size") final int corePoolSize,
+            final LifeCycle lifeCycle) {
         super(corePoolSize);
         lifeCycle.addLifeCycleListener(this);
         this.callableInUnitOfWorkFactory = callableInUnitOfWorkFactory;

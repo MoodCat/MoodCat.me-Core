@@ -1,13 +1,16 @@
 package me.moodcat.backend.rooms;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import me.moodcat.backend.BackendTest;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Song;
 import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
 import me.moodcat.util.MockedUnitOfWorkSchedulingService;
+
 import org.jukito.UseModules;
 import org.junit.After;
 import org.junit.Before;
@@ -17,69 +20,68 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 
 @RunWith(JukitoRunnerSupportingMockAnnotations.class)
 @UseModules(SongInstanceTest.SongInstanceTestModule.class)
 public class SongInstanceTest extends BackendTest {
 
-	private static SongDAO songDAO = Mockito.mock(SongDAO.class);
+    private static SongDAO songDAO = Mockito.mock(SongDAO.class);
 
-	public static class SongInstanceTestModule extends AbstractModule {
-		@Override
-		protected void configure() {
-			install(new RoomBackendModule());
-			bind(SongDAO.class).toInstance(songDAO);
-			bind(UnitOfWorkSchedulingService.class).to(MockedUnitOfWorkSchedulingService.class);
-		}
-	}
+    public static class SongInstanceTestModule extends AbstractModule {
 
-	private static final int DURATION = 1;
+        @Override
+        protected void configure() {
+            install(new RoomBackendModule());
+            bind(SongDAO.class).toInstance(songDAO);
+            bind(UnitOfWorkSchedulingService.class).to(MockedUnitOfWorkSchedulingService.class);
+        }
+    }
 
-	@Spy
-	private Song song = createSong();
+    private static final int DURATION = 1;
 
-	@Mock
-	private SongInstance.StopObserver observer;
+    @Spy
+    private Song song = createSong();
 
-	@Inject
-	private SongInstanceFactory songInstanceFactory;
+    @Mock
+    private SongInstance.StopObserver observer;
 
-	private SongInstance instance;
+    @Inject
+    private SongInstanceFactory songInstanceFactory;
 
-	@Inject
-	private MockedUnitOfWorkSchedulingService unitOfWorkSchedulingService;
+    private SongInstance instance;
 
-	@Before
-	public void setUp() {
-		when(song.getDuration()).thenReturn(DURATION);
+    @Inject
+    private MockedUnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
-		instance = songInstanceFactory.create(song);
-		instance.addObserver(observer);
-		verifyZeroInteractions(observer);
-	}
+    @Before
+    public void setUp() {
+        when(song.getDuration()).thenReturn(DURATION);
 
-	@Test
-	public void canIncrementTime() throws InterruptedException {
-		// Wait a little bit to trigger the changed.
-		Thread.sleep(DURATION * 10);
+        instance = songInstanceFactory.create(song);
+        instance.addObserver(observer);
+        verifyZeroInteractions(observer);
+    }
 
-		// Trigger changed
-		instance.incrementTime();
+    @Test
+    public void canIncrementTime() throws InterruptedException {
+        // Wait a little bit to trigger the changed.
+        Thread.sleep(DURATION * 10);
 
-		// And verify it is changed now
-		instance.incrementTime();
+        // Trigger changed
+        instance.incrementTime();
 
-		verify(observer).stopped();
-		assertTrue(instance.getTime() > DURATION);
-	}
+        // And verify it is changed now
+        instance.incrementTime();
 
-	@After
-	public void tearDown() {
-		unitOfWorkSchedulingService.shutdownNow();
-	}
+        verify(observer).stopped();
+        assertTrue(instance.getTime() > DURATION);
+    }
+
+    @After
+    public void tearDown() {
+        unitOfWorkSchedulingService.shutdownNow();
+    }
 
 }

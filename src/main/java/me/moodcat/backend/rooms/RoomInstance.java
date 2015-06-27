@@ -1,10 +1,16 @@
 package me.moodcat.backend.rooms;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.api.ProfanityChecker;
@@ -17,16 +23,11 @@ import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 
-import java.util.Collection;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 
 /**
  * The instance object of the rooms.
@@ -87,11 +88,6 @@ public class RoomInstance {
     private final ChatMessageIdGenerator chatMessageIdGenerator;
 
     /**
-     * Factory for chat messages.
-     */
-    private final ChatMessageFactory chatMessageFactory;
-
-    /**
      * The cached messages in order to speed up retrieval.
      */
     private final Deque<ChatMessageInstance> messages;
@@ -112,7 +108,6 @@ public class RoomInstance {
     private final Map<User, Vote> votes;
 
     /**
-     *
      * @param songInstanceFactory
      *            SongInstanceFactory to create Songs.
      * @param roomInstanceInUnitOfWorkFactory
@@ -127,7 +122,6 @@ public class RoomInstance {
     public RoomInstance(final SongInstanceFactory songInstanceFactory,
             final RoomInstanceInUnitOfWorkFactory roomInstanceInUnitOfWorkFactory,
             final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
-            final ChatMessageFactory chatMessageFactory,
             final ProfanityChecker profanityChecker,
             @Assisted final Room room) {
 
@@ -136,7 +130,6 @@ public class RoomInstance {
         this.songInstanceFactory = songInstanceFactory;
         this.roomInstanceInUnitOfWorkFactory = roomInstanceInUnitOfWorkFactory;
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
-        this.chatMessageFactory = chatMessageFactory;
         this.votes = Maps.newConcurrentMap();
 
         this.id = room.getId();
@@ -154,7 +147,7 @@ public class RoomInstance {
     private static LinkedList<ChatMessageInstance> getChatMessageModels(
             final Collection<ChatMessage> messages) {
         return Lists.newLinkedList(messages.stream()
-            .map(ChatMessageInstance::create).collect(Collectors.toList()));
+                .map(ChatMessageInstance::create).collect(Collectors.toList()));
     }
 
     /**
@@ -167,7 +160,7 @@ public class RoomInstance {
          * Interact with the {@link RoomInstanceInUnitOfWork} in a {@code UnitOfWork}.
          *
          * @param roomInstance
-         *      {@code RoomInstanceInUnitOfWork} to work with.
+         *            {@code RoomInstanceInUnitOfWork} to work with.
          */
         @RunInUnitOfWork
         void handle(RoomInstanceInUnitOfWork roomInstance);
@@ -200,7 +193,7 @@ public class RoomInstance {
      * new songs.
      *
      * @param song
-     *      Song to be played.
+     *            Song to be played.
      */
     @RunInUnitOfWork
     protected void startPlaying(final Song song) {
@@ -230,7 +223,7 @@ public class RoomInstance {
      */
     private void scheduleSyncTimer() {
         this.unitOfWorkSchedulingService.scheduleAtFixedRate(this::merge, 1, 1,
-            TimeUnit.MINUTES);
+                TimeUnit.MINUTES);
     }
 
     /**
@@ -264,15 +257,19 @@ public class RoomInstance {
         if (user.getId().equals(1)) {
             return;
         }
-        
+
         final long currentTime = System.currentTimeMillis();
-        
-        if (messages.stream().filter((message) -> {
-            return message.getUserId() == user.getId()
-                    && message.getTimestamp() + TimeUnit.SECONDS.toMillis(MESSAGE_FLOODING_TIMEOUT) > currentTime;
+
+        if (messages
+                .stream()
+                .filter((message) -> {
+                    return message.getUserId() == user.getId()
+                            && message.getTimestamp()
+                                    + TimeUnit.SECONDS.toMillis(MESSAGE_FLOODING_TIMEOUT) > currentTime;
                 }).count() > MESSAGE_FLOODING_MESSAGE_AMOUNT) {
-            throw new IllegalArgumentException(String.format("You can not post %d messages within %d seconds",
-                MESSAGE_FLOODING_MESSAGE_AMOUNT, MESSAGE_FLOODING_TIMEOUT ));
+            throw new IllegalArgumentException(String.format(
+                    "You can not post %d messages within %d seconds",
+                    MESSAGE_FLOODING_MESSAGE_AMOUNT, MESSAGE_FLOODING_TIMEOUT));
         }
     }
 
@@ -329,9 +326,9 @@ public class RoomInstance {
      * Add a vote.
      *
      * @param user
-     *      User that votes.
+     *            User that votes.
      * @param valueOf
-     *      Vote value.
+     *            Vote value.
      */
     public void addVote(final User user, final Vote valueOf) {
         this.votes.put(user, valueOf);

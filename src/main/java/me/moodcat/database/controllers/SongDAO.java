@@ -1,16 +1,18 @@
 package me.moodcat.database.controllers;
 
-import com.google.inject.Inject;
-import com.google.inject.persist.Transactional;
-import com.mysema.query.types.expr.NumberExpression;
+import static me.moodcat.database.entities.QSong.song;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
-import javax.persistence.EntityManager;
-import java.util.List;
-
-import static me.moodcat.database.entities.QSong.song;
+import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
+import com.mysema.query.types.expr.NumberExpression;
 
 /**
  * Used to retrieve songs from the database.

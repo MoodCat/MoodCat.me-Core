@@ -1,9 +1,21 @@
 package me.moodcat.backend.rooms;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
@@ -20,6 +32,7 @@ import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
 import me.moodcat.util.MockedUnitOfWorkSchedulingService;
+
 import org.jukito.UseModules;
 import org.junit.After;
 import org.junit.Before;
@@ -30,21 +43,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 
 @RunWith(JukitoRunnerSupportingMockAnnotations.class)
 @UseModules(RoomBackendTest.RoomBackendTestModule.class)
@@ -57,6 +59,7 @@ public class RoomBackendTest extends BackendTest {
     private static SongDAO songDAO = Mockito.mock(SongDAO.class);
 
     public static class RoomBackendTestModule extends AbstractModule {
+
         @Override
         protected void configure() {
             install(new RoomBackendModule());
@@ -123,7 +126,7 @@ public class RoomBackendTest extends BackendTest {
         when(userDAO.findById(user.getId())).thenReturn(user);
         when(roomDAO.listRooms()).thenReturn(rooms);
         when(roomDAO.findById(room.getId())).thenReturn(room);
-        
+
         when(songDAO.findForDistance(eq(roomVector), Matchers.anyLong())).thenReturn(songFuture);
 
         roomBackend.initializeRooms().get();
@@ -162,7 +165,7 @@ public class RoomBackendTest extends BackendTest {
 
         assertTrue(instance.getMessages().contains(chatMessage));
     }
-    
+
     @Test
     public void canStoreMessages() throws InterruptedException, ExecutionException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
@@ -182,7 +185,7 @@ public class RoomBackendTest extends BackendTest {
         verify(roomDAO, atLeast(1)).merge(eq(room));
         assertThat(room.getChatMessages(), contains(chatMessage));
     }
-    
+
     @Test
     public void canPlayNextSong() throws InterruptedException, ExecutionException {
         final RoomInstance instance = roomBackend.getRoomInstance(1);
@@ -196,7 +199,7 @@ public class RoomBackendTest extends BackendTest {
 
     @Test
     public void playSongProcessVotesAndAddsRoomToExclusionWhenTooManyDislikes()
-        throws InterruptedException, ExecutionException {
+            throws InterruptedException, ExecutionException {
         Song mockedSong = mock(Song.class);
         when(room.getCurrentSong()).thenReturn(mockedSong);
 
