@@ -31,7 +31,7 @@ import com.google.inject.persist.Transactional;
 @Path("/api/songs")
 @Produces(MediaType.APPLICATION_JSON)
 public class SongAPI {
-    
+
     /**
      * The points a user gains when he classifies a song.
      */
@@ -123,7 +123,15 @@ public class SongAPI {
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
 
-        song.setValenceArousal(adjustSongVector(classification, song));
+        if (song.getValenceArousal().distance(VAVector.ZERO) < 1e-2) {
+            // If near origin set the vector
+            song.setValenceArousal(new VAVector(classification.getValence(), classification
+                    .getArousal()));
+        } else {
+            // otherwise adjust the vector
+            song.setValenceArousal(adjustSongVector(classification, song));
+        }
+
         this.songDAO.merge(song);
 
         return classification;
