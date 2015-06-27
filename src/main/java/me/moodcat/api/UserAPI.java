@@ -4,22 +4,21 @@ import java.util.List;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Provider;
-import com.google.inject.name.Named;
 import me.moodcat.api.models.UserModel;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.User;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 
 /**
@@ -42,7 +41,7 @@ public class UserAPI {
     @Inject
     @VisibleForTesting
     public UserAPI(final UserDAO userDAO,
-                   @Named("current.user") final Provider<User> currentUserProvider) {
+            @Named("current.user") final Provider<User> currentUserProvider) {
         this.userDAO = userDAO;
         this.currentUserProvider = currentUserProvider;
     }
@@ -91,20 +90,6 @@ public class UserAPI {
     @Transactional
     public Integer getPoints() {
         return currentUserProvider.get().getPoints();
-    }
-
-    /**
-     * The amount of points a user with id userId has earned.
-     * 
-
-     * @param amount
-     *            The amount of points to be awarded.
-     */
-    @POST
-    @Path("me/points")
-    @Transactional
-    public void addPoints(@QueryParam("amount") @DefaultValue("0") final int amount) {
-        userDAO.incrementPoints(currentUserProvider.get(), amount);
     }
 
     @GET
