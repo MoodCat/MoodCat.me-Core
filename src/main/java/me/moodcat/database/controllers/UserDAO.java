@@ -7,8 +7,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import com.google.inject.persist.Transactional;
 import me.moodcat.database.entities.User;
+
+import com.google.inject.persist.Transactional;
 
 /**
  * Data access object for user entities.
@@ -51,6 +52,20 @@ public class UserDAO extends AbstractDAO<User> {
     public User findBySoundcloudId(final Integer soundCloudId) {
         return ensureExists(query().from(user)
                 .where(user.soundCloudUserId.eq(soundCloudId))
+                .singleResult(user));
+    }
+
+    /**
+     * Find a user by its soundcloud token.
+     *
+     * @param accessToken
+     *            Soundcloud token for the user
+     * @return The user entity
+     */
+    @Transactional
+    public User findByAccessToken(final String accessToken) {
+        return ensureExists(query().from(user)
+                .where(user.accessToken.eq(accessToken))
                 .singleResult(user));
     }
 
