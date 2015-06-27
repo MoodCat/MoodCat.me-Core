@@ -1,12 +1,21 @@
 package me.moodcat.backend.rooms;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.inject.Provider;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.Getter;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.Vote;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.ChatMessage;
@@ -15,24 +24,19 @@ import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 import me.moodcat.util.DataUtil;
 import me.moodcat.util.ProviderProxy;
+
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomInstanceTest {
@@ -66,6 +70,7 @@ public class RoomInstanceTest {
     private ProfanityChecker profanityChecker;
 
     private Song song;
+
     private Room room;
 
     private final static DataUtil dataUtil = new DataUtil();
@@ -85,42 +90,43 @@ public class RoomInstanceTest {
 
         when(chatMessageFactory.create(any(), any())).thenReturn(mock(ChatMessage.class));
         instance = new RoomInstance(songInstanceFactory, roomDAOProvider,
-                songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, profanityChecker, room);
+                songDAOProvider, unitOfWorkSchedulingService, chatMessageFactory, profanityChecker,
+                room);
     }
 
     @Test
     public void whenTooManyMessagesRemoveOneFromList() {
         User mock = mock(User.class);
         when(mock.getId()).thenReturn(1);
-        
+
         for (int i = 0; i < RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES + 1; i++) {
             ChatMessageModel model = new ChatMessageModel();
             model.setMessage(String.valueOf(i));
-            
+
             instance.sendMessage(model, mock);
         }
 
         assertEquals(RoomInstance.MAXIMAL_NUMBER_OF_CHAT_MESSAGES, instance
                 .getMessages().size());
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void whenOneUserSendsMessagesTooFastThrowsException() {
         ChatMessageModel model = new ChatMessageModel();
         model.setMessage("Spam");
-        
+
         User user = mock(User.class);
         when(user.getId()).thenReturn(1337);
-        
+
         for (int i = 0; i < 6; i++) {
-        instance.sendMessage(model, user);
+            instance.sendMessage(model, user);
         }
     }
 
     @Test
     public void testReplayHistoryOnNoResults() {
         when(songDAO.findForDistance(room.getVaVector(), RoomInstance.NUMBER_OF_SELECTED_SONGS))
-            .thenReturn(Collections.emptyList());
+                .thenReturn(Collections.emptyList());
 
         assertThat(room.getPlayHistory(), Matchers.empty());
         assertThat(room.getPlayQueue(), Matchers.empty());
@@ -132,7 +138,6 @@ public class RoomInstanceTest {
         assertThat(room.getPlayQueue(), Matchers.empty());
         assertEquals(song, room.getCurrentSong());
     }
-
 
     @Test
     public void testPlayNextSongFromResults() {
@@ -172,8 +177,8 @@ public class RoomInstanceTest {
     @Test
     public void testLimitHistory() {
         List<Song> history = ImmutableList.copyOf(Stream.generate(dataUtil::createSong)
-            .limit(RoomInstance.NUMBER_OF_SELECTED_SONGS)
-            .iterator());
+                .limit(RoomInstance.NUMBER_OF_SELECTED_SONGS)
+                .iterator());
 
         room.setPlayHistory(history);
 
@@ -187,9 +192,8 @@ public class RoomInstanceTest {
         instance.mergeRoom();
 
         List<Song> expectedHistory = Stream
-            .concat(history.stream().skip(1), Stream.of(song))
-            .collect(Collectors.toList());
-
+                .concat(history.stream().skip(1), Stream.of(song))
+                .collect(Collectors.toList());
 
         assertEquals(expectedHistory, room.getPlayHistory());
         assertThat(room.getPlayQueue(), Matchers.empty());
@@ -198,7 +202,20 @@ public class RoomInstanceTest {
 
     private void stubFindForDistance(Room room, Song... songs) {
         when(songDAO.findForDistance(room.getVaVector(), RoomInstance.NUMBER_OF_SELECTED_SONGS))
-            .thenReturn(Lists.newArrayList(songs));
+                .thenReturn(Lists.newArrayList(songs));
+    }
+
+    @Test
+    public void testVote() {
+        User user = Mockito.mock(User.class);
+        instance.addVote(user, Vote.LIKE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDuplicateVote() {
+        User user = Mockito.mock(User.class);
+        instance.addVote(user, Vote.LIKE);
+        instance.addVote(user, Vote.DISLIKE);
     }
 
 }
