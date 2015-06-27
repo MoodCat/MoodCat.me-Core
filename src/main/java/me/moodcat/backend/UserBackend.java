@@ -47,7 +47,7 @@ public class UserBackend {
     private MeModel retrieveMe(final String token) {
         try {
             return soundCloudIdentifier.getMe(token);
-        } catch (SoundCloudException e) {
+        } catch (final SoundCloudException e) {
             throw new NotAuthorizedException(e.getMessage(), e);
         }
     }
@@ -61,11 +61,14 @@ public class UserBackend {
         try {
             // Look for user in the caches
             return userDAO.findByAccessToken(token);
-        } catch (EntityNotFoundException e) {
+        } catch (final EntityNotFoundException e) {
             // User not found in caches
             log.debug("User token {} not found in caches, querying SoundCloud", token);
+            return createAccessToken(token, userDAO);
         }
+    }
 
+    private User createAccessToken(final String token, final UserDAO userDAO) {
         final MeModel me = retrieveMe(token);
         final int soundCloudId = me.getId();
 
@@ -75,7 +78,7 @@ public class UserBackend {
             mergePreviousToken(token, userDAO, user);
 
             return user;
-        } catch (EntityNotFoundException e) {
+        } catch (final EntityNotFoundException e) {
             User user = createUser(soundCloudId, me);
             user.setAccessToken(token);
             return userDAO.persist(user);

@@ -63,7 +63,6 @@ public class UserBackendTest {
     @Before
     public void setUp() throws SoundCloudException {
         when(userDAOProvider.get()).thenReturn(userDAO);
-        when(userDAO.findByAccessToken(anyString())).thenThrow(new EntityNotFoundException());
         when(soundCloudIdentifier.getMe(TOKEN)).thenReturn(meModel);
         when(soundCloudIdentifier.getMe(BOGUS))
                 .thenThrow(new SoundCloudException("Invalid token."));
@@ -82,19 +81,29 @@ public class UserBackendTest {
 
     @Test
     public void canRetrieveUser() {
+        when(userDAO.findByAccessToken(anyString())).thenThrow(new EntityNotFoundException());
         assertEquals(user, userBackend.loginUsingSoundCloud(TOKEN));
         verify(user).setAccessToken(TOKEN);
     }
 
     @Test(expected = NotAuthorizedException.class)
     public void whenUserIsNotFoundWithTokenThrowNotAuthorized() {
+        when(userDAO.findByAccessToken(anyString())).thenThrow(new EntityNotFoundException());
         userBackend.loginUsingSoundCloud(BOGUS);
     }
 
     @Test
     public void whenUserIsNotFoundCreateTheUser() {
         when(meModel.getId()).thenReturn(ANOTHER_USER_ID);
+        when(userDAO.findByAccessToken(anyString())).thenThrow(new EntityNotFoundException());
         when(userDAO.findBySoundcloudId(ANOTHER_USER_ID)).thenThrow(new EntityNotFoundException());
+
+        assertEquals(anotherUser, userBackend.loginUsingSoundCloud(TOKEN));
+    }
+    
+    @Test
+    public void canRetrieveUserByToken() {
+        when(userDAO.findByAccessToken(TOKEN)).thenReturn(anotherUser);
 
         assertEquals(anotherUser, userBackend.loginUsingSoundCloud(TOKEN));
     }

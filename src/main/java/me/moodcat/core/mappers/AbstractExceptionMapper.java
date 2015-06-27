@@ -27,7 +27,7 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
         return createResponse(exception, id);
     }
 
-    protected Response createResponse(Throwable exception, UUID id) {
+    protected Response createResponse(final Throwable exception, final UUID id) {
         final ExceptionResponse exceptionResponse = createResponse(exception);
         exceptionResponse.setUuid(id.toString());
 

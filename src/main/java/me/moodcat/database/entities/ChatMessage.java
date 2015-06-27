@@ -100,7 +100,7 @@ public class ChatMessage implements Comparable<ChatMessage> {
      * @param id
      *            The new id of the message.
      */
-    public void setId(int id) {
+    public void setId(final int id) {
         ChatMessageEmbeddable embeddable = getCompoundId();
 
         if (embeddable == null) {

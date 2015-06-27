@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 /**
- * @author Jan-Willem Gmelig Meyling
+ * Module to configure the factories that define the different instances.
  */
 public class RoomBackendModule extends AbstractModule {
 

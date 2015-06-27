@@ -51,7 +51,7 @@ public class MoodcatServletModule extends ServletModule {
      */
     private final File rootFolder;
 
-    public MoodcatServletModule(App app, final File rootFolder) {
+    public MoodcatServletModule(final App app, final File rootFolder) {
         this.app = app;
         this.rootFolder = rootFolder;
     }

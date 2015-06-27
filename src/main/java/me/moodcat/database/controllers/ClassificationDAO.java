@@ -19,7 +19,7 @@ import com.google.inject.persist.Transactional;
 public class ClassificationDAO extends AbstractDAO<Classification> {
 
     @Inject
-    public ClassificationDAO(EntityManager entityManager) {
+    public ClassificationDAO(final EntityManager entityManager) {
         super(entityManager);
     }
 

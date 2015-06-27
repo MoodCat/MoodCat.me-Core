@@ -87,7 +87,7 @@ public class UserDAO extends AbstractDAO<User> {
      * @param amount
      *            The amount of points to award the user.
      */
-    public void incrementPoints(User user, int amount) {
+    public void incrementPoints(final User user, final int amount) {
         user.increment(amount);
         this.merge(user);
     }

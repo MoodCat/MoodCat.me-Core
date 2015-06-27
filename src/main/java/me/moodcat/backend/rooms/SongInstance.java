@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import me.moodcat.backend.UnitOfWorkSchedulingService;
-import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Song;
 
@@ -48,7 +47,7 @@ public class SongInstance {
     private final AtomicBoolean stopped;
 
     /**
-     * {@link UnitOfWorkSchedulingServiceImpl} to schedule tasks in a unit of work.
+     * {@link me.moodcat.backend.UnitOfWorkSchedulingServiceImpl} to schedule tasks in a unit of work.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
@@ -61,16 +60,6 @@ public class SongInstance {
      * Stop observers.
      */
     private final List<StopObserver> observers;
-
-    @FunctionalInterface
-    public interface StopObserver {
-
-        /**
-         * Called when this song has stopped.
-         */
-        void stopped();
-
-    }
 
     /**
      * Create a new song instance.
@@ -164,6 +153,19 @@ public class SongInstance {
      */
     public long getTime() {
         return currentTime.get();
+    }
+
+    /**
+     * Observer to notify the song has stopped.
+     */
+    @FunctionalInterface
+    public interface StopObserver {
+
+        /**
+         * Called when this song has stopped.
+         */
+        void stopped();
+
     }
 
 }

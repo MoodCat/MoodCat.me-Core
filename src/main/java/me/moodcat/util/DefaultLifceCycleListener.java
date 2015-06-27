@@ -3,9 +3,9 @@ package me.moodcat.util;
 import org.eclipse.jetty.util.component.LifeCycle;
 
 /**
- * @author Jan-Willem Gmelig Meyling
+ * Default interface for No-ops as listener.
  */
-public interface DefaultLifceCycleListener extends  LifeCycle.Listener {
+public interface DefaultLifceCycleListener extends LifeCycle.Listener {
 
     default void lifeCycleStarting(LifeCycle var1) {}
 

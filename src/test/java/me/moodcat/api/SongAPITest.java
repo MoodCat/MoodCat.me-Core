@@ -15,7 +15,9 @@ import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -33,6 +35,9 @@ public class SongAPITest {
     private static final int SONG_ID = 1;
 
     private static final int SOUNCLOUD_ID = 25;
+    
+    @Rule
+    public ExpectedException expected = ExpectedException.none();
 
     @Mock
     private SongDAO songDAO;
@@ -95,6 +100,20 @@ public class SongAPITest {
     }
 
     @Test
+    public void classificationTwiceThrowsException() throws InvalidClassificationException {
+        final ClassificationRequest request = new ClassificationRequest(1.0, 1.0);
+
+        songAPI.classifySong(SOUNCLOUD_ID, request);
+        
+        expected.expect(IllegalArgumentException.class);
+        expected.expectMessage("Already classified");
+        
+        when(classificationDAO.exists(user, song)).thenReturn(true);
+        
+        songAPI.classifySong(SOUNCLOUD_ID, request);
+    }
+
+    @Test
     public void canRetrieveAllSongs() {
         songAPI.getSongs();
 
@@ -120,6 +139,18 @@ public class SongAPITest {
         final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
 
         songAPI.approachSong(SOUNCLOUD_ID, request);
+
+        verify(songDAO).merge(song);
+        verify(song).setValenceArousal(eq(new VAVector(1.0, 0.0)));
+    }
+    
+    @Test
+    public void classificationIsSetWhenCloseToZeroVector() throws InvalidClassificationException {
+        when(song.getValenceArousal()).thenReturn(VAVector.ZERO);
+        
+        final ClassificationRequest request = new ClassificationRequest(1.0, 0.0);
+
+        songAPI.classifySong(SOUNCLOUD_ID, request);
 
         verify(songDAO).merge(song);
         verify(song).setValenceArousal(eq(new VAVector(1.0, 0.0)));

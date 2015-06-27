@@ -78,6 +78,21 @@ public class SongInstanceTest extends BackendTest {
         verify(observer).stopped();
         assertTrue(instance.getTime() > DURATION);
     }
+    
+    @Test
+    public void canStop() {
+        instance.stop();
+        
+        assertTrue(instance.isStopped());
+    }
+    
+    @Test
+    public void canOnlyStopOnce() {
+        instance.stop();
+        instance.stop();
+        
+        verify(observer).stopped();
+    }
 
     @After
     public void tearDown() {

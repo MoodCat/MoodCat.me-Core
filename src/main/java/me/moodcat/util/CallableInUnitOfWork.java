@@ -41,7 +41,7 @@ public class CallableInUnitOfWork<V> implements Callable<V> {
         try {
             work.begin();
             return callable.call();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             log.error(t.getMessage(), t);
             throw t;
         } finally {

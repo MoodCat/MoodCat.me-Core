@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
-import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
 import me.moodcat.backend.Vote;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
@@ -35,16 +34,19 @@ import com.google.inject.assistedinject.AssistedInject;
 @Slf4j
 public class RoomInstance {
 
+    /**
+     * Number of selected songs from the database.
+     */
     public static final int NUMBER_OF_SELECTED_SONGS = 25;
-
-    private static final int MESSAGE_FLOODING_TIMEOUT = 10;
-
-    private static final int MESSAGE_FLOODING_MESSAGE_AMOUNT = 4;
-
+    
     /**
      * Number of chat messages to cache for each room.
      */
     public static final int MAXIMAL_NUMBER_OF_CHAT_MESSAGES = 100;
+
+    private static final int MESSAGE_FLOODING_TIMEOUT = 10;
+
+    private static final int MESSAGE_FLOODING_MESSAGE_AMOUNT = 4;
 
     /**
      * {@link SongInstanceFactory} to create {@link SongInstance SongInstances} with.
@@ -52,7 +54,7 @@ public class RoomInstance {
     private final SongInstanceFactory songInstanceFactory;
 
     /**
-     * {@link UnitOfWorkSchedulingServiceImpl} to schedule tasks in a unit of work.
+     * {@link me.moodcat.backend.UnitOfWorkSchedulingServiceImpl} to schedule tasks in a unit of work.
      */
     private final UnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
@@ -107,17 +109,6 @@ public class RoomInstance {
      */
     private final Map<User, Vote> votes;
 
-    /**
-     * @param songInstanceFactory
-     *            SongInstanceFactory to create Songs.
-     * @param roomInstanceInUnitOfWorkFactory
-     * @param unitOfWorkSchedulingService
-     *            Scheduling service to run tasks in a Unit of Work.
-     * @param chatMessageFactory
-     * @param profanityChecker
-     * @param room
-     *            the room used to create the roomInstance.
-     */
     @AssistedInject
     public RoomInstance(final SongInstanceFactory songInstanceFactory,
             final RoomInstanceInUnitOfWorkFactory roomInstanceInUnitOfWorkFactory,
@@ -150,24 +141,7 @@ public class RoomInstance {
                 .map(ChatMessageInstance::create).collect(Collectors.toList()));
     }
 
-    /**
-     * Interact with a {@link RoomInstanceInUnitOfWork}.
-     */
-    @FunctionalInterface
-    interface RoomInstanceInUnitOfWorkHandler {
-
-        /**
-         * Interact with the {@link RoomInstanceInUnitOfWork} in a {@code UnitOfWork}.
-         *
-         * @param roomInstance
-         *            {@code RoomInstanceInUnitOfWork} to work with.
-         */
-        @RunInUnitOfWork
-        void handle(RoomInstanceInUnitOfWork roomInstance);
-
-    }
-
-    protected Future<?> interactWithRoom(RoomInstanceInUnitOfWorkHandler handler) {
+    protected Future<?> interactWithRoom(final RoomInstanceInUnitOfWorkHandler handler) {
         return unitOfWorkSchedulingService.performInUnitOfWork(() -> {
             RoomInstanceInUnitOfWork instance = roomInstanceInUnitOfWorkFactory.create(id);
             handler.handle(instance);
@@ -337,4 +311,20 @@ public class RoomInstance {
         this.votes.put(user, valueOf);
     }
 
+    /**
+     * Interact with a {@link RoomInstanceInUnitOfWork}.
+     */
+    @FunctionalInterface
+    interface RoomInstanceInUnitOfWorkHandler {
+
+        /**
+         * Interact with the {@link RoomInstanceInUnitOfWork} in a {@code UnitOfWork}.
+         *
+         * @param roomInstance
+         *            {@code RoomInstanceInUnitOfWork} to work with.
+         */
+        @RunInUnitOfWork
+        void handle(RoomInstanceInUnitOfWork roomInstance);
+
+    }
 }

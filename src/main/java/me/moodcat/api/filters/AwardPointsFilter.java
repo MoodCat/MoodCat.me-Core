@@ -45,13 +45,14 @@ public class AwardPointsFilter implements ContainerResponseFilter {
 
         final UserDAO userDAO = userDAOProvider.get();
         final AwardPoints awardPoints = getFromArray(annotations, AwardPoints.class);
+        
         if (awardPoints != null) {
             userDAO.incrementPoints(currentUserProvider.get(), awardPoints.value());
         }
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T extends V, V> T getFromArray(final V[] contents, final Class<T> type) {
+    private static <T extends V, V> T getFromArray(final V[] contents, final Class<T> type) {
         if (contents != null) {
             for (V value : contents) {
                 if (type.isInstance(value)) {

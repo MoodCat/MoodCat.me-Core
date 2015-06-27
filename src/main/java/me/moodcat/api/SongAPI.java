@@ -9,7 +9,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import lombok.AllArgsConstructor;
@@ -41,6 +40,8 @@ public class SongAPI {
      * The points a user gains when he classifies a song.
      */
     protected static final int CLASSIFICATION_POINTS_AWARD = 6;
+    
+    private static final double VECTOR_DELTA = 1e-2;
 
     /**
      * The number of songs retrieved for each classification list.
@@ -98,21 +99,21 @@ public class SongAPI {
         return transformSongs(songDAO.listRandomsongs(NUMBER_OF_CLASSIFICATION_SONGS));
     }
 
-    @GET
-    @Path("query-range")
-    @Transactional
-    public List<SongModel> queryRange(@QueryParam("valence") final double valence,
-            @QueryParam("arousal") final double arousal) {
-        final VAVector vector = new VAVector(valence, arousal);
-        return transformSongs(songDAO.findForDistance(vector, 2));
-    }
-
     private List<SongModel> transformSongs(final List<Song> songs) {
         return songs.stream()
                 .map(SongModel::transform)
                 .collect(Collectors.toList());
     }
 
+    /*
+     * TODO Method currently checks if a classification already exists in the database.
+     * This should not happen, because after the initial classification
+     * the song will not be available for classification (and this endpoint
+     * should throw an IllegalArgumentException instead). However, this
+     * endpoint is currently also abused for the classification game.
+     * In order to prevent users to abuse this to gain points with fake
+     * classifications on the same song, we ignore duplicate classifications.
+     */
     /**
      * Process a user classification for the given songId.
      *
@@ -139,22 +140,21 @@ public class SongAPI {
                 classification.getArousal());
 
         if (classificationDAO.exists(user, song)) {
-            /*
-             * TODO This should not happen, because after the initial classification
-             * the song will not be available for classification (and this endpoint
-             * should throw an IllegalArgumentException instead). However, this
-             * endpoint is currently also abused for the classification game.
-             * In order to prevent users to abuse this to gain points with fake
-             * classifications on the same song, we ignore duplicate classifications.
-             */
             throw new IllegalArgumentException("Already classified this song");
         }
 
         assertDimensionIsValid(classification.getValence());
         assertDimensionIsValid(classification.getArousal());
 
+        updateVectorFromClassification(user, song, classificationVector);
+
+        return classification;
+    }
+
+    private void updateVectorFromClassification(final User user, final Song song,
+            final VAVector classificationVector) {
         final VAVector vector;
-        if (song.getValenceArousal().distance(VAVector.ZERO) < 1e-2) {
+        if (song.getValenceArousal().distance(VAVector.ZERO) < VECTOR_DELTA) {
             // If near origin set the vector
             vector = classificationVector;
         } else {
@@ -165,8 +165,6 @@ public class SongAPI {
         song.setValenceArousal(vector);
         this.persistClassification(user, song, classificationVector);
         this.songDAO.merge(song);
-
-        return classification;
     }
 
     private void persistClassification(final User user, final Song song,

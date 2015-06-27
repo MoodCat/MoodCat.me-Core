@@ -25,6 +25,9 @@ import com.google.inject.persist.Transactional;
 @Slf4j
 public class RoomInstanceInUnitOfWork {
 
+    /**
+     * The size of the room history.
+     */
     public static final int HISTORY_SIZE = 25;
 
     private final RoomDAO roomDAO;
@@ -56,9 +59,11 @@ public class RoomInstanceInUnitOfWork {
     @Transactional
     public void addSongToHistory(final Song song) {
         final LinkedList<Song> history = Lists.newLinkedList(room.getPlayHistory());
+        
         if (history.size() > HISTORY_SIZE - 1) {
             history.removeFirst();
         }
+        
         history.add(song);
         room.setPlayHistory(history);
         log.info("Added song {} to history for room {}", song, room);
@@ -73,19 +78,6 @@ public class RoomInstanceInUnitOfWork {
         Song song = getCurrentSong();
         room.addExclusion(song);
         log.info("Added {} to the exclusions for {}", song, room);
-        this.changed.set(true);
-    }
-
-    /**
-     * Queue songs for this room.
-     *
-     * @param songs
-     *            Songs to be queued.
-     */
-    @Transactional
-    public void queue(final Collection<Song> songs) {
-        this.room.getPlayQueue().addAll(songs);
-        log.info("Queued songs {} for room {}", songs, room);
         this.changed.set(true);
     }
 
@@ -152,15 +144,14 @@ public class RoomInstanceInUnitOfWork {
     }
 
     /**
-     * Persist changes to this Room instance
+     * Persist changes to this Room instance.
      */
     @Transactional
     public void merge() {
         if (this.changed.getAndSet(false)) {
             log.info("Persisting changes for room {}", room);
             this.roomDAO.merge(room);
-        }
-        else {
+        } else {
             log.debug("Room not changed");
         }
     }

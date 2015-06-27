@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import com.google.inject.ImplementedBy;
 
 /**
- * @author Jan-Willem Gmelig Meyling
+ * Perform runnables in unit of works.
  */
 @ImplementedBy(UnitOfWorkSchedulingServiceImpl.class)
 public interface UnitOfWorkSchedulingService extends ExecutorService, ScheduledExecutorService {

@@ -98,7 +98,7 @@ public class SoundCloudAPIConnector {
         Client client = createClient();
         try {
             return invocation.perform(client.target(host));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new SoundCloudException(e.getMessage(), e);
         } finally {
             client.close();

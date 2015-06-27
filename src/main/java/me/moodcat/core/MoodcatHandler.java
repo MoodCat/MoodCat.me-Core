@@ -42,7 +42,7 @@ public class MoodcatHandler extends ServletContextHandler {
      *            Zero or more modules that are attached to the listener.
      * @param app TODO
      */
-    public MoodcatHandler(App app, final File rootFolder, final Module... overrides) {
+    public MoodcatHandler(final App app, final File rootFolder, final Module... overrides) {
         this.app = app;
         this.addEventListener(new AppContextListener(rootFolder, overrides));
 

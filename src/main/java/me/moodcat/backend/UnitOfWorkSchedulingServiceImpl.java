@@ -53,12 +53,12 @@ public class UnitOfWorkSchedulingServiceImpl extends ScheduledThreadPoolExecutor
     }
 
     @Override
-    public void lifeCycleStarting(LifeCycle lifeCycle) {
+    public void lifeCycleStarting(final LifeCycle lifeCycle) {
         log.info("Instantiated {} with {} threads", getClass(), getPoolSize());
     }
 
     @Override
-    public void lifeCycleStopping(LifeCycle lifeCycle) {
+    public void lifeCycleStopping(final LifeCycle lifeCycle) {
         log.info("Shutting down executor, waiting for {} tasks...", getActiveCount());
         this.shutdown();
     }

@@ -192,7 +192,7 @@ public class RoomBackendTest extends BackendTest {
         final Song song = room.getCurrentSong();
         songHistory.add(createSong());
 
-        instance.playNext();
+        instance.playNext().get();
         instance.merge().get();
 
         assertNotEquals(song, room.getCurrentSong());
