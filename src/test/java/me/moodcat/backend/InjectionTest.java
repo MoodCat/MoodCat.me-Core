@@ -57,7 +57,7 @@ public class InjectionTest {
             install(new FactoryModuleBuilder()
                     .build(RoomInstanceFactory.class));
 
-            this.bind(UnitOfWorkSchedulingService.class).asEagerSingleton();
+            this.bind(UnitOfWorkSchedulingServiceImpl.class).asEagerSingleton();
         }
     }
 
@@ -78,7 +78,7 @@ public class InjectionTest {
 
     @Test
     public void testBindUOWSChedulingService(){
-        UnitOfWorkSchedulingService songInstanceFactory = injector.getInstance(UnitOfWorkSchedulingService.class);
+        UnitOfWorkSchedulingService songInstanceFactory = injector.getInstance(UnitOfWorkSchedulingServiceImpl.class);
         Assert.assertNotNull(songInstanceFactory);
 
     }

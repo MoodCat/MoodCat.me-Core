@@ -44,7 +44,7 @@ public class ChatMessageModel implements Comparable<ChatMessageModel> {
     private Long timestamp;
 
     @Override
-    public int compareTo(ChatMessageModel other) {
+    public int compareTo(final ChatMessageModel other) {
         return getTimestamp().compareTo(other.getTimestamp());
     }
 

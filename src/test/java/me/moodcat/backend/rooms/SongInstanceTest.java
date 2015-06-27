@@ -1,61 +1,102 @@
 package me.moodcat.backend.rooms;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-
-import java.util.Observer;
-
+import me.moodcat.backend.BackendTest;
+import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.entities.Song;
+import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
+import me.moodcat.util.MockedUnitOfWorkSchedulingService;
 
+import org.jukito.UseModules;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 
-import com.google.inject.Provider;
+import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SongInstanceTest {
+@RunWith(JukitoRunnerSupportingMockAnnotations.class)
+@UseModules(SongInstanceTest.SongInstanceTestModule.class)
+public class SongInstanceTest extends BackendTest {
 
-	private static final int DURATION = 1;
+    private static SongDAO songDAO = Mockito.mock(SongDAO.class);
 
-	private SongInstance instance;
+    public static class SongInstanceTestModule extends AbstractModule {
 
-	@Mock
-	private Provider<SongDAO> songDAOProvider;
+        @Override
+        protected void configure() {
+            install(new RoomBackendModule());
+            bind(SongDAO.class).toInstance(songDAO);
+            bind(UnitOfWorkSchedulingService.class).to(MockedUnitOfWorkSchedulingService.class);
+        }
+    }
 
-	@Mock
-	private Song song;
+    private static final int DURATION = 1;
 
-	@Mock
-	private Observer observer;
+    @Spy
+    private Song song = createSong();
 
-	@Before
-	public void setUp() {
-		when(song.getDuration()).thenReturn(DURATION);
+    @Mock
+    private SongInstance.StopObserver observer;
 
-		instance = new SongInstance(songDAOProvider, song);
-		instance.addObserver(observer);
-	}
+    @Inject
+    private SongInstanceFactory songInstanceFactory;
 
-	@Test
-	public void canIncrementTime() throws InterruptedException {
-		// Wait a little bit to trigger the changed.
-		Thread.sleep(DURATION * 10);
+    private SongInstance instance;
 
-		// Trigger changed
-		instance.incrementTime();
+    @Inject
+    private MockedUnitOfWorkSchedulingService unitOfWorkSchedulingService;
 
-		// And verify it is changed now
-		instance.incrementTime();
+    @Before
+    public void setUp() {
+        when(song.getDuration()).thenReturn(DURATION);
 
-		verify(observer).update(eq(instance), any());
-		assertTrue(instance.getTime() > DURATION);
-	}
+        instance = songInstanceFactory.create(song);
+        instance.addObserver(observer);
+        verifyZeroInteractions(observer);
+    }
+
+    @Test
+    public void canIncrementTime() throws InterruptedException {
+        // Wait a little bit to trigger the changed.
+        Thread.sleep(DURATION * 10);
+
+        // Trigger changed
+        instance.incrementTime();
+
+        // And verify it is changed now
+        instance.incrementTime();
+
+        verify(observer).stopped();
+        assertTrue(instance.getTime() > DURATION);
+    }
+    
+    @Test
+    public void canStop() {
+        instance.stop();
+        
+        assertTrue(instance.isStopped());
+    }
+    
+    @Test
+    public void canOnlyStopOnce() {
+        instance.stop();
+        instance.stop();
+        
+        verify(observer).stopped();
+    }
+
+    @After
+    public void tearDown() {
+        unitOfWorkSchedulingService.shutdownNow();
+    }
 
 }

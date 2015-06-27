@@ -31,7 +31,7 @@ public class ProfanityChecker {
             profanityPatterns = new String(Files.readAllBytes(Paths
                     .get(PROFANITY_PATTERN_FILE)))
                 .replaceAll("\\r", "").split("\n");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
@@ -63,7 +63,7 @@ public class ProfanityChecker {
      *            the length of the string.
      * @return the string.
      */
-    private String makeStars(int length) {
+    private String makeStars(final int length) {
         char[] stars = new char[length];
         Arrays.fill(stars, '*');
         return new String(stars);

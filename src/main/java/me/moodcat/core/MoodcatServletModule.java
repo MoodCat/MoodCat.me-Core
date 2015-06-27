@@ -9,16 +9,11 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
-import com.google.inject.Provides;
-import com.google.inject.name.Named;
-import com.google.inject.servlet.RequestScoped;
 import lombok.extern.slf4j.Slf4j;
-import me.moodcat.backend.UnitOfWorkSchedulingService;
+import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
 import me.moodcat.backend.rooms.RoomBackend;
-import me.moodcat.backend.rooms.RoomInstanceFactory;
-import me.moodcat.backend.rooms.SongInstanceFactory;
+import me.moodcat.backend.rooms.RoomBackendModule;
 import me.moodcat.database.DbModule;
-
 import me.moodcat.database.entities.User;
 
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -26,9 +21,11 @@ import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;
 import org.reflections.Reflections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.Provides;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.persist.PersistFilter;
+import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletModule;
 
 /**
@@ -54,7 +51,7 @@ public class MoodcatServletModule extends ServletModule {
      */
     private final File rootFolder;
 
-    public MoodcatServletModule(App app, final File rootFolder) {
+    public MoodcatServletModule(final App app, final File rootFolder) {
         this.app = app;
         this.rootFolder = rootFolder;
     }
@@ -69,23 +66,18 @@ public class MoodcatServletModule extends ServletModule {
         // Bind the database module
         this.bindDatabaseModule();
         this.bindAPI();
-        this.bindFactories();
+        this.install(new RoomBackendModule());
         // Bind eager singletons
-        this.bind(UnitOfWorkSchedulingService.class).asEagerSingleton();
+        this.bind(UnitOfWorkSchedulingServiceImpl.class).asEagerSingleton();
         this.bind(RoomBackend.class).asEagerSingleton();
     }
 
     private void bindConstants() {
         // Provide a way to access the resources folder from other classes
         this.bind(File.class).annotatedWith(Names.named("root.folder"))
-            .toInstance(this.rootFolder);
+                .toInstance(this.rootFolder);
         this.bindConstant().annotatedWith(Names.named("thread.pool.size")).to(THREAD_POOL_SIZE);
         this.bind(LifeCycle.class).toInstance(this.app.getServer());
-    }
-
-    private void bindFactories() {
-        this.install(new FactoryModuleBuilder().build(SongInstanceFactory.class));
-        this.install(new FactoryModuleBuilder().build(RoomInstanceFactory.class));
     }
 
     private void bindDatabaseModule() {
@@ -102,7 +94,7 @@ public class MoodcatServletModule extends ServletModule {
     }
 
     private void bindClassesAnnotatedWithInPackage(final String packageName,
-                                                   final Class<? extends Annotation> annotation) {
+            final Class<? extends Annotation> annotation) {
         final Reflections reflections = new Reflections(packageName);
 
         for (final Class<?> clazz : reflections.getTypesAnnotatedWith(annotation)) {

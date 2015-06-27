@@ -3,6 +3,7 @@ package me.moodcat.backend;
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.NotAuthorizedException;
 
+import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.User;
 import me.moodcat.soundcloud.SoundCloudException;
@@ -17,6 +18,7 @@ import com.google.inject.persist.Transactional;
 /**
  * The UserBackend allows users to login through SoundCloud.
  */
+@Slf4j
 public class UserBackend {
 
     private final Provider<UserDAO> userDAOProvider;
@@ -39,32 +41,44 @@ public class UserBackend {
      *         The User for the token
      */
     public User loginUsingSoundCloud(final String token) {
-        MeModel me = retrieveMe(token);
-        return findOrRegisterUser(me, token);
+        return findOrRegisterUser(token);
     }
 
     private MeModel retrieveMe(final String token) {
         try {
             return soundCloudIdentifier.getMe(token);
-        } catch (SoundCloudException e) {
+        } catch (final SoundCloudException e) {
             throw new NotAuthorizedException(e.getMessage(), e);
         }
     }
 
     @Transactional
-    private User findOrRegisterUser(final MeModel me, final String token) {
+    private User findOrRegisterUser(final String token) {
         Preconditions.checkNotNull(token);
-        
+
         final UserDAO userDAO = this.userDAOProvider.get();
+
+        try {
+            // Look for user in the caches
+            return userDAO.findByAccessToken(token);
+        } catch (final EntityNotFoundException e) {
+            // User not found in caches
+            log.debug("User token {} not found in caches, querying SoundCloud", token);
+            return createAccessToken(token, userDAO);
+        }
+    }
+
+    private User createAccessToken(final String token, final UserDAO userDAO) {
+        final MeModel me = retrieveMe(token);
         final int soundCloudId = me.getId();
 
         try {
             final User user = userDAO.findBySoundcloudId(soundCloudId);
-            
+
             mergePreviousToken(token, userDAO, user);
 
             return user;
-        } catch (EntityNotFoundException e) {
+        } catch (final EntityNotFoundException e) {
             User user = createUser(soundCloudId, me);
             user.setAccessToken(token);
             return userDAO.persist(user);

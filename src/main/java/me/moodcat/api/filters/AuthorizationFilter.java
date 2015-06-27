@@ -56,7 +56,7 @@ public class AuthorizationFilter implements ContainerRequestFilter {
                 containerRequestContext.setProperty(
                         Key.get(User.class, Names.named(CURRENT_USER_NAME))
                                 .toString(), user);
-            } catch (NotAuthorizedException e) {
+            } catch (final NotAuthorizedException e) {
                 final Response response = notAuthorizedExceptionMapper.toResponse(e);
                 containerRequestContext.abortWith(response);
             }

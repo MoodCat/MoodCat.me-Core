@@ -7,8 +7,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import com.google.inject.persist.Transactional;
 import me.moodcat.database.entities.User;
+
+import com.google.inject.persist.Transactional;
 
 /**
  * Data access object for user entities.
@@ -55,6 +56,20 @@ public class UserDAO extends AbstractDAO<User> {
     }
 
     /**
+     * Find a user by its soundcloud token.
+     *
+     * @param accessToken
+     *            Soundcloud token for the user
+     * @return The user entity
+     */
+    @Transactional
+    public User findByAccessToken(final String accessToken) {
+        return ensureExists(query().from(user)
+                .where(user.accessToken.eq(accessToken))
+                .singleResult(user));
+    }
+
+    /**
      * Retrieve all users.
      * 
      * @return A list of all users.
@@ -72,7 +87,7 @@ public class UserDAO extends AbstractDAO<User> {
      * @param amount
      *            The amount of points to award the user.
      */
-    public void incrementPoints(User user, int amount) {
+    public void incrementPoints(final User user, final int amount) {
         user.increment(amount);
         this.merge(user);
     }

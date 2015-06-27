@@ -1,6 +1,7 @@
 package me.moodcat.backend.rooms;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
@@ -45,20 +46,20 @@ public class RoomBackend extends AbstractLifeCycleListener {
      * The constructor of the chat's backend, initializes fields and rooms.
      *
      * @param unitOfWorkSchedulingService
-     *          UnitOfWorkSchedulingService to schedule tasks in a unit of work
+     *            UnitOfWorkSchedulingService to schedule tasks in a unit of work
      * @param roomInstanceFactory
-     *          RoomInstanceFactory to instantiate RoomInstances
+     *            RoomInstanceFactory to instantiate RoomInstances
      * @param roomDAOProvider
-     *          Provider to create RoomDAOs when in a unit of work
+     *            Provider to create RoomDAOs when in a unit of work
      * @param lifeCycle
-     *          The program lifecycle, to instantiate the initial rooms
-     *          when the program has started
+     *            The program lifecycle, to instantiate the initial rooms
+     *            when the program has started
      */
     @Inject
     public RoomBackend(final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
-                       final RoomInstanceFactory roomInstanceFactory,
-                       final Provider<RoomDAO> roomDAOProvider,
-                       final LifeCycle lifeCycle) {
+            final RoomInstanceFactory roomInstanceFactory,
+            final Provider<RoomDAO> roomDAOProvider,
+            final LifeCycle lifeCycle) {
         this(unitOfWorkSchedulingService, roomInstanceFactory, roomDAOProvider);
         lifeCycle.addLifeCycleListener(this);
     }
@@ -67,15 +68,15 @@ public class RoomBackend extends AbstractLifeCycleListener {
      * The constructor of the chat's backend, initializes fields and rooms.
      *
      * @param unitOfWorkSchedulingService
-     *          UnitOfWorkSchedulingService to schedule tasks in a unit of work
+     *            UnitOfWorkSchedulingService to schedule tasks in a unit of work
      * @param roomInstanceFactory
-     *          RoomInstanceFactory to instantiate RoomInstances
+     *            RoomInstanceFactory to instantiate RoomInstances
      * @param roomDAOProvider
-     *          Provider to create RoomDAOs when in a unit of work
+     *            Provider to create RoomDAOs when in a unit of work
      */
     public RoomBackend(final UnitOfWorkSchedulingService unitOfWorkSchedulingService,
-                       final RoomInstanceFactory roomInstanceFactory,
-                       final Provider<RoomDAO> roomDAOProvider) {
+            final RoomInstanceFactory roomInstanceFactory,
+            final Provider<RoomDAO> roomDAOProvider) {
         this.unitOfWorkSchedulingService = unitOfWorkSchedulingService;
         this.roomInstanceFactory = roomInstanceFactory;
         this.roomDAOProvider = roomDAOProvider;
@@ -96,14 +97,17 @@ public class RoomBackend extends AbstractLifeCycleListener {
     /**
      * Initialize the rooms from the db.
      */
-    public void initializeRooms() {
-        unitOfWorkSchedulingService.performInUnitOfWork(() -> {
-            final RoomDAO roomDAO = roomDAOProvider.get();
-            roomDAO.listRooms().stream()
-                    .map(roomInstanceFactory::create)
-                    .forEach(roomInstance -> roomInstances.put(roomInstance.getId(), roomInstance));
-            return roomInstances;
-        });
+    public Future<?> initializeRooms() {
+        return unitOfWorkSchedulingService
+                .performInUnitOfWork(() -> {
+                    final RoomDAO roomDAO = roomDAOProvider.get();
+                    roomDAO.listRooms()
+                            .stream()
+                            .map(roomInstanceFactory::create)
+                            .forEach(
+                                    roomInstance -> roomInstances.put(roomInstance.getId(),
+                                            roomInstance));
+                });
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 
 import com.google.inject.Inject;
@@ -17,6 +18,8 @@ import com.mysema.query.types.expr.NumberExpression;
  * Used to retrieve songs from the database.
  */
 public class SongDAO extends AbstractDAO<Song> {
+
+    private static final int AMOUNT_OF_SONGS = 25;
 
     private static final double VECTOR_DISTANCE_DELTA = 0.1;
 
@@ -45,8 +48,10 @@ public class SongDAO extends AbstractDAO<Song> {
      */
     @Transactional
     public List<Song> listRandomsongs(final int limit) {
-        return query().from(song)
-                .where(song.valenceArousal.location.distance(VAVector.ZERO.getLocation()).lt(VECTOR_DISTANCE_DELTA))
+        return query()
+                .from(song)
+                .where(song.valenceArousal.location.distance(VAVector.ZERO.getLocation()).lt(
+                        VECTOR_DISTANCE_DELTA))
                 .orderBy(NumberExpression.random().asc())
                 .limit(limit)
                 .list(song);
@@ -110,4 +115,24 @@ public class SongDAO extends AbstractDAO<Song> {
                 .limit(limit)
                 .list(song);
     }
+
+    /**
+     * Find songs for a room.
+     * 
+     * @param fetchingRoom
+     *            Room to search for.
+     * @return List of songs
+     */
+    @Transactional
+    public List<Song> findNewSongsFor(final Room fetchingRoom) {
+        return query()
+                .from(song)
+                .where(song.exclusions.contains(fetchingRoom).not())
+                .orderBy(
+                        song.valenceArousal.location.distance(
+                                fetchingRoom.getVaVector().getLocation()).asc())
+                .limit(AMOUNT_OF_SONGS)
+                .list(song);
+    }
+
 }

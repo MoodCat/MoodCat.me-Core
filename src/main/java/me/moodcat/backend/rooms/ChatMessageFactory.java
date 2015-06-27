@@ -17,7 +17,7 @@ public class ChatMessageFactory {
     private final Provider<UserDAO> userDAOProvider;
 
     @Inject
-    public ChatMessageFactory(Provider<UserDAO> userDAOProvider) {
+    public ChatMessageFactory(final Provider<UserDAO> userDAOProvider) {
         this.userDAOProvider = userDAOProvider;
     }
 
@@ -32,7 +32,7 @@ public class ChatMessageFactory {
      * @return The ChatMessage entity to store in the database.
      */
     @Transactional
-    public ChatMessage create(Room room, ChatMessageInstance chatMessageInstance) {
+    public ChatMessage create(final Room room, final ChatMessageInstance chatMessageInstance) {
         final ChatMessage chatMessage = new ChatMessage();
         final User user = userDAOProvider.get().findById(
                 chatMessageInstance.getUserId());

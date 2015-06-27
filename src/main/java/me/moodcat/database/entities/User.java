@@ -89,7 +89,7 @@ public class User {
      * @param addition
      *            The amount of points the user gained
      */
-    public void increment(Integer addition) {
+    public void increment(final Integer addition) {
         this.setPoints(this.getPoints() + addition);
     }
 
