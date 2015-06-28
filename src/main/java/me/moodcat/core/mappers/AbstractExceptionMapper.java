@@ -7,9 +7,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import me.moodcat.api.models.ExceptionResponse;
 
 /**
  * An ExceptionMapper which can catch exceptions and report to the frontend.
@@ -44,34 +43,5 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
     }
 
     public abstract Status getStatusCode();
-
-    /**
-     * The response to the frontend.
-     */
-    public static class ExceptionResponse {
-
-        /**
-         * The unique id for the exception.
-         *
-         * @param uuid
-         *            The new unique id of this response.
-         * @return The unique id of this response.
-         */
-        @Getter
-        @Setter
-        private String uuid;
-
-        /**
-         * The exception message.
-         *
-         * @param message
-         *            The message to inform the user.
-         * @return The message of this response.
-         */
-        @Getter
-        @Setter
-        private String message;
-
-    }
 
 }

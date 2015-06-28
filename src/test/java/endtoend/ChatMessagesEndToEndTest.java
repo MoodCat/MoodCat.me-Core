@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -14,8 +13,6 @@ import me.moodcat.api.models.ChatMessageModel;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.collect.Maps;
 
 public class ChatMessagesEndToEndTest extends EndToEndTest {
 
@@ -44,20 +41,27 @@ public class ChatMessagesEndToEndTest extends EndToEndTest {
 
         ChatMessageModel message2 = postMessage("System", "Second message");
 
-        List<ChatMessageModel> messages = this.performGETRequestWithGenericType(new GenericType<List<ChatMessageModel>>(){}, "rooms/1/messages");
-        
+        List<ChatMessageModel> messages = this.perform(invocation -> invocation.path("rooms")
+                .path("1").path("messages")
+                .request()
+                .get(new GenericType<List<ChatMessageModel>>() {
+                }));
+
         Assert.assertThat(messages, Matchers.hasItems(message1, message2));
     }
-    
+
     @Test
     public void canRetrieveMessagesAfterCertainMessage() {
         ChatMessageModel message1 = postMessage("System", "Second-last message");
 
         ChatMessageModel message2 = postMessage("System", "Last message");
 
-        List<ChatMessageModel> messages = this.performGETRequestWithGenericType(new GenericType<List<ChatMessageModel>>(){},
-                "rooms/1/messages/" + message1.getId());
-        
+        List<ChatMessageModel> messages = this.perform(invocation -> invocation.path("rooms")
+                .path("1").path("messages").path(message1.getId().toString())
+                .request()
+                .get(new GenericType<List<ChatMessageModel>>() {
+                }));
+
         Assert.assertThat(messages, Matchers.contains(message2));
     }
 
@@ -66,13 +70,12 @@ public class ChatMessagesEndToEndTest extends EndToEndTest {
         postMessage.setAuthor(author);
         postMessage.setMessage(contents);
 
-        Map<String, Object> queryParams = Maps.newHashMap();
-        queryParams.put("token", "asdf");
+        ChatMessageModel message = this.perform(invocation -> invocation.path("rooms")
+                .path("1").path("messages")
+                .queryParam("token", "asdf")
+                .request()
+                .post(Entity.json(postMessage), ChatMessageModel.class));
 
-        ChatMessageModel message = this.performPOSTRequestWithQueryParams(ChatMessageModel.class,
-                "rooms/1/messages",
-                Entity.json(postMessage), queryParams);
-        
         return message;
     }
 

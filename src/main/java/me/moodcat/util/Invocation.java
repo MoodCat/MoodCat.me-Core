@@ -1,18 +1,18 @@
-package me.moodcat.soundcloud;
+package me.moodcat.util;
 
 import javax.ws.rs.client.WebTarget;
 
 /**
- * An invocation to the Soundcloud API.
+ * An invocation to a HTTPClient
  *
  * @param <T>
  *            return type
  */
 @FunctionalInterface
-interface Invocation<T> {
+public interface Invocation<T> {
 
     /**
-     * Perform the call to the SoundCloud API.
+     * Perform the call to the HttpClient.
      *
      * @param webTarget
      *            target to interact with
@@ -21,4 +21,5 @@ interface Invocation<T> {
      *             any exception that occurs
      */
     T perform(WebTarget webTarget) throws Exception;
+
 }

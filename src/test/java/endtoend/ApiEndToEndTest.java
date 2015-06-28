@@ -8,31 +8,47 @@ import javax.ws.rs.core.GenericType;
 
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
+import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.entities.Song;
 
 import org.junit.Test;
 
+import com.google.inject.Inject;
+
 public class ApiEndToEndTest extends EndToEndTest {
+
+    @Inject
+    private SongDAO songDAO;
 
     @Test
     public void canRetrieveRoom() {
-        RoomModel room = this.performGETRequest(RoomModel.class, "rooms/1");
-        
+        RoomModel room = this.perform(invocation -> invocation.path("rooms").path("1")
+                .request()
+                .get(RoomModel.class));
+
         assertEquals(1, room.getId().intValue());
         assertEquals(1, room.getNowPlaying().getSong().getId().intValue());
     }
-    
+
     @Test
     public void canRetrieveSongs() {
-        SongModel song = this.performGETRequest(SongModel.class, "songs/1");
-        
-        assertEquals(1, song.getId().intValue());
-        assertEquals(202330997, song.getSoundCloudId().intValue());
+        Song expected = songDAO.findById(1);
+
+        SongModel songModel = this.perform(invocation -> invocation.path("songs").path("1")
+                .request()
+                .get(SongModel.class));
+
+        assertEquals(1, songModel.getId().intValue());
+        assertEquals(expected.getSoundCloudId(), songModel.getSoundCloudId());
     }
-    
+
     @Test
     public void canRetrieveRooms() {
-        List<RoomModel> rooms = this.performGETRequestWithGenericType(new GenericType<List<RoomModel>>(){}, "rooms");
-        
+        List<RoomModel> rooms = this.perform(invocation -> invocation.path("rooms")
+                .request()
+                .get(new GenericType<List<RoomModel>>() {
+                }));
+
         assertEquals(1, rooms.get(0).getId().intValue());
     }
 
