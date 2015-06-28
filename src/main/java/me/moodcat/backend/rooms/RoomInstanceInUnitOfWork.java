@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.controllers.SongDAO;
+import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
@@ -164,6 +165,11 @@ public class RoomInstanceInUnitOfWork {
     @Transactional
     public Song getCurrentSong() {
         return this.room.getCurrentSong();
+    }
+    
+    @Transactional
+    public VAVector getVector() {
+        return this.room.getVaVector();
     }
 
 }

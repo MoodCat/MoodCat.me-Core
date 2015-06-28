@@ -60,6 +60,7 @@ public abstract class BackendTest {
         song.setName(randomString());
         song.setArtworkUrl(randomString());
         song.setDuration((int) (Math.round(Math.random() + 0.5) * TimeUnit.MINUTES.toMillis(5)));
+        song.setValenceArousal(VAVector.createRandomVector());
         return song;
     }
 
