@@ -2,6 +2,7 @@ package me.moodcat.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
@@ -15,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.moodcat.api.filters.AwardPoints;
+import me.moodcat.api.filters.LimitRule;
+import me.moodcat.api.filters.RateLimit;
 import me.moodcat.api.models.SongModel;
 import me.moodcat.database.controllers.ClassificationDAO;
 import me.moodcat.database.controllers.SongDAO;
@@ -40,7 +43,7 @@ public class SongAPI {
      * The points a user gains when he classifies a song.
      */
     protected static final int CLASSIFICATION_POINTS_AWARD = 6;
-    
+
     private static final double VECTOR_DELTA = 1e-2;
 
     /**
@@ -129,6 +132,10 @@ public class SongAPI {
     @Path("{id}/classify")
     @Transactional
     @AwardPoints(CLASSIFICATION_POINTS_AWARD)
+    @RateLimit(rules = {
+            @LimitRule(amount = 1, time = 4, unit = TimeUnit.SECONDS),
+            @LimitRule(amount = 60, time = 1, unit = TimeUnit.DAYS)
+    })
     public ClassificationRequest classifySong(@PathParam("id") final int id,
             final ClassificationRequest classification)
             throws InvalidClassificationException {
@@ -191,6 +198,10 @@ public class SongAPI {
     @Path("{id}/classifygame")
     @Transactional
     @AwardPoints(CLASSIFICATION_POINTS_AWARD)
+    @RateLimit(rules = {
+            @LimitRule(amount = 1, time = 4, unit = TimeUnit.SECONDS),
+            @LimitRule(amount = 60, time = 1, unit = TimeUnit.DAYS)
+    })
     public ClassificationRequest approachSong(@PathParam("id") final int id,
             final ClassificationRequest classification)
             throws InvalidClassificationException {
