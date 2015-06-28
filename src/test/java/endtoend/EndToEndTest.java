@@ -1,25 +1,21 @@
 package endtoend;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
-import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 
-import me.moodcat.backend.UserBackend;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.core.App;
 import me.moodcat.database.bootstrapper.Bootstrapper;
-import me.moodcat.database.controllers.UserDAO;
-import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudIdentifier;
 import me.moodcat.soundcloud.models.MeModel;
 
@@ -27,7 +23,6 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -36,18 +31,20 @@ public abstract class EndToEndTest {
 
     private static App app;
 
-    private static UserDAO userDAO;
+    private static SoundCloudIdentifier soundCloudIdentifier = mock(SoundCloudIdentifier.class);
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        UserBackend mockedUserBackend = setUpUserBackend();
+        MeModel meModel = createMeModel();
+        when(soundCloudIdentifier.getMe(Matchers.eq("asdf"))).thenReturn(meModel);
 
         app = new App(new AbstractModule() {
 
             @Override
             protected void configure() {
-                bind(UserBackend.class).toInstance(mockedUserBackend);
+                bind(SoundCloudIdentifier.class).toInstance(soundCloudIdentifier);
             }
+
         });
 
         app.startServer();
@@ -58,26 +55,17 @@ public abstract class EndToEndTest {
         final Bootstrapper bootstrappper = injector.getInstance(Bootstrapper.class);
         bootstrappper.parseFromResource("/bootstrap/fall-out-boy.json");
 
-        Mockito.when(userDAO.findBySoundcloudId(1337)).thenReturn(bootstrappper.getUser(1));
-
         // Init inserted rooms
         final RoomBackend roomBackend = injector.getInstance(RoomBackend.class);
         roomBackend.initializeRooms();
     }
 
-    private static UserBackend setUpUserBackend() throws SoundCloudException {
+    private static MeModel createMeModel() {
         MeModel meModel = new MeModel();
         meModel.setUsername("System");
         meModel.setFullName("System");
         meModel.setId(1337);
-
-        SoundCloudIdentifier identifier = Mockito.mock(SoundCloudIdentifier.class);
-        Mockito.when(identifier.getMe(Matchers.eq("asdf"))).thenReturn(meModel);
-
-        userDAO = Mockito.mock(UserDAO.class);
-        when(userDAO.findByAccessToken(anyString())).thenThrow(new EntityNotFoundException());
-
-        return new UserBackend(() -> userDAO, identifier);
+        return meModel;
     }
 
     @AfterClass
