@@ -16,8 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.ws.rs.NotFoundException;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
@@ -68,7 +71,7 @@ public class RoomBackendTest extends BackendTest {
             bind(UnitOfWorkSchedulingService.class).to(MockedUnitOfWorkSchedulingService.class);
         }
     }
-
+    
     @Spy
     private Room room;
 
@@ -141,6 +144,11 @@ public class RoomBackendTest extends BackendTest {
     @Test
     public void canSuccesfullyInstantiateRoomInstances() {
         assertNotNull(roomBackend);
+    }
+    
+    @Test(expected = NotFoundException.class)
+    public void whenInvalidRoomIsRequestedThrowException() {
+        this.roomBackend.getRoomInstance(1337);
     }
 
     @Test
