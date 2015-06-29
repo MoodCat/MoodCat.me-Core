@@ -3,6 +3,8 @@ package me.moodcat.backend.rooms;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.ws.rs.NotFoundException;
+
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.backend.UnitOfWorkSchedulingService;
 import me.moodcat.database.controllers.RoomDAO;
@@ -91,7 +93,13 @@ public class RoomBackend extends AbstractLifeCycleListener {
      * @return the room
      */
     public RoomInstance getRoomInstance(final int id) {
-        return roomInstances.get(id);
+        RoomInstance instance = roomInstances.get(id);
+        
+        if (instance == null) {
+            throw new NotFoundException(String.format("Room with id %d does not exist.", id));
+        }
+        
+        return instance;
     }
 
     /**

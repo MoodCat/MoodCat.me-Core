@@ -23,8 +23,23 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
     @Override
     public Response toResponse(final Throwable exception) {
         final UUID id = UUID.randomUUID();
-        log.error(exception.getMessage() + " (" + id + ")", exception);
+        this.logException(exception, id);
         return createResponse(exception, id);
+    }
+
+    /**
+     * Override this method to change the way exceptions are logged on the server.
+     * Useful to determine whether to print the full stacktrace or not.
+     * By default all explicit ExceptionMappers don't print this, however the
+     * {@link ThrowableMapper} does print this.
+     * 
+     * @param exception
+     *            The exception to log.
+     * @param id
+     *            The id of the exception.
+     */
+    protected void logException(final Throwable exception, final UUID id) {
+        log.error(String.format("[%s] %s (%s)", exception.getClass().getName(), exception.getMessage(), id));
     }
 
     protected Response createResponse(final Throwable exception, final UUID id) {
@@ -32,9 +47,9 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
         exceptionResponse.setUuid(id.toString());
 
         return Response.status(getStatusCode())
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .entity(exceptionResponse)
-                .build();
+            .type(MediaType.APPLICATION_JSON_TYPE)
+            .entity(exceptionResponse)
+            .build();
     }
 
     protected ExceptionResponse createResponse(final Throwable exception) {
