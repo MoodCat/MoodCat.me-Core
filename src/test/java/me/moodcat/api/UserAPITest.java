@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import me.moodcat.database.controllers.UserDAO;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import org.junit.Before;
 import org.junit.Test;

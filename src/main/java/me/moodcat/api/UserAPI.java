@@ -12,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import me.moodcat.api.models.UserModel;
 import me.moodcat.database.controllers.UserDAO;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;

@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import me.moodcat.database.embeddables.VAVector;
+import me.moodcat.database.entities.users.User;
 
 /**
  * Classification entity.

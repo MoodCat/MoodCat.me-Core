@@ -21,7 +21,7 @@ import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
 import me.moodcat.util.MockedUnitOfWorkSchedulingService;
 

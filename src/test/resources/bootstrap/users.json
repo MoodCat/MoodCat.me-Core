@@ -4,31 +4,36 @@
 			"id": 100,
 			"username": "Gijs",
 			"soundCloudUserId": 1,
-			"points": 666
+			"points": 666,
+			"admin": true
 		},
 		{
 			"id": 101,
 			"username": "Tim",
 			"soundCloudUserId": 2,
-			"points": 420
+			"points": 420,
+			"admin": true
 		},
 		{
 			"id": 102,
 			"username": "Jan-Willem",
 			"soundCloudUserId": 3,
-			"points": 69
+			"points": 69,
+			"admin": true
 		},
 		{
 			"id": 103,
 			"username": "Eva",
 			"soundCloudUserId": 4,
-			"points": 42
+			"points": 42,
+			"admin": true
 		},
 		{
 			"id": 104,
 			"username": "Jaap",
 			"soundCloudUserId": 5,
-			"points": 13
+			"points": 13,
+			"admin": true
 		}
 		
 	],

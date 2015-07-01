@@ -9,7 +9,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.NotAuthorizedException;
 
 import me.moodcat.database.controllers.UserDAO;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudIdentifier;
 import me.moodcat.soundcloud.models.MeModel;

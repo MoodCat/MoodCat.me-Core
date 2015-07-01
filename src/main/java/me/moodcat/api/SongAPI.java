@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import me.moodcat.api.filters.AdminFiltered;
 import me.moodcat.api.filters.AwardPoints;
 import me.moodcat.api.models.SongModel;
 import me.moodcat.database.controllers.ClassificationDAO;
@@ -21,7 +22,7 @@ import me.moodcat.database.controllers.SongDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Classification;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
@@ -219,6 +220,13 @@ public class SongAPI {
                 .multiply(CLASSIFICATION_WEIGHT);
 
         return songVector.add(scaledDistance);
+    }
+    
+    @POST
+    @Path("add")
+    @AdminFiltered
+    public void addSong(final ClassificationRequest request) {
+        
     }
 
     /**

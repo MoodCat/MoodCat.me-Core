@@ -56,9 +56,10 @@ public abstract class EndToEndTest {
 
         // Bootstrap the database
         final Bootstrapper bootstrappper = injector.getInstance(Bootstrapper.class);
-        bootstrappper.parseFromResource("/bootstrap/fall-out-boy.json");
+        bootstrappper.parseFromResource("/bootstrap/test-bootstrapper.json");
 
-        Mockito.when(userDAO.findBySoundcloudId(1337)).thenReturn(bootstrappper.getUser(1));
+        Mockito.when(userDAO.findBySoundcloudId(Matchers.eq(1337))).thenReturn(bootstrappper.getUser(1));
+        Mockito.when(userDAO.findBySoundcloudId(Matchers.eq(42))).thenReturn(bootstrappper.getUser(2));
 
         // Init inserted rooms
         final RoomBackend roomBackend = injector.getInstance(RoomBackend.class);
@@ -73,6 +74,12 @@ public abstract class EndToEndTest {
 
         SoundCloudIdentifier identifier = Mockito.mock(SoundCloudIdentifier.class);
         Mockito.when(identifier.getMe(Matchers.eq("asdf"))).thenReturn(meModel);
+        
+        MeModel meModel2 = new MeModel();
+        meModel2.setUsername("NormalUser");
+        meModel2.setFullName("NormalUser");
+        meModel2.setId(42);
+        Mockito.when(identifier.getMe(Matchers.eq("user"))).thenReturn(meModel2);
 
         userDAO = Mockito.mock(UserDAO.class);
         when(userDAO.findByAccessToken(anyString())).thenThrow(new EntityNotFoundException());

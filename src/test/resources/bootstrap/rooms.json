@@ -3,7 +3,8 @@
 		{
 			"id": 1,
 			"username": "System",
-			"points": 10
+			"points": 10,
+			"admin": true
 		}
 	],
 	"artists":[
