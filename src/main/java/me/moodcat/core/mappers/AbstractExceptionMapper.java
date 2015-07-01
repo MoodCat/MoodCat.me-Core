@@ -46,7 +46,7 @@ public abstract class AbstractExceptionMapper<T extends Throwable> implements Ex
         final ExceptionResponse exceptionResponse = createResponse(exception);
         exceptionResponse.setUuid(id.toString());
 
-        return Response.status(getStatusCode())
+        return Response.status(this.getStatusCode())
             .type(MediaType.APPLICATION_JSON_TYPE)
             .entity(exceptionResponse)
             .build();

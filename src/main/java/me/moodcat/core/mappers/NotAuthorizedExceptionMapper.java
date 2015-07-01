@@ -1,6 +1,6 @@
 package me.moodcat.core.mappers;
 
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
@@ -16,7 +16,7 @@ public class NotAuthorizedExceptionMapper extends AbstractExceptionMapper<NotAut
 
     @Override
     public Response.Status getStatusCode() {
-        return FORBIDDEN;
+        return UNAUTHORIZED;
     }
 
 }

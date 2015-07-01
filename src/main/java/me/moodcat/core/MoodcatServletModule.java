@@ -2,7 +2,6 @@ package me.moodcat.core;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.NotAuthorizedException;
@@ -107,6 +106,6 @@ public class MoodcatServletModule extends ServletModule {
     @Named("current.user")
     @RequestScoped
     public User provideCurrentUser() {
-        throw new NotAuthorizedException("user id must be manually seeded");
+        throw new NotAuthorizedException("User id must be manually seeded.", "");
     }
 }

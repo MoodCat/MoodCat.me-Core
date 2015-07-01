@@ -11,6 +11,6 @@ public class NotAuthorizedExceptionMapperTest extends ExceptionMapperTest<NotAut
 
 	    @Override
 	    protected Status getResponseStatus() {
-	        return Status.FORBIDDEN;
+	        return Status.UNAUTHORIZED;
 	    }
 	}
