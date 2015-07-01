@@ -10,6 +10,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class ProfanityCheckerTest {
 
+    private static final String PROFANITY_PUNCTUATION = "fuck this shit!";
+
+    private static final String PROFANITY_PUNCTUATION_CENSORED = "**** this ****!";
+
     final static String PROFANITY_WORD = "fuck";
 
     final static String PROFANITY_WORD_CENSORED = "****";
@@ -52,5 +56,18 @@ public class ProfanityCheckerTest {
     public void testProfanityLeet() {
         assertEquals(PROFANITY_LEET_CENSORED, profanityChecker.clearProfanity(PROFANITY_LEET));
     }
+    
+    @Test
+    public void testProfanityWithPunctuation() {
+        assertEquals(PROFANITY_PUNCTUATION_CENSORED, profanityChecker.clearProfanity(PROFANITY_PUNCTUATION));
+    }
+    
+    @Test(timeout = 1000)
+    public void testProfanityCanProcessAtLeast250MessagesPerSecond() {
+        for (int i = 0; i < 250; i++) {
+            profanityChecker.clearProfanity(PROFANITY_PUNCTUATION);
+        }
+    }
+    
 
 }

@@ -44,16 +44,31 @@ public class ProfanityChecker {
      *            the message to filter.
      * @return the censored messaged.
      */
-    public String clearProfanity(String message) {
+    public String clearProfanity(final String message) {
+        StringBuilder builder = new StringBuilder();
+        
         String[] words = message.split("\\s");
+        
         for (String word : words) {
-            for (String pattern : profanityPatterns) {
-                if (word.toLowerCase().matches(pattern)) {
-                    message = message.replaceAll(word, makeStars(word.length()));
-                }
+            String actualWord = word.toLowerCase().replaceAll("\\W+", "");
+            
+            checkPatterns(word, actualWord, builder);
+            
+            builder.append(' ');
+        }
+        
+        return builder.substring(0, builder.length() - 1).toString();
+    }
+    
+    private void checkPatterns(final String word, final String actualWord, final StringBuilder builder) {
+        for (String pattern : profanityPatterns) {
+            if (actualWord.matches(pattern)) {
+                builder.append(word.replaceAll("\\w+", makeStars(actualWord.length())));
+                return;
             }
         }
-        return message;
+        
+        builder.append(word);
     }
 
     /**
