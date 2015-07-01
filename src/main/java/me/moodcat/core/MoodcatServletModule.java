@@ -102,10 +102,22 @@ public class MoodcatServletModule extends ServletModule {
         }
     }
 
+    /**
+     * Initially throw an exception when the user is not logged in and the current user is requested.
+     * 
+     * @return None. Throws exception.
+     */
     @Provides
     @Named("current.user")
     @RequestScoped
     public User provideCurrentUser() {
+        /*
+         * The second parameter is required in order to distinguish Constructors between
+         * the default constructor NotAuthorizedException(java.lang.Object, java.lang.Object...)
+         * and the constructor that actually uses the message
+         * NotAuthorizedException(java.lang.String, java.lang.Object, java.lang.Object...).
+         * Else the provided message wouldn't be logged.
+         */
         throw new NotAuthorizedException("User id must be manually seeded.", "");
     }
 }

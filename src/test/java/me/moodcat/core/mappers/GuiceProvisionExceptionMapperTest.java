@@ -2,7 +2,6 @@ package me.moodcat.core.mappers;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -19,8 +18,6 @@ public class GuiceProvisionExceptionMapperTest extends
         ExceptionMapperTest<ProvisionException> {
 
     private static final NotAuthorizedExceptionMapper NOT_AUTHORIZED_MAPPER = mock(NotAuthorizedExceptionMapper.class);
-
-    private static final Exception GENERAL_EXCEPTION = mock(Exception.class);
 
     private static final NotAuthorizedException NOT_AUTHORIZED_EXCEPTION = new NotAuthorizedException("", "");
 

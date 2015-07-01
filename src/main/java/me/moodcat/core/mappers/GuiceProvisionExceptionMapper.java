@@ -36,7 +36,12 @@ public class GuiceProvisionExceptionMapper extends
     protected Response createResponse(final Throwable exception, final UUID id) {
         Throwable cause = exception.getCause();
         
-        if (cause != null) {
+        /*
+         * If we can find a cause and we have a pre-defined mapper for it.
+         * If the 2nd check would be omitted, we could generate a NPE
+         * which we don't want in a mapper.
+         */
+        if (cause != null && mappers.containsKey(cause.getClass())) {
             return mappers.get(cause.getClass()).createResponse(cause, id);
         }
         
