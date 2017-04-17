@@ -14,7 +14,7 @@ import me.moodcat.backend.UnitOfWorkSchedulingServiceImpl;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomBackendModule;
 import me.moodcat.database.DbModule;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.jboss.resteasy.plugins.guice.ext.JaxrsModule;

@@ -6,7 +6,7 @@ import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import org.junit.Before;
 import org.junit.Test;

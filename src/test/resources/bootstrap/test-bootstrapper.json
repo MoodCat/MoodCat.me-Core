@@ -4,7 +4,17 @@
 			"id": 1,
 			"username": "System",
 			"points": 10,
-			"accessToken": "asdf"
+			"accessToken": "asdf",
+			"soundCloudUserId": 1337,
+			"admin": true
+		},
+		{
+			"id": 2,
+			"username": "NormalUser",
+			"points": 10,
+			"accessToken": "user",
+			"soundCloudUserId": 42,
+			"admin": false
 		}
 	],
 	"artists":[

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.ArtistDAO;
@@ -16,7 +17,9 @@ import me.moodcat.database.entities.Artist;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.AdminRights;
+import me.moodcat.database.entities.users.User;
+import me.moodcat.database.entities.users.UserRights;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,6 +103,8 @@ public class Bootstrapper {
         private Integer points;
         
         private String accessToken;
+        
+        private Boolean admin;
 
     }
 
@@ -190,6 +195,13 @@ public class Bootstrapper {
         user.setSoundCloudUserId(bUser.getSoundCloudUserId());
         user.setPoints(bUser.getPoints());
         user.setAccessToken(bUser.getAccessToken());
+        
+        if (bUser.getAdmin().booleanValue()) {
+            user.setAdminStatus(new AdminRights());
+        } else {
+            user.setAdminStatus(new UserRights());
+        }
+        
         User persistedUser = userDAO.merge(user);
         persistedUsers.put(persistedUser.getId(), persistedUser);
         log.info("Bootstrapper created user {}", persistedUser);

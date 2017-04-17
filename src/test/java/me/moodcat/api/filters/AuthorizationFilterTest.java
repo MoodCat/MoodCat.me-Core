@@ -18,7 +18,7 @@ import javax.ws.rs.core.UriInfo;
 
 import me.moodcat.backend.UserBackend;
 import me.moodcat.core.mappers.NotAuthorizedExceptionMapper;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import org.junit.Before;
 import org.junit.Test;

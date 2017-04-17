@@ -18,7 +18,6 @@ import java.util.Random;
  */
 @Data
 @Embeddable
-@EqualsAndHashCode
 @NoArgsConstructor
 public class VAVector {
 

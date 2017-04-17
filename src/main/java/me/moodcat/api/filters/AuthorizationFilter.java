@@ -12,7 +12,7 @@ import javax.ws.rs.ext.Provider;
 
 import me.moodcat.backend.UserBackend;
 import me.moodcat.core.mappers.NotAuthorizedExceptionMapper;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;

@@ -3,7 +3,7 @@ package me.moodcat.backend.rooms;
 import me.moodcat.database.controllers.UserDAO;
 import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.Room;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

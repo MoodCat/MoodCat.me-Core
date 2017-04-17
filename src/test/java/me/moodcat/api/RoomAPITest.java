@@ -21,7 +21,7 @@ import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 
 import me.moodcat.database.entities.Classification;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;

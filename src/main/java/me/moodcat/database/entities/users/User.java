@@ -1,13 +1,20 @@
-package me.moodcat.database.entities;
+package me.moodcat.database.entities.users;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+
+
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -82,6 +89,9 @@ public class User {
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "access_token", nullable = true)
     private String accessToken;
+    
+    @OneToOne
+    private AdminStatus adminStatus;
 
     /**
      * Updates the points for the user.

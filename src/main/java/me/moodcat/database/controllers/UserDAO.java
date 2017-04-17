@@ -1,13 +1,13 @@
 package me.moodcat.database.controllers;
 
-import static me.moodcat.database.entities.QUser.user;
+import static me.moodcat.database.entities.users.QUser.user;
 
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import com.google.inject.persist.Transactional;
 

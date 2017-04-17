@@ -4,7 +4,8 @@
 			"id": 1,
 			"username": "System",
 			"points": 10,
-			"accessToken": "asdf"
+			"accessToken": "asdf",
+			"admin": true
 		}
 	],
 	"artists":[

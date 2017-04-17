@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import me.moodcat.database.DatabaseTestModule;
 import me.moodcat.database.bootstrapper.BootstrapRule;
 import me.moodcat.database.bootstrapper.TestBootstrap;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 
 import org.jukito.JukitoRunner;
 import org.jukito.UseModules;

@@ -5,7 +5,7 @@ import javax.ws.rs.NotAuthorizedException;
 
 import lombok.extern.slf4j.Slf4j;
 import me.moodcat.database.controllers.UserDAO;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 import me.moodcat.soundcloud.SoundCloudException;
 import me.moodcat.soundcloud.SoundCloudIdentifier;
 import me.moodcat.soundcloud.models.MeModel;

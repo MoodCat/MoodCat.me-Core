@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
+import me.moodcat.database.entities.users.User;
 
 /**
  * A chat message for a room.

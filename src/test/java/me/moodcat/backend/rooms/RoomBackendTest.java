@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import me.moodcat.api.ProfanityChecker;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.backend.BackendTest;
@@ -31,7 +32,7 @@ import me.moodcat.database.entities.ChatMessage;
 import me.moodcat.database.entities.ChatMessageEmbeddable;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 import me.moodcat.util.JukitoRunnerSupportingMockAnnotations;
 import me.moodcat.util.MockedUnitOfWorkSchedulingService;
 

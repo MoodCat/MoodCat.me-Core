@@ -24,7 +24,7 @@ import me.moodcat.database.controllers.RoomDAO;
 import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
-import me.moodcat.database.entities.User;
+import me.moodcat.database.entities.users.User;
 import me.moodcat.backend.Vote;
 
 import com.google.common.annotations.VisibleForTesting;
