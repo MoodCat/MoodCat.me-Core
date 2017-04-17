@@ -1,6 +1,7 @@
 package me.moodcat.api;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -14,10 +15,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import me.moodcat.api.filters.AwardPoints;
+import me.moodcat.api.filters.LimitRule;
+import me.moodcat.api.filters.RateLimit;
 import me.moodcat.api.models.ChatMessageModel;
 import me.moodcat.api.models.NowPlaying;
 import me.moodcat.api.models.RoomModel;
 import me.moodcat.api.models.SongModel;
+import me.moodcat.backend.Vote;
 import me.moodcat.backend.rooms.RoomBackend;
 import me.moodcat.backend.rooms.RoomInstance;
 import me.moodcat.database.controllers.RoomDAO;
@@ -25,7 +29,6 @@ import me.moodcat.database.embeddables.VAVector;
 import me.moodcat.database.entities.Room;
 import me.moodcat.database.entities.Song;
 import me.moodcat.database.entities.User;
-import me.moodcat.backend.Vote;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
@@ -178,7 +181,7 @@ public class RoomAPI {
             throw new IllegalArgumentException("The chat message may not be longer than "
                     + MAXIMUM_CHAT_MESSAGE_LENGTH + " characters.");
         }
-        
+
         return backend.getRoomInstance(roomId).sendMessage(msg, currentUserProvider.get());
     }
 
@@ -208,12 +211,15 @@ public class RoomAPI {
      *
      * @param vote
      *            The vote.
-     * @return The song object, if the process was succesful.
+     * @return The song object, if the process was successful.
      */
     @POST
     @Path("{id}/vote/{vote}")
     @Transactional
     @AwardPoints(VOTES_POINTS_AWARD)
+    @RateLimit(rules = {
+            @LimitRule(amount = 1, time = 10, unit = TimeUnit.SECONDS)
+    })
     public RoomModel voteSong(@PathParam("id") final int roomId,
             @PathParam("vote") final String vote) {
         final RoomInstance roomInstance = this.backend.getRoomInstance(roomId);
