@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import javax.ws.rs.core.Response;
 
+import me.moodcat.api.models.ExceptionResponse;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,7 +34,7 @@ public abstract class ExceptionMapperTest<T extends Throwable> {
     @Test
     public void testToResponse() throws Exception {
         final Response response = mapper.toResponse(exception);
-        final AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
+        final ExceptionResponse responseEntity = (ExceptionResponse) response
                 .getEntity();
         assertEquals(responseEntity.getMessage(), exception.getMessage());
     }
@@ -42,7 +44,7 @@ public abstract class ExceptionMapperTest<T extends Throwable> {
         final String message = "Test Message";
         Mockito.when(exception.getMessage()).thenReturn(message);
         final Response response = mapper.toResponse(exception);
-        final AbstractExceptionMapper.ExceptionResponse responseEntity = (AbstractExceptionMapper.ExceptionResponse) response
+        final ExceptionResponse responseEntity = (ExceptionResponse) response
                 .getEntity();
         assertEquals(responseEntity.getMessage(), message);
     }

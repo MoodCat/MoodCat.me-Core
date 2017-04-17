@@ -3,6 +3,8 @@ package me.moodcat.soundcloud;
 import javax.ws.rs.client.Client;
 
 import lombok.SneakyThrows;
+import me.moodcat.util.Invocation;
+
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 import java.net.URLEncoder;
