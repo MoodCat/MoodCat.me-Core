@@ -12,6 +12,8 @@ import junitx.extensions.EqualsHashCodeTestCase;
 
 @RunWith(Enclosed.class)
 public class ChatMessageInstanceTest {
+    
+    private static final long time = System.currentTimeMillis();
 
     public static class ChatMessageInstanceEqualsTest extends EqualsHashCodeTestCase {
 
@@ -25,7 +27,7 @@ public class ChatMessageInstanceTest {
             model.setAuthor("user1");
             model.setId(1);
             model.setMessage("hi");
-            model.setTimestamp(System.currentTimeMillis());
+            model.setTimestamp(time);
 
             return new ChatMessageInstance(1, model);
         }
@@ -36,7 +38,7 @@ public class ChatMessageInstanceTest {
             model.setAuthor("user1");
             model.setId(1);
             model.setMessage("hi too!");
-            model.setTimestamp(System.currentTimeMillis());
+            model.setTimestamp(time);
 
             return new ChatMessageInstance(1, model);
         }
